@@ -9,7 +9,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-nodex-teal text-nodex-bg hover:bg-nodex-teal/90 hover:shadow-[0_0_30px_rgba(77,230,201,0.4)] active:scale-[0.98]',
+          'bg-nodex-teal text-nodex-on-accent hover:bg-nodex-teal/90 hover:shadow-[0_0_30px_rgba(77,230,201,0.4)] active:scale-[0.98]',
         outline:
           'border border-nodex-teal text-nodex-teal bg-transparent hover:bg-nodex-teal/10 hover:shadow-[0_0_20px_rgba(77,230,201,0.2)]',
         ghost: 'text-white hover:text-nodex-teal hover:bg-white/5',

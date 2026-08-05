@@ -377,6 +377,7 @@ export interface WatchlistToken {
   contract: string
   name: string
   symbol: string
+  imageUrl?: string
   chain: string
   price: number
   marketCap: number

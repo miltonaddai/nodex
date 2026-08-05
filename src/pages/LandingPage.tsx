@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { BellRing, ChartNoAxesCombined, Check, ChevronDown, Search, ShieldCheck } from 'lucide-react'
+import { ArrowRight, BellRing, ChartNoAxesCombined, Check, ChevronDown, Search, ShieldCheck } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Navbar } from '@/components/layout/Navbar'
 import { GlassPanel } from '@/components/layout/GlassPanel'
@@ -118,8 +118,14 @@ export function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
             >
-              <Button asChild size="lg" className="h-16 px-12 text-lg tracking-widest">
-                <Link to="/signup">Get Started</Link>
+              <Button asChild size="lg" className="group h-16 px-12 text-lg tracking-widest">
+                <Link to="/signup">
+                  Get Started
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="h-5 w-5 transition-transform duration-300 ease-out group-hover:translate-x-1.5"
+                  />
+                </Link>
               </Button>
             </motion.div>
             </motion.div>
@@ -191,7 +197,7 @@ export function LandingPage() {
                     <div className="mb-8 flex items-center justify-between">
                       <h3 className="text-xl font-semibold">NodeX {plan.name}</h3>
                       {plan.featured && (
-                        <span className="rounded-full bg-nodex-teal px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-nodex-bg">
+                        <span className="rounded-full bg-nodex-teal px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-nodex-on-accent">
                           Most popular
                         </span>
                       )}

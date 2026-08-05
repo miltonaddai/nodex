@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Check, Trash2, X } from 'lucide-react'
+import { Check, Copy, Trash2, X } from 'lucide-react'
+import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { type WatchlistToken } from '@/lib/api'
 import { cn, formatCurrency, truncateAddress } from '@/lib/utils'
 
@@ -13,6 +14,26 @@ const AVATAR_COLORS = [
   'bg-purple-500',
 ]
 
+function formatTokenAge(launchedAt?: string, fallbackDays?: number): string | null {
+  if (launchedAt) {
+    const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(launchedAt)
+    const normalized = hasTimezone ? launchedAt : `${launchedAt.replace(' ', 'T')}Z`
+    const launchedAtMs = Date.parse(normalized)
+
+    if (Number.isFinite(launchedAtMs)) {
+      const ageMinutes = Math.max(0, Math.floor((Date.now() - launchedAtMs) / 60_000))
+      if (ageMinutes < 1) return '<1m old'
+      if (ageMinutes < 60) return `${ageMinutes}m old`
+
+      const ageHours = Math.floor(ageMinutes / 60)
+      if (ageHours < 24) return `${ageHours}h old`
+      return `${Math.floor(ageHours / 24)}d old`
+    }
+  }
+
+  return fallbackDays === undefined ? null : `${fallbackDays}d old`
+}
+
 interface TokenCardProps {
   token: WatchlistToken
   index: number
@@ -23,10 +44,12 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
   const [error, setError] = useState<string | null>(null)
   const [confirmingRemove, setConfirmingRemove] = useState(false)
   const [removing, setRemoving] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   // The token is still on the watchlist, we just have no analytics to show for it. Tokens age
   // out of the recent-token window the tokens table ranks on, so this is expected over time.
   const noData = token.analyticsUnavailable === true
+  const tokenAge = formatTokenAge(token.launchedAt, token.ageDays)
 
   const removeToken = async () => {
     setRemoving(true)
@@ -40,6 +63,16 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
     }
   }
 
+  const copyContract = async () => {
+    try {
+      await navigator.clipboard.writeText(token.contract)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1500)
+    } catch {
+      setCopied(false)
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -49,18 +82,39 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
     >
       <div className="flex items-start justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div
-            className={cn(
-              'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white',
-              AVATAR_COLORS[index % AVATAR_COLORS.length]
-            )}
-          >
-            {token.symbol[0] ?? '?'}
-          </div>
+          <TokenAvatar
+            imageUrl={token.imageUrl}
+            symbol={token.symbol}
+            fallbackClassName={AVATAR_COLORS[index % AVATAR_COLORS.length]}
+            className="h-10 w-10 text-sm"
+          />
           <div className="min-w-0">
             <div className="truncate text-sm font-semibold">{token.symbol}</div>
-            <div className="truncate text-xs text-nodex-muted">
-              {token.name} · {truncateAddress(token.contract)}
+            <div className="truncate text-xs text-nodex-muted">{token.name}</div>
+            <div className="group/contract flex items-center gap-1.5 text-xs text-nodex-muted">
+              <a
+                href={`https://dexscreener.com/solana/${encodeURIComponent(token.contract)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Open token in Dexscreener"
+                className="underline-offset-4 hover:text-nodex-teal hover:underline focus-visible:text-nodex-teal focus-visible:underline focus-visible:outline-none"
+              >
+                {truncateAddress(token.contract)}
+              </a>
+              <button
+                type="button"
+                onClick={() => void copyContract()}
+                aria-label={copied ? 'Contract address copied' : 'Copy contract address'}
+                title={copied ? 'Copied' : 'Copy contract address'}
+                className={cn(
+                  'rounded p-0.5 opacity-0 transition-all group-hover/contract:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nodex-teal/50',
+                  copied
+                    ? 'text-nodex-green opacity-100'
+                    : 'hover:bg-nodex-teal/10 hover:text-nodex-teal'
+                )}
+              >
+                {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+              </button>
             </div>
             {error ? <div className="mt-1 text-[10px] text-nodex-red">{error}</div> : null}
           </div>
@@ -140,8 +194,8 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
         <span>
           {noData
             ? 'No analytics data yet'
-            : token.ageDays !== undefined
-              ? `${token.ageDays}d old · churn ${token.churn.toFixed(2)}`
+            : tokenAge
+              ? `${tokenAge} · churn ${token.churn.toFixed(2)}`
               : `Churn ${token.churn.toFixed(2)}`}
         </span>
         <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/5">

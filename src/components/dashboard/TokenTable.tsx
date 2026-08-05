@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion'
+import { Check, Copy } from 'lucide-react'
+import { useState } from 'react'
 import { GlassPanel } from '@/components/layout/GlassPanel'
 import { TokenTableSkeleton } from '@/components/dashboard/TokenTableSkeleton'
 import { SortableHeader, type SortOrder } from '@/components/dashboard/SortableHeader'
@@ -32,6 +34,48 @@ function formatTokenAge(launchedAt?: string, fallbackDays?: number): string {
     }
   }
   return fallbackDays === undefined ? '—' : `${fallbackDays}d`
+}
+
+function ContractCell({ contract }: { contract: string }) {
+  const [copied, setCopied] = useState(false)
+
+  const copyContract = async () => {
+    try {
+      await navigator.clipboard.writeText(contract)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1500)
+    } catch {
+      setCopied(false)
+    }
+  }
+
+  return (
+    <div className="group/contract flex items-center gap-2">
+      <a
+        href={`https://dexscreener.com/solana/${encodeURIComponent(contract)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Open token in Dexscreener"
+        className="underline-offset-4 hover:text-nodex-teal hover:underline focus-visible:text-nodex-teal focus-visible:underline focus-visible:outline-none"
+      >
+        {truncateAddress(contract)}
+      </a>
+      <button
+        type="button"
+        onClick={() => void copyContract()}
+        aria-label={copied ? 'Contract address copied' : 'Copy contract address'}
+        title={copied ? 'Copied' : 'Copy contract address'}
+        className={cn(
+          'flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-transparent opacity-0 transition-all duration-200 group-hover/contract:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nodex-teal/50',
+          copied
+            ? 'text-nodex-green opacity-100'
+            : 'text-nodex-muted hover:border-nodex-teal/30 hover:bg-nodex-teal/10 hover:text-nodex-teal'
+        )}
+      >
+        {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+      </button>
+    </div>
+  )
 }
 
 export type TokenSortKey = 'churn' | 'alphaScore' | 'marketCap' | 'price' | 'changePct' | 'volume' | 'holders' | 'liquidity' | 'launchedAt' | 'name'
@@ -168,15 +212,7 @@ export function TokenTable({
                     )}
                   </td>
                   <td className="px-4 py-4 text-sm text-nodex-muted">
-                    <a
-                      href={`https://dexscreener.com/solana/${encodeURIComponent(token.contract)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="Open token in Dexscreener"
-                      className="underline-offset-4 hover:text-nodex-teal hover:underline focus-visible:text-nodex-teal focus-visible:underline focus-visible:outline-none"
-                    >
-                      {truncateAddress(token.contract)}
-                    </a>
+                    <ContractCell contract={token.contract} />
                   </td>
                   <td className="px-4 py-4 text-sm">${token.price.toFixed(token.price < 0.01 ? 5 : 2)}</td>
                   <td className="px-4 py-4 text-sm">{formatCurrency(token.marketCap, true)}</td>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Check, Pencil, Trash2, X } from 'lucide-react'
+import { Check, ExternalLink, Pencil, Trash2, X } from 'lucide-react'
 import { type WatchlistWallet } from '@/lib/api'
 import { cn, formatCurrency, formatPnl, truncateAddress } from '@/lib/utils'
 
@@ -135,7 +135,19 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
                 </button>
               </div>
             )}
-            <div className="text-xs text-nodex-muted">{truncateAddress(wallet.address)}</div>
+            <a
+              href={`https://solscan.io/account/${encodeURIComponent(wallet.address)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open wallet in Solscan"
+              className="group/address flex w-fit items-center gap-1 text-xs text-nodex-muted underline-offset-4 hover:text-nodex-teal hover:underline focus-visible:text-nodex-teal focus-visible:underline focus-visible:outline-none"
+            >
+              {truncateAddress(wallet.address)}
+              <ExternalLink
+                aria-hidden="true"
+                className="h-3 w-3 opacity-0 transition-opacity group-hover/address:opacity-100 group-focus-visible/address:opacity-100"
+              />
+            </a>
             {error ? <div className="mt-1 text-[10px] text-nodex-red">{error}</div> : null}
           </div>
         </div>

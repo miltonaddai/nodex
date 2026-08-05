@@ -74,7 +74,7 @@ export function AdvancedFiltersButton<TFilters extends object>({
           <Filter className="h-4 w-4" />
           Filters
           {activeCount > 0 ? (
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-nodex-teal px-1.5 text-[10px] font-bold text-black">
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-nodex-teal px-1.5 text-[10px] font-bold text-nodex-on-accent">
               {activeCount}
             </span>
           ) : null}
@@ -83,7 +83,7 @@ export function AdvancedFiltersButton<TFilters extends object>({
       <DropdownMenuContent
         align="start"
         sideOffset={8}
-        className="max-h-[min(70vh,620px)] w-[min(calc(100vw-2rem),36rem)] overflow-y-auto border-white/10 bg-[#10181b]/95 p-4 backdrop-blur-xl"
+        className="max-h-[min(70vh,620px)] w-[min(calc(100vw-2rem),36rem)] overflow-y-auto border-white/10 bg-nodex-surface/95 p-4 text-white backdrop-blur-xl"
       >
         <form
           onSubmit={(event) => {

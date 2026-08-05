@@ -209,7 +209,7 @@ export function PricingPage() {
                   featured={plan.popular}
                 >
                   {plan.popular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-nodex-teal text-nodex-bg text-xs font-bold tracking-wider uppercase">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-nodex-teal text-nodex-on-accent text-xs font-bold tracking-wider uppercase">
                       Most Popular
                     </span>
                   )}
@@ -269,7 +269,7 @@ export function PricingPage() {
                 <>
                   {' '}
                   ·{' '}
-                  <Link to="/wallets" className="text-nodex-teal hover:underline">
+                  <Link to="/tokens" className="text-nodex-teal hover:underline">
                     Go to dashboard
                   </Link>
                 </>

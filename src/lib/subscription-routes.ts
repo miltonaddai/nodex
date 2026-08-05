@@ -1,6 +1,7 @@
 /** Where users without an active plan are sent to purchase a subscription. */
 export const SELECT_PLAN_PATH = '/pricing'
 export const SELECT_PLAN_WELCOME_PATH = '/pricing?welcome=1'
+export const DASHBOARD_HOME_PATH = '/tokens'
 
 /** No authentication required. */
 export const PUBLIC_PATHS = ['/', '/login', '/signup'] as const

@@ -68,7 +68,7 @@ export function PricingSuccessPage() {
               )}
               <Button
                 className="w-full"
-                onClick={() => navigate(hasActivePlan ? '/wallets' : '/pricing')}
+                onClick={() => navigate(hasActivePlan ? '/tokens' : '/pricing')}
               >
                 {hasActivePlan ? 'Go to dashboard' : 'Back to plans'}
               </Button>

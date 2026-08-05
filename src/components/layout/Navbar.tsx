@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 // SUBSCRIPTIONS DISABLED — CreditCard is only used by the commented-out Billing menu item.
-import { Wallet, Coins, Star, LogOut /*, CreditCard */ } from 'lucide-react'
+import { Wallet, Coins, Star, LogOut, Moon, Sun /*, CreditCard */ } from 'lucide-react'
 import { LiquidGlass } from './LiquidGlass'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -11,7 +11,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/context/auth-context'
+import { useTheme } from '@/context/theme-context'
 import { isActiveSubscription } from '@/lib/plans'
+import { DASHBOARD_HOME_PATH } from '@/lib/subscription-routes'
 import { cn } from '@/lib/utils'
 
 interface NavbarProps {
@@ -19,8 +21,8 @@ interface NavbarProps {
 }
 
 const navItems = [
-  { label: 'Wallets', path: '/wallets', icon: Wallet },
   { label: 'Tokens', path: '/tokens', icon: Coins },
+  { label: 'Wallets', path: '/wallets', icon: Wallet },
   { label: 'Watchlist', path: '/watchlist', icon: Star },
 ]
 
@@ -35,6 +37,7 @@ export function Navbar({ variant = 'public' }: NavbarProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, isAuthenticated, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const hasActivePlan = isActiveSubscription(user)
 
   const handleLogout = () => {
@@ -72,6 +75,18 @@ export function Navbar({ variant = 'public' }: NavbarProps) {
       </DropdownMenuContent>
     </DropdownMenu>
   ) : null
+
+  const themeToggle = (
+    <button
+      type="button"
+      onClick={toggleTheme}
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 text-white/70 transition-all duration-300 hover:border-nodex-teal/40 hover:bg-white/5 hover:text-nodex-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nodex-teal/50"
+      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+    >
+      {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+    </button>
+  )
 
   return (
     <motion.header
@@ -115,6 +130,7 @@ export function Navbar({ variant = 'public' }: NavbarProps) {
                   </Link>
                 )
               })}
+              {themeToggle}
               {avatar}
             </div>
           ) : variant === 'dashboard' ? (
@@ -125,16 +141,18 @@ export function Navbar({ variant = 'public' }: NavbarProps) {
               >
                 Pick a plan
               </Link>
+              {themeToggle}
               {avatar}
             </div>
           ) : isAuthenticated ? (
             <div className="flex items-center gap-3">
               <Link
-                to={hasActivePlan ? '/wallets' : '/pricing'}
+                to={hasActivePlan ? DASHBOARD_HOME_PATH : '/pricing'}
                 className="text-sm text-white/80 hover:text-nodex-teal transition-colors duration-300"
               >
                 {hasActivePlan ? 'Dashboard' : 'Pick a plan'}
               </Link>
+              {themeToggle}
               {avatar}
             </div>
           ) : (
@@ -151,6 +169,7 @@ export function Navbar({ variant = 'public' }: NavbarProps) {
               >
                 Sign up
               </Link>
+              {themeToggle}
             </div>
           )}
         </nav>

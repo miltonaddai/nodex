@@ -8,7 +8,11 @@ import { Button } from '@/components/ui/button'
 import { IconInput } from '@/components/ui/icon-input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/context/auth-context'
-import { SELECT_PLAN_PATH, SELECT_PLAN_WELCOME_PATH } from '@/lib/subscription-routes'
+import {
+  DASHBOARD_HOME_PATH,
+  SELECT_PLAN_PATH,
+  SELECT_PLAN_WELCOME_PATH,
+} from '@/lib/subscription-routes'
 import { SUBSCRIPTIONS_ENABLED } from '@/lib/subscriptions-enabled'
 
 export function SignupPage() {
@@ -37,7 +41,7 @@ export function SignupPage() {
       // SUBSCRIPTIONS DISABLED — there is no plan to pick, so go straight to the dashboard.
       // The paywall path below is restored by flipping VITE_SUBSCRIPTIONS_ENABLED back on.
       if (!SUBSCRIPTIONS_ENABLED) {
-        navigate('/wallets', { replace: true })
+        navigate(DASHBOARD_HOME_PATH, { replace: true })
         return
       }
 

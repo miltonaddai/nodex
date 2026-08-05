@@ -9,7 +9,7 @@ import { IconInput } from '@/components/ui/icon-input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/context/auth-context'
 import { isActiveSubscription } from '@/lib/plans'
-import { SELECT_PLAN_WELCOME_PATH } from '@/lib/subscription-routes'
+import { DASHBOARD_HOME_PATH, SELECT_PLAN_WELCOME_PATH } from '@/lib/subscription-routes'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -42,7 +42,7 @@ export function LoginPage() {
         return
       }
 
-      navigate(hasPlan ? '/wallets' : SELECT_PLAN_WELCOME_PATH, { replace: true })
+      navigate(hasPlan ? DASHBOARD_HOME_PATH : SELECT_PLAN_WELCOME_PATH, { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {
