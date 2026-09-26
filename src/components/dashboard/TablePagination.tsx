@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -83,7 +84,38 @@ export function TablePagination({ page, pageSize, total, onPageChange, disabled 
   )
 }
 
-export function LastUpdated({ value }: { value: string | null }) {
+function formatCountdown(ms: number): string {
+  const totalSeconds = Math.floor(ms / 1000)
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return hours > 0 ? `${hours}h ${pad(minutes)}m ${pad(seconds)}s` : `${minutes}m ${pad(seconds)}s`
+}
+
+/** Live countdown to the worker's next scheduled data refresh. */
+function NextUpdateCountdown({ value }: { value: string }) {
+  const target = new Date(value).getTime()
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  if (Number.isNaN(target)) return null
+  const remaining = target - now
+  if (remaining <= 0) {
+    return <span className="text-nodex-teal">Update in progress — new data shortly</span>
+  }
+  return (
+    <span>
+      Next update in <span className="tabular-nums text-nodex-teal">{formatCountdown(remaining)}</span>
+    </span>
+  )
+}
+
+export function LastUpdated({ value, nextUpdate }: { value: string | null; nextUpdate?: string | null }) {
   if (!value) {
     return <p className="mt-3 text-xs text-nodex-muted">Demo data — live sync not available</p>
   }
@@ -99,6 +131,12 @@ export function LastUpdated({ value }: { value: string | null }) {
   return (
     <p className="mt-3 text-xs text-nodex-muted">
       Last updated {label} · {date.toLocaleString()}
+      {nextUpdate && (
+        <>
+          {' · '}
+          <NextUpdateCountdown value={nextUpdate} />
+        </>
+      )}
     </p>
   )
 }

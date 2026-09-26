@@ -46,6 +46,7 @@ export function TokensPage() {
     pageSize,
     total,
     lastUpdated,
+    nextUpdate,
     changeColumnLabel,
     period,
     chain,
@@ -106,7 +107,7 @@ export function TokensPage() {
           onSort={setSort}
           onPageChange={setPage}
         />
-        <LastUpdated value={lastUpdated} />
+        <LastUpdated value={lastUpdated} nextUpdate={nextUpdate} />
       </main>
       <DashboardFooter />
     </PageLayout>

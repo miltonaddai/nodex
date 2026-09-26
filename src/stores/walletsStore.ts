@@ -26,6 +26,7 @@ interface WalletsState {
   pageSize: number
   total: number
   lastUpdated: string | null
+  nextUpdate: string | null
   lastFetchedAt: number | null
   period: Period
   chain: Chain
@@ -51,6 +52,7 @@ const initialState = {
   pageSize: DASHBOARD_PAGE_SIZE,
   total: 0,
   lastUpdated: null as string | null,
+  nextUpdate: null as string | null,
   lastFetchedAt: null as number | null,
   period: '7D' as Period,
   chain: 'solana' as Chain,
@@ -89,6 +91,7 @@ export const useWalletsStore = create<WalletsState>((set, get) => ({
         wallets: result.items ?? [],
         total: result.total ?? result.items?.length ?? 0,
         lastUpdated: result.lastUpdated ?? null,
+        nextUpdate: result.nextUpdate ?? null,
         lastFetchedAt: Date.now(),
         fetchedQueryKey: buildQueryKey(get()),
         loading: false,
@@ -155,6 +158,7 @@ export function useWalletsDashboard() {
       pageSize: s.pageSize,
       total: s.total,
       lastUpdated: s.lastUpdated,
+      nextUpdate: s.nextUpdate,
       period: s.period,
       chain: s.chain,
       sortBy: s.sortBy,

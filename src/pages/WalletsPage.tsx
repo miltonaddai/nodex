@@ -56,6 +56,7 @@ export function WalletsPage() {
     pageSize,
     total,
     lastUpdated,
+    nextUpdate,
     period,
     chain,
     sortBy,
@@ -139,7 +140,7 @@ export function WalletsPage() {
             navigate(`/wallets/${wallet.address}?chain=${chain}&period=${period}`)
           }
         />
-        <LastUpdated value={lastUpdated} />
+        <LastUpdated value={lastUpdated} nextUpdate={nextUpdate} />
       </main>
       <DashboardFooter />
     </PageLayout>

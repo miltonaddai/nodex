@@ -26,6 +26,7 @@ interface TokensState {
   pageSize: number
   total: number
   lastUpdated: string | null
+  nextUpdate: string | null
   changeColumnLabel: string
   lastFetchedAt: number | null
   period: Period
@@ -52,6 +53,7 @@ const initialState = {
   pageSize: DASHBOARD_PAGE_SIZE,
   total: 0,
   lastUpdated: null as string | null,
+  nextUpdate: null as string | null,
   changeColumnLabel: '7D Change',
   lastFetchedAt: null as number | null,
   period: '7D' as Period,
@@ -91,6 +93,7 @@ export const useTokensStore = create<TokensState>((set, get) => ({
         tokens: result.items ?? [],
         total: result.total ?? result.items?.length ?? 0,
         lastUpdated: result.lastUpdated ?? null,
+        nextUpdate: result.nextUpdate ?? null,
         changeColumnLabel: result.changeColumnLabel ?? get().changeColumnLabel,
         lastFetchedAt: Date.now(),
         fetchedQueryKey: buildQueryKey(get()),
@@ -158,6 +161,7 @@ export function useTokensDashboard() {
       pageSize: s.pageSize,
       total: s.total,
       lastUpdated: s.lastUpdated,
+      nextUpdate: s.nextUpdate,
       changeColumnLabel: s.changeColumnLabel,
       period: s.period,
       chain: s.chain,
