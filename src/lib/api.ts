@@ -2,31 +2,113 @@ import { createDemoSession, isDemoMode } from './demo-auth'
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
-export type AuthSuccess = { token: string; user: UserProfile }
+export type AuthSuccess = {
+  token: string
+  /** Absent in demo mode, whose tokens never expire. */
+  refreshToken?: string
+  /** Unix seconds when `token` expires. */
+  expiresAt?: number | null
+  user: UserProfile
+}
 export type AuthConfirmEmail = { needsEmailConfirmation: true; message: string }
 export type AuthResponse = AuthSuccess | AuthConfirmEmail
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = localStorage.getItem('nodex_token')
+export const TOKEN_KEY = 'nodex_token'
+export const REFRESH_TOKEN_KEY = 'nodex_refresh_token'
+export const TOKEN_EXPIRES_AT_KEY = 'nodex_token_expires_at'
+
+/** An error response from the API. `status` lets callers tell a rejected session from an outage. */
+export class ApiError extends Error {
+  readonly status: number
+
+  constructor(message: string, status: number) {
+    super(message)
+    this.status = status
+  }
+}
+
+export function storeSessionTokens(session: { token: string; refreshToken?: string; expiresAt?: number | null }) {
+  localStorage.setItem(TOKEN_KEY, session.token)
+  if (session.refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, session.refreshToken)
+  if (session.expiresAt) localStorage.setItem(TOKEN_EXPIRES_AT_KEY, String(session.expiresAt))
+}
+
+export function clearSessionTokens() {
+  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(REFRESH_TOKEN_KEY)
+  localStorage.removeItem(TOKEN_EXPIRES_AT_KEY)
+}
+
+/** Renew a minute early so a request never goes out with a token about to lapse. */
+const REFRESH_MARGIN_SECONDS = 60
+let refreshing: Promise<boolean> | null = null
+
+/**
+ * Swaps the stored refresh token for a new access token. Refresh tokens are single-use, so
+ * concurrent callers share one in-flight refresh rather than each spending the token.
+ */
+function refreshSession(): Promise<boolean> {
+  if (refreshing) return refreshing
+  const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
+  if (!refreshToken) return Promise.resolve(false)
+  refreshing = (async () => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      })
+      if (!res.ok) {
+        // Only a definite rejection ends the session. A server error leaves it for a retry.
+        if (res.status === 400 || res.status === 401) clearSessionTokens()
+        return false
+      }
+      storeSessionTokens(await res.json())
+      return true
+    } catch {
+      return false
+    } finally {
+      refreshing = null
+    }
+  })()
+  return refreshing
+}
+
+function tokenNeedsRefresh(): boolean {
+  const expiresAt = Number(localStorage.getItem(TOKEN_EXPIRES_AT_KEY))
+  return Boolean(expiresAt) && Date.now() / 1000 >= expiresAt - REFRESH_MARGIN_SECONDS
+}
+
+async function send(path: string, options?: RequestInit): Promise<Response> {
+  const token = localStorage.getItem(TOKEN_KEY)
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options?.headers,
   }
-
-  let res: Response
   try {
-    res = await fetch(`${API_BASE}${path}`, { ...options, headers })
+    return await fetch(`${API_BASE}${path}`, { ...options, headers })
   } catch {
     throw new Error(
       'Unable to reach the server. Make sure the backend is running (npm run dev in /backend).'
     )
   }
+}
+
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  if (tokenNeedsRefresh()) await refreshSession()
+
+  let res = await send(path, options)
+  // The token can still be rejected, e.g. after the computer slept past its expiry mid-request.
+  // Renew once and retry before treating the session as over.
+  if (res.status === 401 && localStorage.getItem(REFRESH_TOKEN_KEY) && (await refreshSession())) {
+    res = await send(path, options)
+  }
 
   const data = await res.json().catch(() => ({ message: res.statusText }))
 
   if (!res.ok) {
-    throw new Error(data.message || 'Request failed')
+    throw new ApiError(data.message || 'Request failed', res.status)
   }
 
   return data as T

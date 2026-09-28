@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { api, type UserProfile } from '@/lib/api'
+import { api, ApiError, clearSessionTokens, storeSessionTokens, TOKEN_KEY, type AuthSuccess, type UserProfile } from '@/lib/api'
 import { isDemoMode } from '@/lib/demo-auth'
 import { AuthContext, type AuthResult } from '@/context/auth-context'
 
-const TOKEN_KEY = 'nodex_token'
 const USER_KEY = 'nodex_user'
 
 function readCachedUser(): UserProfile | null {
@@ -19,15 +18,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(() => readCachedUser())
   const [loading, setLoading] = useState(() => Boolean(localStorage.getItem(TOKEN_KEY)))
 
-  const persistSession = useCallback((token: string, profile: UserProfile) => {
-    localStorage.setItem(TOKEN_KEY, token)
-    localStorage.setItem(USER_KEY, JSON.stringify(profile))
-    setUser(profile)
+  const persistSession = useCallback((session: AuthSuccess) => {
+    storeSessionTokens(session)
+    localStorage.setItem(USER_KEY, JSON.stringify(session.user))
+    setUser(session.user)
     setLoading(false)
   }, [])
 
   const clearSession = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY)
+    clearSessionTokens()
     localStorage.removeItem(USER_KEY)
     setUser(null)
   }, [])
@@ -44,8 +43,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const profile = await api.auth.me()
       localStorage.setItem(USER_KEY, JSON.stringify(profile))
       setUser(profile)
-    } catch {
-      clearSession()
+    } catch (err) {
+      // Log out only when the server rejects the session. If the backend is briefly unreachable,
+      // keep the cached user rather than signing them out.
+      if (err instanceof ApiError && err.status === 401) clearSession()
     } finally {
       setLoading(false)
     }
@@ -61,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if ('needsEmailConfirmation' in result) {
         return { type: 'confirm_email', message: result.message }
       }
-      persistSession(result.token, result.user)
+      persistSession(result)
       return { type: 'success', user: result.user }
     },
     [persistSession]
@@ -73,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if ('needsEmailConfirmation' in result) {
         return { type: 'confirm_email', message: result.message }
       }
-      persistSession(result.token, result.user)
+      persistSession(result)
       return { type: 'success', user: result.user }
     },
     [persistSession]
