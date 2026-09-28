@@ -9,10 +9,12 @@ import { SortableHeader, type SortOrder } from '@/components/dashboard/SortableH
 import { LastUpdated, TablePagination } from '@/components/dashboard/TablePagination'
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { TokenTableSkeleton } from '@/components/dashboard/TokenTableSkeleton'
+import { TokenWatchlistButton } from '@/components/dashboard/TokenWatchlistButton'
 import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
+import { useSolanaTokenWatchlist } from '@/hooks/useSolanaTokenWatchlist'
 import { useWatchlistStore } from '@/stores/watchlistStore'
 import { api, type SmartMoneyBuy, type SmartMoneySortKey, type SmartMoneyWallet } from '@/lib/api'
-import { cn, formatCurrency, truncateAddress } from '@/lib/utils'
+import { cn, formatCurrency, MARKET_CAP_COLUMN, truncateAddress } from '@/lib/utils'
 
 const PAGE_SIZE = 20
 const CHAIN = 'solana'
@@ -215,8 +217,15 @@ function BuysTable({
     }
     setPage(1)
   }
-  const header = (label: string, column: SmartMoneySortKey) => (
-    <SortableHeader label={label} column={column} sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
+  const header = (label: string, column: SmartMoneySortKey, className?: string) => (
+    <SortableHeader
+      label={label}
+      column={column}
+      sortBy={sortBy}
+      sortOrder={sortOrder}
+      onSort={onSort}
+      className={className}
+    />
   )
   const plain = (label: string) => (
     <th className="px-4 py-4 text-left text-[10px] font-semibold uppercase tracking-widest text-nodex-muted">{label}</th>
@@ -236,7 +245,7 @@ function BuysTable({
                 {plain('Token')}
                 {header('Top wallets buying', 'walletCount')}
                 {header('Net bought', 'netBuyUsd')}
-                {header('Market cap', 'marketCap')}
+                {header('Market cap', 'marketCap', MARKET_CAP_COLUMN)}
                 {header('24h', 'priceChange24h')}
                 {plain('Liquidity')}
                 {header('Latest buy', 'lastBuyAt')}
@@ -257,7 +266,7 @@ function BuysTable({
                     <tr
                       onClick={() => setExpanded(isOpen ? null : token.contract)}
                       className={cn(
-                        'cursor-pointer border-b border-white/[0.06] transition-colors duration-200 hover:bg-white/[0.04]',
+                        'group cursor-pointer border-b border-white/[0.06] transition-colors duration-200 hover:bg-white/[0.04]',
                         isOpen && 'bg-white/[0.03]'
                       )}
                     >
@@ -279,6 +288,7 @@ function BuysTable({
                               {token.symbol} · {truncateAddress(token.contract)}
                             </a>
                           </div>
+                          <TokenWatchlistButton token={token} chain="solana" />
                         </div>
                       </td>
                       <td className="px-4 py-4">
@@ -301,7 +311,9 @@ function BuysTable({
                           </div>
                         ) : null}
                       </td>
-                      <td className="px-4 py-4 text-sm tabular-nums">{formatCurrency(token.marketCap, true)}</td>
+                      <td className={cn('px-4 py-4 text-sm tabular-nums', MARKET_CAP_COLUMN)}>
+                        {formatCurrency(token.marketCap, true)}
+                      </td>
                       <td
                         className={cn(
                           'px-4 py-4 text-sm tabular-nums',
@@ -417,6 +429,7 @@ export function WalletsPage() {
     nextUpdate: string | null
   }>({ tracked: 0, windowHours: 72, lastUpdated: null, nextUpdate: null })
   const watchlist = useWalletWatchlist()
+  useSolanaTokenWatchlist()
 
   const tabs: Array<{ value: Tab; label: string }> = [
     { value: 'buys', label: 'Tokens being bought' },

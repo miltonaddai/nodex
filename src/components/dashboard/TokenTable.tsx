@@ -8,7 +8,7 @@ import { TablePagination } from '@/components/dashboard/TablePagination'
 import { TokenWatchlistButton } from '@/components/dashboard/TokenWatchlistButton'
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { type TokenRow } from '@/lib/api'
-import { cn, formatCurrency, formatPercent, truncateAddress } from '@/lib/utils'
+import { cn, formatCurrency, formatPercent, MARKET_CAP_COLUMN, truncateAddress } from '@/lib/utils'
 
 const AVATAR_COLORS = [
   'bg-green-500',
@@ -140,6 +140,7 @@ export function TokenTable({
                   sortBy={sortBy}
                   sortOrder={sortOrder}
                   onSort={(col) => onSort(col as TokenSortKey)}
+                  className={MARKET_CAP_COLUMN}
                 />
                 <SortableHeader
                   label={changeColumnLabel}
@@ -215,7 +216,7 @@ export function TokenTable({
                     <ContractCell contract={token.contract} />
                   </td>
                   <td className="px-4 py-4 text-sm">${token.price.toFixed(token.price < 0.01 ? 5 : 2)}</td>
-                  <td className="px-4 py-4 text-sm">{formatCurrency(token.marketCap, true)}</td>
+                  <td className={cn('px-4 py-4 text-sm', MARKET_CAP_COLUMN)}>{formatCurrency(token.marketCap, true)}</td>
                   <td
                     className={cn(
                       'px-4 py-4 text-sm font-semibold',

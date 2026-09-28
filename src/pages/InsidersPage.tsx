@@ -9,7 +9,9 @@ import { SortableHeader, type SortOrder } from '@/components/dashboard/SortableH
 import { LastUpdated, TablePagination } from '@/components/dashboard/TablePagination'
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { TokenTableSkeleton } from '@/components/dashboard/TokenTableSkeleton'
+import { TokenWatchlistButton } from '@/components/dashboard/TokenWatchlistButton'
 import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
+import { useSolanaTokenWatchlist } from '@/hooks/useSolanaTokenWatchlist'
 import {
   api,
   type InsiderPlay,
@@ -17,7 +19,7 @@ import {
   type InsiderSortKey,
   type InsiderStatus,
 } from '@/lib/api'
-import { cn, formatCurrency, truncateAddress } from '@/lib/utils'
+import { cn, formatCurrency, MARKET_CAP_COLUMN, truncateAddress } from '@/lib/utils'
 
 const PAGE_SIZE = 20
 
@@ -43,7 +45,7 @@ const STATUS_STYLE: Record<InsiderStatus, { label: string; className: string; hi
   },
   distributing: {
     label: 'Distributing',
-    className: 'border-yellow-400/30 bg-yellow-400/10 text-yellow-300',
+    className: 'border-nodex-amber/30 bg-nodex-amber/10 text-nodex-amber',
     hint: 'Insider wallets have sold part of their launch position.',
   },
   exited: {
@@ -101,7 +103,7 @@ function formatPct(value: number): string {
 
 function scoreClass(score: number): string {
   if (score >= 60) return 'text-nodex-red'
-  if (score >= 35) return 'text-yellow-300'
+  if (score >= 35) return 'text-nodex-amber'
   return 'text-nodex-muted'
 }
 
@@ -182,6 +184,7 @@ function InsiderDetails({ play }: { play: InsiderPlay }) {
 }
 
 export function InsidersPage() {
+  useSolanaTokenWatchlist()
   const [plays, setPlays] = useState<InsiderPlay[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -230,8 +233,15 @@ export function InsidersPage() {
     setPage(1)
   }
 
-  const header = (label: string, column: InsiderSortKey) => (
-    <SortableHeader label={label} column={column} sortBy={sortBy} sortOrder={sortOrder} onSort={onSort} />
+  const header = (label: string, column: InsiderSortKey, className?: string) => (
+    <SortableHeader
+      label={label}
+      column={column}
+      sortBy={sortBy}
+      sortOrder={sortOrder}
+      onSort={onSort}
+      className={className}
+    />
   )
   const plainHeader = (label: string) => (
     <th className="px-4 py-4 text-left text-[10px] font-semibold uppercase tracking-widest text-nodex-muted">{label}</th>
@@ -291,7 +301,7 @@ export function InsidersPage() {
                     {header('Insiders at launch', 'insiderAcquired')}
                     {header('Insiders hold now', 'insiderHolding')}
                     {plainHeader('Price shape')}
-                    {header('Market cap', 'marketCap')}
+                    {header('Market cap', 'marketCap', MARKET_CAP_COLUMN)}
                     {header('Age', 'launchedAt')}
                   </tr>
                 </thead>
@@ -313,7 +323,7 @@ export function InsidersPage() {
                         <tr
                           onClick={() => setExpanded(isOpen ? null : play.contract)}
                           className={cn(
-                            'cursor-pointer border-b border-white/[0.06] transition-colors duration-200 hover:bg-white/[0.04]',
+                            'group cursor-pointer border-b border-white/[0.06] transition-colors duration-200 hover:bg-white/[0.04]',
                             isOpen && 'bg-white/[0.03]'
                           )}
                         >
@@ -335,6 +345,7 @@ export function InsidersPage() {
                                   {play.symbol} · {truncateAddress(play.contract)}
                                 </a>
                               </div>
+                              <TokenWatchlistButton token={play} chain="solana" />
                             </div>
                           </td>
                           <td className="px-4 py-4">
@@ -370,7 +381,7 @@ export function InsidersPage() {
                               </div>
                             ) : null}
                           </td>
-                          <td className="px-4 py-4 text-sm">
+                          <td className={cn('px-4 py-4 text-sm', MARKET_CAP_COLUMN)}>
                             <div className="tabular-nums">{formatCurrency(play.marketCap, true)}</div>
                             <div
                               className={cn(

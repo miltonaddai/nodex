@@ -73,10 +73,11 @@ export const useTokenWatchlistStore = create<TokenWatchlistState>((set, get) => 
   },
 
   fetchIfNeeded: () => {
-    const { lastFetchedAt, fetchTokens } = get()
+    const { lastFetchedAt, fetchedChain, chain, fetchTokens } = get()
     // Unlike the wallet list an empty token watchlist is a legitimate resting state, so only
-    // refetch when it has actually gone stale — otherwise every visit re-hits the API.
-    if (lastFetchedAt === null || isDashboardStale(lastFetchedAt)) {
+    // refetch when it has actually gone stale or belongs to another chain — otherwise every
+    // visit re-hits the API.
+    if (lastFetchedAt === null || fetchedChain !== chain || isDashboardStale(lastFetchedAt)) {
       void fetchTokens()
     }
   },

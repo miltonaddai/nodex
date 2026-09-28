@@ -12,6 +12,8 @@
   --color-nodex-teal-dim: #2a9d8f;
   --color-nodex-green: #34d399;
   --color-nodex-red: #f87171;
+  /* Caution: mid-range scores and partial states. Yellow reads on dark, not on light. */
+  --color-nodex-amber: #fcd34d;
   --color-nodex-muted: #6b7c8a;
   --color-nodex-border: rgba(77, 230, 201, 0.15);
 }
@@ -30,6 +32,7 @@
   --color-nodex-teal-dim: #177d72;
   --color-nodex-green: #0b8a60;
   --color-nodex-red: #d64545;
+  --color-nodex-amber: #c2410c;
   --color-nodex-muted: #5b6b78;
   --color-nodex-border: rgba(15, 143, 126, 0.24);
 }

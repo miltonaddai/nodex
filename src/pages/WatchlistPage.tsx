@@ -18,13 +18,13 @@ import { cn } from '@/lib/utils'
 type WatchlistTab = 'wallets' | 'tokens'
 
 const TABS = [
-  { id: 'wallets' as const, label: 'Wallets', icon: Wallet },
   { id: 'tokens' as const, label: 'Tokens', icon: Coins },
+  { id: 'wallets' as const, label: 'Wallets', icon: Wallet },
 ]
 
 export function WatchlistPage() {
   useWatchlistPageInit()
-  const [tab, setTab] = useState<WatchlistTab>('wallets')
+  const [tab, setTab] = useState<WatchlistTab>('tokens')
 
   const { wallets, loading, error, chain, setChain, renameWallet, removeWallet } =
     useWatchlistDashboard()
