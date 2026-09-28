@@ -156,6 +156,36 @@ export const api = {
       return request<PaginatedTokensResponse>(`/tokens/top?${q}`)
     },
   },
+  smartMoney: {
+    buys: (params: { chain?: string; page?: number; pageSize?: number; sortBy?: SmartMoneySortKey; sortOrder?: 'asc' | 'desc' }) => {
+      const q = new URLSearchParams(
+        Object.entries(params)
+          .filter(([, v]) => v !== undefined && v !== '')
+          .map(([k, v]) => [k, String(v)])
+      ).toString()
+      return request<SmartMoneyBuysResponse>(`/smart-money/buys?${q}`)
+    },
+    wallets: (chain = 'solana') =>
+      request<{ items: SmartMoneyWallet[]; lastUpdated: string | null }>(`/smart-money/wallets?chain=${chain}`),
+  },
+  insiders: {
+    list: (params: {
+      chain?: string
+      page?: number
+      pageSize?: number
+      sortBy?: InsiderSortKey
+      sortOrder?: 'asc' | 'desc'
+      status?: InsiderStatus
+      pattern?: InsiderPricePattern
+    }) => {
+      const q = new URLSearchParams(
+        Object.entries(params)
+          .filter(([, v]) => v !== undefined && v !== '')
+          .map(([k, v]) => [k, String(v)])
+      ).toString()
+      return request<PaginatedResponse<InsiderPlay>>(`/insiders?${q}`)
+    },
+  },
   billing: {
     subscription: () => request<BillingDetails>('/billing/subscription'),
     checkout: (plan: 'starter' | 'pro') =>
@@ -214,6 +244,98 @@ export interface PaginatedResponse<T> {
   lastUpdated: string | null
   nextUpdate?: string | null
   message?: string
+}
+
+export type SmartMoneySortKey = 'walletCount' | 'netBuyUsd' | 'marketCap' | 'lastBuyAt' | 'priceChange24h' | 'buyerProfit'
+
+/** A wallet from the 30-day profit leaderboard that the smart money feed follows. */
+export interface SmartMoneyWallet {
+  address: string
+  rank: number
+  pnl30d: number
+  realizedPnl30d: number
+  volume30d: number
+  trades30d: number
+}
+
+/** A token the tracked wallets are net buying. */
+export interface SmartMoneyBuy {
+  rank: number
+  contract: string
+  symbol: string
+  name: string
+  imageUrl: string
+  walletCount: number
+  buyUsd: number
+  sellUsd: number
+  netBuyUsd: number
+  buyCount: number
+  firstBuyAt: string
+  lastBuyAt: string
+  price: number
+  marketCap: number
+  liquidity: number
+  volume24h: number
+  priceChange24h: number
+  /** Combined 30-day realized profit of the wallets buying. */
+  buyerRealizedPnl30d: number
+  wallets: Array<{
+    address: string
+    netBuyUsd: number
+    lastBuyAt: string | null
+    rank: number | null
+    realizedPnl30d: number | null
+  }>
+}
+
+export interface SmartMoneyBuysResponse extends PaginatedResponse<SmartMoneyBuy> {
+  trackedWallets: number
+  windowHours: number
+}
+
+export type InsiderStatus = 'holding' | 'distributing' | 'exited' | 'unknown'
+export type InsiderPricePattern = 'reclaiming' | 'retracing' | 'new_highs' | 'ranging' | 'unknown'
+export type InsiderSortKey =
+  | 'insiderScore'
+  | 'launchScore'
+  | 'insiderHolding'
+  | 'insiderAcquired'
+  | 'marketCap'
+  | 'launchedAt'
+
+/** A token whose launch was bought by wallets under common control. */
+export interface InsiderPlay {
+  rank: number
+  contract: string
+  name: string
+  symbol: string
+  imageUrl: string
+  launchedAt: string
+  launchBuyers: number
+  creationBlockSupplyPct: number
+  linkedWallets: number
+  linkedSupplyPct: number
+  clusters: number
+  largestClusterSupplyPct: number
+  insiderWallets: string[]
+  /** Share of supply the insider wallets held at the end of the launch window. */
+  insiderAcquiredPct: number
+  /** Share of supply the same wallets hold now. */
+  insiderHoldingPct: number
+  insiderStatus: InsiderStatus
+  launchScore: number
+  insiderScore: number
+  evidence: string[]
+  price: number
+  marketCap: number
+  liquidity: number
+  volume24h: number
+  priceChange24h: number
+  holders: number
+  launchHighMc: number
+  postLaunchLowMc: number
+  athMc: number
+  pricePattern: InsiderPricePattern
 }
 
 export interface PaginatedTokensResponse extends PaginatedResponse<TokenRow> {

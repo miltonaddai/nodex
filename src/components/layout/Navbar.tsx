@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 // SUBSCRIPTIONS DISABLED — CreditCard is only used by the commented-out Billing menu item.
-import { Wallet, Coins, Star, LogOut, Moon, Sun /*, CreditCard */ } from 'lucide-react'
+import { Wallet, Coins, Star, LogOut, Moon, Sun, ScanEye /*, CreditCard */ } from 'lucide-react'
 import { LiquidGlass } from './LiquidGlass'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -22,6 +22,7 @@ interface NavbarProps {
 
 const navItems = [
   { label: 'Tokens', path: '/tokens', icon: Coins },
+  { label: 'Insiders', path: '/insiders', icon: ScanEye },
   { label: 'Wallets', path: '/wallets', icon: Wallet },
   { label: 'Watchlist', path: '/watchlist', icon: Star },
 ]
