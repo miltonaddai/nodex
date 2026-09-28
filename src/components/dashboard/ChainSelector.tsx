@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 
 const chains = [
   { id: 'solana', label: 'Solana', color: 'from-purple-500 to-cyan-400', enabled: true },
-  { id: 'robinhood', label: 'Robinhood Chain', color: 'from-green-500 to-emerald-400', enabled: false },
+  { id: 'robinhood', label: 'Robinhood Chain', color: 'from-green-500 to-emerald-400', enabled: true },
 ] as const
 
 export type Chain = (typeof chains)[number]['id']

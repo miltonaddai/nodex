@@ -9,6 +9,7 @@ import { TokenWatchlistButton } from '@/components/dashboard/TokenWatchlistButto
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { type TokenRow } from '@/lib/api'
 import { cn, formatCurrency, formatPercent, MARKET_CAP_COLUMN, truncateAddress } from '@/lib/utils'
+import { tokenUrl } from '@/lib/chains'
 
 const AVATAR_COLORS = [
   'bg-green-500',
@@ -36,7 +37,7 @@ function formatTokenAge(launchedAt?: string, fallbackDays?: number): string {
   return fallbackDays === undefined ? '—' : `${fallbackDays}d`
 }
 
-function ContractCell({ contract }: { contract: string }) {
+function ContractCell({ contract, chain }: { contract: string; chain: string }) {
   const [copied, setCopied] = useState(false)
 
   const copyContract = async () => {
@@ -52,7 +53,7 @@ function ContractCell({ contract }: { contract: string }) {
   return (
     <div className="group/contract flex items-center gap-2">
       <a
-        href={`https://dexscreener.com/solana/${encodeURIComponent(contract)}`}
+        href={tokenUrl(chain, contract)}
         target="_blank"
         rel="noopener noreferrer"
         title="Open token in Dexscreener"
@@ -213,7 +214,7 @@ export function TokenTable({
                     )}
                   </td>
                   <td className="px-4 py-4 text-sm text-nodex-muted">
-                    <ContractCell contract={token.contract} />
+                    <ContractCell contract={token.contract} chain={chain} />
                   </td>
                   <td className="px-4 py-4 text-sm">${token.price.toFixed(token.price < 0.01 ? 5 : 2)}</td>
                   <td className={cn('px-4 py-4 text-sm', MARKET_CAP_COLUMN)}>{formatCurrency(token.marketCap, true)}</td>

@@ -4,6 +4,7 @@ import { Check, Copy, Trash2, X } from 'lucide-react'
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { type WatchlistToken } from '@/lib/api'
 import { cn, formatCurrency, truncateAddress } from '@/lib/utils'
+import { tokenUrl } from '@/lib/chains'
 
 const AVATAR_COLORS = [
   'bg-orange-500',
@@ -93,7 +94,7 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
             <div className="truncate text-xs text-nodex-muted">{token.name}</div>
             <div className="group/contract flex items-center gap-1.5 text-xs text-nodex-muted">
               <a
-                href={`https://dexscreener.com/solana/${encodeURIComponent(token.contract)}`}
+                href={tokenUrl(token.chain, token.contract)}
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Open token in Dexscreener"

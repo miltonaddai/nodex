@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Check, ExternalLink, Pencil, Trash2, X } from 'lucide-react'
 import { type WatchlistWallet } from '@/lib/api'
 import { cn, formatCurrency, formatPnl, truncateAddress } from '@/lib/utils'
+import { walletUrl } from '@/lib/chains'
 
 const AVATAR_COLORS = [
   'bg-orange-500',
@@ -136,7 +137,7 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
               </div>
             )}
             <a
-              href={`https://solscan.io/account/${encodeURIComponent(wallet.address)}`}
+              href={walletUrl(wallet.chain, wallet.address)}
               target="_blank"
               rel="noopener noreferrer"
               title="Open wallet in Solscan"

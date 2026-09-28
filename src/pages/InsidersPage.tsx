@@ -20,6 +20,7 @@ import {
   type InsiderStatus,
 } from '@/lib/api'
 import { cn, formatCurrency, MARKET_CAP_COLUMN, truncateAddress } from '@/lib/utils'
+import { tokenUrl, walletUrl } from '@/lib/chains'
 
 const PAGE_SIZE = 20
 
@@ -166,7 +167,7 @@ function InsiderDetails({ play }: { play: InsiderPlay }) {
           {play.insiderWallets.slice(0, 16).map((wallet) => (
             <a
               key={wallet}
-              href={`https://solscan.io/account/${encodeURIComponent(wallet)}`}
+              href={walletUrl('solana', wallet)}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 font-mono text-xs text-nodex-muted transition-colors hover:border-nodex-teal/30 hover:text-nodex-teal"
@@ -336,7 +337,7 @@ export function InsidersPage() {
                               <div>
                                 <div className="text-sm font-medium">{play.name}</div>
                                 <a
-                                  href={`https://dexscreener.com/solana/${encodeURIComponent(play.contract)}`}
+                                  href={tokenUrl('solana', play.contract)}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   onClick={(event) => event.stopPropagation()}

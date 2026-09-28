@@ -11,13 +11,15 @@ import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { TokenTableSkeleton } from '@/components/dashboard/TokenTableSkeleton'
 import { TokenWatchlistButton } from '@/components/dashboard/TokenWatchlistButton'
 import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
-import { useSolanaTokenWatchlist } from '@/hooks/useSolanaTokenWatchlist'
+import { useChainTokenWatchlist } from '@/hooks/useSolanaTokenWatchlist'
+import { ChainSelector, type Chain } from '@/components/dashboard/ChainSelector'
+import { useDashboardPreferencesStore } from '@/stores/dashboardPreferencesStore'
+import { chainLabel, tokenUrl, walletUrl } from '@/lib/chains'
 import { useWatchlistStore } from '@/stores/watchlistStore'
 import { api, type SmartMoneyBuy, type SmartMoneySortKey, type SmartMoneyWallet } from '@/lib/api'
 import { cn, formatCurrency, MARKET_CAP_COLUMN, truncateAddress } from '@/lib/utils'
 
 const PAGE_SIZE = 20
-const CHAIN = 'solana'
 
 type Tab = 'buys' | 'wallets'
 
@@ -38,10 +40,10 @@ function formatWindow(hours: number): string {
   return `${hours} hours`
 }
 
-function WalletLink({ address }: { address: string }) {
+function WalletLink({ address, chain }: { address: string; chain: Chain }) {
   return (
     <a
-      href={`https://solscan.io/account/${encodeURIComponent(address)}`}
+      href={walletUrl(chain, address)}
       target="_blank"
       rel="noopener noreferrer"
       onClick={(event) => event.stopPropagation()}
@@ -85,27 +87,27 @@ function WatchButton({
   )
 }
 
-function useWalletWatchlist() {
+function useWalletWatchlist(chain: Chain) {
   const watchlistWallets = useWatchlistStore((state) => state.wallets)
   const [adding, setAdding] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const watched = useMemo(
-    () => new Set(watchlistWallets.filter((w) => w.chain === CHAIN).map((w) => w.address)),
-    [watchlistWallets]
+    () => new Set(watchlistWallets.filter((w) => w.chain === chain).map((w) => w.address)),
+    [watchlistWallets, chain]
   )
 
   useEffect(() => {
     const watchlist = useWatchlistStore.getState()
-    if (watchlist.chain !== CHAIN) watchlist.setChain(CHAIN)
+    if (watchlist.chain !== chain) watchlist.setChain(chain)
     else watchlist.fetchIfNeeded()
-  }, [])
+  }, [chain])
 
   const add = async (address: string) => {
     if (watched.has(address) || adding) return
     setAdding(address)
     setError(null)
     try {
-      await useWatchlistStore.getState().addWallet(address, `Top wallet ${truncateAddress(address)}`, CHAIN)
+      await useWatchlistStore.getState().addWallet(address, `Top wallet ${truncateAddress(address)}`, chain)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add wallet')
     } finally {
@@ -118,9 +120,11 @@ function useWalletWatchlist() {
 
 function BuyersDetail({
   token,
+  chain,
   watchlist,
 }: {
   token: SmartMoneyBuy
+  chain: Chain
   watchlist: ReturnType<typeof useWalletWatchlist>
 }) {
   return (
@@ -140,7 +144,7 @@ function BuyersDetail({
           {token.wallets.map((wallet) => (
             <tr key={wallet.address} className="border-t border-white/[0.06]">
               <td className="py-2 pr-4">
-                <WalletLink address={wallet.address} />
+                <WalletLink address={wallet.address} chain={chain} />
               </td>
               <td className="py-2 pr-4 tabular-nums text-nodex-muted">{wallet.rank ? `#${wallet.rank}` : '—'}</td>
               <td className="py-2 pr-4 tabular-nums text-nodex-green">
@@ -165,9 +169,11 @@ function BuyersDetail({
 }
 
 function BuysTable({
+  chain,
   watchlist,
   onMeta,
 }: {
+  chain: Chain
   watchlist: ReturnType<typeof useWalletWatchlist>
   onMeta: (meta: { tracked: number; windowHours: number; lastUpdated: string | null; nextUpdate: string | null }) => void
 }) {
@@ -187,7 +193,7 @@ function BuysTable({
     setLoading(true)
     setError(null)
     api.smartMoney
-      .buys({ chain: CHAIN, page, pageSize: PAGE_SIZE, sortBy, sortOrder })
+      .buys({ chain, page, pageSize: PAGE_SIZE, sortBy, sortOrder })
       .then((result) => {
         if (id !== requestId.current) return
         setItems(result.items ?? [])
@@ -206,7 +212,7 @@ function BuysTable({
       .finally(() => {
         if (id === requestId.current) setLoading(false)
       })
-  }, [page, sortBy, sortOrder, onMeta])
+  }, [chain, page, sortBy, sortOrder, onMeta])
 
   const onSort = (column: string) => {
     const key = column as SmartMoneySortKey
@@ -279,7 +285,7 @@ function BuysTable({
                           <div>
                             <div className="text-sm font-medium">{token.name || token.symbol}</div>
                             <a
-                              href={`https://dexscreener.com/solana/${encodeURIComponent(token.contract)}`}
+                              href={tokenUrl(chain, token.contract)}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(event) => event.stopPropagation()}
@@ -288,7 +294,7 @@ function BuysTable({
                               {token.symbol} · {truncateAddress(token.contract)}
                             </a>
                           </div>
-                          <TokenWatchlistButton token={token} chain="solana" />
+                          <TokenWatchlistButton token={token} chain={chain} />
                         </div>
                       </td>
                       <td className="px-4 py-4">
@@ -331,7 +337,7 @@ function BuysTable({
                     {isOpen ? (
                       <tr className="border-b border-white/[0.06] bg-white/[0.03]">
                         <td colSpan={8}>
-                          <BuyersDetail token={token} watchlist={watchlist} />
+                          <BuyersDetail token={token} chain={chain} watchlist={watchlist} />
                         </td>
                       </tr>
                     ) : null}
@@ -347,18 +353,24 @@ function BuysTable({
   )
 }
 
-function TrackedWalletsTable({ watchlist }: { watchlist: ReturnType<typeof useWalletWatchlist> }) {
+function TrackedWalletsTable({
+  chain,
+  watchlist,
+}: {
+  chain: Chain
+  watchlist: ReturnType<typeof useWalletWatchlist>
+}) {
   const [wallets, setWallets] = useState<SmartMoneyWallet[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     api.smartMoney
-      .wallets(CHAIN)
+      .wallets(chain)
       .then((result) => setWallets(result.items ?? []))
       .catch((err: unknown) => setError(err instanceof Error ? err.message : 'Failed to load'))
       .finally(() => setLoading(false))
-  }, [])
+  }, [chain])
 
   if (loading) return <TokenTableSkeleton />
   const th = 'px-4 py-4 text-left text-[10px] font-semibold uppercase tracking-widest text-nodex-muted'
@@ -392,7 +404,7 @@ function TrackedWalletsTable({ watchlist }: { watchlist: ReturnType<typeof useWa
                 <tr key={wallet.address} className="border-b border-white/[0.06] hover:bg-white/[0.04]">
                   <td className="px-4 py-3 text-sm text-nodex-muted">{wallet.rank}</td>
                   <td className="px-4 py-3">
-                    <WalletLink address={wallet.address} />
+                    <WalletLink address={wallet.address} chain={chain} />
                   </td>
                   <td className="px-4 py-3 text-sm tabular-nums text-nodex-green">
                     {formatCurrency(wallet.realizedPnl30d, true)}
@@ -428,8 +440,9 @@ export function WalletsPage() {
     lastUpdated: string | null
     nextUpdate: string | null
   }>({ tracked: 0, windowHours: 72, lastUpdated: null, nextUpdate: null })
-  const watchlist = useWalletWatchlist()
-  useSolanaTokenWatchlist()
+  const [chain, setChain] = useState<Chain>(() => useDashboardPreferencesStore.getState().preferredChain)
+  const watchlist = useWalletWatchlist(chain)
+  useChainTokenWatchlist(chain)
 
   const tabs: Array<{ value: Tab; label: string }> = [
     { value: 'buys', label: 'Tokens being bought' },
@@ -449,33 +462,37 @@ export function WalletsPage() {
           What Top Wallets Are Buying
         </motion.h1>
         <p className="mb-8 max-w-3xl text-sm text-nodex-muted">
-          Tokens the {meta.tracked || 'top'} most profitable Solana wallets of the last 30 days are net buying over the
+          Tokens the {meta.tracked || 'top'} most profitable {chainLabel(chain)} wallets of the last 30 days are net buying over the
           last {formatWindow(meta.windowHours)}. Only live wallets whose profit is real and already taken are
           followed. The more of them in a token, the higher it ranks, and ties go to the more profitable buyers.
         </p>
 
-        <div className="mb-6 flex w-fit gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1">
-          {tabs.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setTab(option.value)}
-              className={cn(
-                'rounded-full px-4 py-1.5 text-xs font-medium transition-colors',
-                tab === option.value ? 'bg-nodex-teal/20 text-nodex-teal' : 'text-nodex-muted hover:text-white'
-              )}
-            >
-              {option.label}
-            </button>
-          ))}
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex w-fit gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1">
+            {tabs.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setTab(option.value)}
+                className={cn(
+                  'rounded-full px-4 py-1.5 text-xs font-medium transition-colors',
+                  tab === option.value ? 'bg-nodex-teal/20 text-nodex-teal' : 'text-nodex-muted hover:text-white'
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          <ChainSelector value={chain} onChange={setChain} />
         </div>
 
         {watchlist.error ? <p className="mb-4 text-sm text-nodex-red">{watchlist.error}</p> : null}
 
         {tab === 'buys' ? (
-          <BuysTable watchlist={watchlist} onMeta={setMeta} />
+          // Keyed by chain so paging, sorting and expanded rows reset when the chain changes.
+          <BuysTable key={chain} chain={chain} watchlist={watchlist} onMeta={setMeta} />
         ) : (
-          <TrackedWalletsTable watchlist={watchlist} />
+          <TrackedWalletsTable key={chain} chain={chain} watchlist={watchlist} />
         )}
         <LastUpdated value={meta.lastUpdated} nextUpdate={meta.nextUpdate} />
       </main>
