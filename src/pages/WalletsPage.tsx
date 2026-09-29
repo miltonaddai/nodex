@@ -54,6 +54,45 @@ function WalletLink({ address, chain }: { address: string; chain: Chain }) {
   )
 }
 
+/** A FOMO trader: avatar, name and handle, with the wallet address underneath. */
+function TraderCell({
+  address,
+  chain,
+  handle,
+  displayName,
+  avatarUrl,
+}: {
+  address: string
+  chain: Chain
+  handle: string | null
+  displayName: string | null
+  avatarUrl: string | null
+}) {
+  const label = displayName || handle
+  return (
+    <div className="flex items-center gap-3">
+      {avatarUrl ? (
+        <img src={avatarUrl} alt="" className="h-8 w-8 shrink-0 rounded-full bg-white/10 object-cover" loading="lazy" />
+      ) : (
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-semibold">
+          {(label ?? '?').charAt(0).toUpperCase()}
+        </div>
+      )}
+      <div className="min-w-0">
+        {label ? (
+          <div className="truncate text-sm font-medium">
+            {label}
+            {handle ? <span className="ml-1.5 text-xs font-normal text-nodex-muted">@{handle}</span> : null}
+          </div>
+        ) : null}
+        <div className="text-nodex-muted">
+          <WalletLink address={address} chain={chain} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function WatchButton({
   address,
   watched,
@@ -132,9 +171,9 @@ function BuyersDetail({
       <table className="w-full max-w-3xl text-sm">
         <thead>
           <tr className="text-left text-[10px] font-semibold uppercase tracking-widest text-nodex-muted">
-            <th className="py-2 pr-4">Wallet</th>
-            <th className="py-2 pr-4">30d rank</th>
-            <th className="py-2 pr-4">30d realized profit</th>
+            <th className="py-2 pr-4">Trader</th>
+            <th className="py-2 pr-4">Rank</th>
+            <th className="py-2 pr-4">30d PnL</th>
             <th className="py-2 pr-4">Net bought</th>
             <th className="py-2 pr-4">Last buy</th>
             <th className="py-2" />
@@ -144,11 +183,17 @@ function BuyersDetail({
           {token.wallets.map((wallet) => (
             <tr key={wallet.address} className="border-t border-white/[0.06]">
               <td className="py-2 pr-4">
-                <WalletLink address={wallet.address} chain={chain} />
+                <TraderCell
+                  address={wallet.address}
+                  chain={chain}
+                  handle={wallet.handle}
+                  displayName={wallet.displayName}
+                  avatarUrl={wallet.avatarUrl}
+                />
               </td>
               <td className="py-2 pr-4 tabular-nums text-nodex-muted">{wallet.rank ? `#${wallet.rank}` : '—'}</td>
               <td className="py-2 pr-4 tabular-nums text-nodex-green">
-                {wallet.realizedPnl30d !== null ? formatCurrency(wallet.realizedPnl30d, true) : '—'}
+                {wallet.realizedPnl30d ? formatCurrency(wallet.realizedPnl30d, true) : '—'}
               </td>
               <td className="py-2 pr-4 tabular-nums">{formatCurrency(wallet.netBuyUsd, true)}</td>
               <td className="py-2 pr-4 text-nodex-muted">{timeAgo(wallet.lastBuyAt)}</td>
@@ -249,7 +294,7 @@ function BuysTable({
               <tr className="border-b border-white/10 bg-white/[0.04]">
                 <th className="w-8 px-4 py-4" />
                 {plain('Token')}
-                {header('Top wallets buying', 'walletCount')}
+                {header('Top traders buying', 'walletCount')}
                 {header('Net bought', 'netBuyUsd')}
                 {header('Market cap', 'marketCap', MARKET_CAP_COLUMN)}
                 {header('24h', 'priceChange24h')}
@@ -300,13 +345,13 @@ function BuysTable({
                       <td className="px-4 py-4">
                         <div className="flex items-baseline gap-1.5">
                           <span className="text-lg font-semibold tabular-nums text-nodex-teal">{token.walletCount}</span>
-                          <span className="text-xs text-nodex-muted">{token.walletCount === 1 ? 'wallet' : 'wallets'}</span>
+                          <span className="text-xs text-nodex-muted">{token.walletCount === 1 ? 'trader' : 'traders'}</span>
                         </div>
                         <div
                           className="text-[10px] text-nodex-muted"
-                          title="Combined 30-day realized profit of the wallets buying"
+                          title="Combined FOMO 30-day PnL of the traders buying"
                         >
-                          {formatCurrency(token.buyerRealizedPnl30d, true)} buyer profit · {token.buyCount} buys
+                          {formatCurrency(token.buyerRealizedPnl30d, true)} buyer 30d PnL · {token.buyCount} buys
                         </div>
                       </td>
                       <td className="px-4 py-4 text-sm tabular-nums">
@@ -384,11 +429,11 @@ function TrackedWalletsTable({
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.04]">
                 <th className={th}>#</th>
-                <th className={th}>Wallet</th>
-                <th className={th}>30d realized profit</th>
-                <th className={th}>30d total PnL</th>
-                <th className={th}>30d volume</th>
-                <th className={th}>30d trades</th>
+                <th className={th}>Trader</th>
+                <th className={th}>30d PnL</th>
+                <th className={th}>Volume</th>
+                <th className={th}>Trades</th>
+                <th className={th}>Followers</th>
                 <th className={th} />
               </tr>
             </thead>
@@ -396,7 +441,7 @@ function TrackedWalletsTable({
               {wallets.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-sm text-nodex-muted">
-                    The wallet list is built on the next data update.
+                    No FOMO traders are tracked on this chain yet.
                   </td>
                 </tr>
               ) : null}
@@ -404,16 +449,22 @@ function TrackedWalletsTable({
                 <tr key={wallet.address} className="border-b border-white/[0.06] hover:bg-white/[0.04]">
                   <td className="px-4 py-3 text-sm text-nodex-muted">{wallet.rank}</td>
                   <td className="px-4 py-3">
-                    <WalletLink address={wallet.address} chain={chain} />
+                    <TraderCell
+                      address={wallet.address}
+                      chain={chain}
+                      handle={wallet.handle}
+                      displayName={wallet.displayName}
+                      avatarUrl={wallet.avatarUrl}
+                    />
                   </td>
                   <td className="px-4 py-3 text-sm tabular-nums text-nodex-green">
-                    {formatCurrency(wallet.realizedPnl30d, true)}
+                    {wallet.pnl30d ? formatCurrency(wallet.pnl30d, true) : '—'}
                   </td>
-                  <td className="px-4 py-3 text-sm tabular-nums">{formatCurrency(wallet.pnl30d, true)}</td>
                   <td className="px-4 py-3 text-sm tabular-nums text-nodex-muted">
                     {formatCurrency(wallet.volume30d, true)}
                   </td>
                   <td className="px-4 py-3 text-sm tabular-nums text-nodex-muted">{wallet.trades30d.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-sm tabular-nums text-nodex-muted">{wallet.followers.toLocaleString()}</td>
                   <td className="px-4 py-3">
                     <WatchButton
                       address={wallet.address}
@@ -459,12 +510,12 @@ export function WalletsPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-3 text-3xl font-bold md:text-4xl"
         >
-          What Top Wallets Are Buying
+          What Top Traders Are Buying
         </motion.h1>
         <p className="mb-8 max-w-3xl text-sm text-nodex-muted">
-          Tokens the {meta.tracked || 'top'} most profitable {chainLabel(chain)} wallets of the last 30 days are net buying over the
-          last {formatWindow(meta.windowHours)}. Only live wallets whose profit is real and already taken are
-          followed. The more of them in a token, the higher it ranks, and ties go to the more profitable buyers.
+          Tokens the top {meta.tracked || ''} FOMO traders are net buying on {chainLabel(chain)} over the last{' '}
+          {formatWindow(meta.windowHours)}. Traders come from FOMO's leaderboards, refreshed monthly. The more of
+          them in a token, the higher it ranks, and ties go to the traders with the bigger 30-day PnL.
         </p>
 
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">

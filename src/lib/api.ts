@@ -330,14 +330,19 @@ export interface PaginatedResponse<T> {
 
 export type SmartMoneySortKey = 'walletCount' | 'netBuyUsd' | 'marketCap' | 'lastBuyAt' | 'priceChange24h' | 'buyerProfit'
 
-/** A wallet from the 30-day profit leaderboard that the smart money feed follows. */
+/** A top FOMO trader's wallet that the smart money feed follows. */
 export interface SmartMoneyWallet {
   address: string
   rank: number
+  /** FOMO's 30-day PnL. Zero for traders listed from the 7-day, all-time or 24-hour boards. */
   pnl30d: number
   realizedPnl30d: number
   volume30d: number
   trades30d: number
+  handle: string | null
+  displayName: string | null
+  avatarUrl: string | null
+  followers: number
 }
 
 /** A token the tracked wallets are net buying. */
@@ -367,6 +372,9 @@ export interface SmartMoneyBuy {
     lastBuyAt: string | null
     rank: number | null
     realizedPnl30d: number | null
+    handle: string | null
+    displayName: string | null
+    avatarUrl: string | null
   }>
 }
 
