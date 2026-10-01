@@ -141,12 +141,13 @@ function useWalletWatchlist(chain: Chain) {
     else watchlist.fetchIfNeeded()
   }, [chain])
 
-  const add = async (address: string) => {
+  const add = async (address: string, name?: string | null) => {
     if (watched.has(address) || adding) return
     setAdding(address)
     setError(null)
     try {
-      await useWatchlistStore.getState().addWallet(address, `Top wallet ${truncateAddress(address)}`, chain)
+      // The trader's name when known, otherwise just the short address.
+      await useWatchlistStore.getState().addWallet(address, name || truncateAddress(address), chain)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add wallet')
     } finally {
@@ -202,7 +203,7 @@ function BuyersDetail({
                   address={wallet.address}
                   watched={watchlist.watched.has(wallet.address)}
                   adding={watchlist.adding === wallet.address}
-                  onAdd={(address) => void watchlist.add(address)}
+                  onAdd={(address) => void watchlist.add(address, wallet.displayName || (wallet.handle ? `@${wallet.handle}` : null))}
                 />
               </td>
             </tr>
@@ -470,7 +471,7 @@ function TrackedWalletsTable({
                       address={wallet.address}
                       watched={watchlist.watched.has(wallet.address)}
                       adding={watchlist.adding === wallet.address}
-                      onAdd={(address) => void watchlist.add(address)}
+                      onAdd={(address) => void watchlist.add(address, wallet.displayName || (wallet.handle ? `@${wallet.handle}` : null))}
                     />
                   </td>
                 </tr>

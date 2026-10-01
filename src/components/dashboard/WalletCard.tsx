@@ -77,14 +77,18 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
     >
       <div className="flex items-start justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div
-            className={cn(
-              'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white',
-              AVATAR_COLORS[index % AVATAR_COLORS.length]
-            )}
-          >
-            {wallet.name[0] ?? '?'}
-          </div>
+          {wallet.avatarUrl ? (
+            <img src={wallet.avatarUrl} alt="" className="h-10 w-10 shrink-0 rounded-full bg-white/10 object-cover" loading="lazy" />
+          ) : (
+            <div
+              className={cn(
+                'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white',
+                AVATAR_COLORS[index % AVATAR_COLORS.length]
+              )}
+            >
+              {wallet.name[0] ?? '?'}
+            </div>
+          )}
           <div className="min-w-0">
             {editing ? (
               <div className="flex items-center gap-1">
@@ -140,7 +144,7 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
               href={walletUrl(wallet.chain, wallet.address)}
               target="_blank"
               rel="noopener noreferrer"
-              title="Open wallet in Solscan"
+              title="Open wallet in the block explorer"
               className="group/address flex w-fit items-center gap-1 text-xs text-nodex-muted underline-offset-4 hover:text-nodex-teal hover:underline focus-visible:text-nodex-teal focus-visible:underline focus-visible:outline-none"
             >
               {truncateAddress(wallet.address)}
@@ -195,7 +199,7 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
         <div>
           <div className="text-[10px] tracking-widest uppercase text-nodex-muted mb-1">Balance</div>
           <div className={cn('text-lg font-bold', noData && 'text-nodex-muted')}>
-            {noData ? '—' : formatCurrency(wallet.balance)}
+            {noData || wallet.balance === null ? '—' : formatCurrency(wallet.balance)}
           </div>
         </div>
         <div>
@@ -203,26 +207,32 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
           <div
             className={cn(
               'text-lg font-bold',
-              noData
+              noData || wallet.pnl7d === null
                 ? 'text-nodex-muted'
                 : wallet.pnl7d >= 0
                   ? 'text-nodex-green'
                   : 'text-nodex-red'
             )}
           >
-            {noData ? '—' : formatPnl(wallet.pnl7d)}
+            {noData || wallet.pnl7d === null ? '—' : formatPnl(wallet.pnl7d)}
           </div>
         </div>
         <div>
           <div className="text-[10px] tracking-widest uppercase text-nodex-muted mb-1">Win Rate</div>
           <div className={cn('text-lg font-bold', noData && 'text-nodex-muted')}>
-            {noData ? '—' : `${wallet.winRate}%`}
+            {noData || wallet.winRate === null ? '—' : `${wallet.winRate}%`}
           </div>
         </div>
       </div>
 
       <div className="flex items-center justify-between text-xs text-nodex-muted">
-        <span>{noData ? 'No analytics data yet' : `Last active ${wallet.lastActive}`}</span>
+        <span>
+          {noData
+            ? 'No wallet data found'
+            : [wallet.handle ? `@${wallet.handle}` : null, wallet.lastActive ? `active ${wallet.lastActive}` : null]
+                .filter(Boolean)
+                .join(' · ')}
+        </span>
         <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/5">
           <span className={cn('w-1.5 h-1.5 rounded-full', noData ? 'bg-nodex-muted' : 'bg-nodex-green')} />
           {wallet.chain === 'solana' ? 'Solana' : 'Robinhood Chain'}

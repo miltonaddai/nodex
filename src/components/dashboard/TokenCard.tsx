@@ -194,10 +194,14 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
       <div className="flex items-center justify-between text-xs text-nodex-muted">
         <span>
           {noData
-            ? 'No analytics data yet'
-            : tokenAge
-              ? `${tokenAge} · churn ${token.churn.toFixed(2)}`
-              : `Churn ${token.churn.toFixed(2)}`}
+            ? 'No market data found'
+            : [
+                tokenAge,
+                // Churn exists only for tokens discovery has scored. Others show liquidity instead.
+                token.churn > 0 ? `churn ${token.churn.toFixed(2)}` : `liq ${formatCurrency(token.liquidity, true)}`,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
         </span>
         <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/5">
           <span

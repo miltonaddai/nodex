@@ -15,6 +15,7 @@ import { WalletsPage } from '@/pages/WalletsPage'
 import { WalletAnalysisPage } from '@/pages/WalletAnalysisPage'
 import { TokensPage } from '@/pages/TokensPage'
 import { InsidersPage } from '@/pages/InsidersPage'
+import { ScannerPage } from '@/pages/ScannerPage'
 import { WatchlistPage } from '@/pages/WatchlistPage'
 // SUBSCRIPTIONS DISABLED — only referenced by the commented-out pricing route below.
 // import { SELECT_PLAN_PATH } from '@/lib/subscription-routes'
@@ -92,6 +93,14 @@ export function AppRoutes() {
           element={
             <SubscriptionRoute>
               <TokensPage />
+            </SubscriptionRoute>
+          }
+        />
+        <Route
+          path="/scanner"
+          element={
+            <SubscriptionRoute>
+              <ScannerPage />
             </SubscriptionRoute>
           }
         />

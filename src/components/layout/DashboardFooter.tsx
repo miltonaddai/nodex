@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 const links = [
   { label: 'Tokens', to: '/tokens' },
   { label: 'Insiders', to: '/insiders' },
+  { label: 'Scanner', to: '/scanner' },
   { label: 'Wallets', to: '/wallets' },
   { label: 'Watchlist', to: '/watchlist' },
 ]

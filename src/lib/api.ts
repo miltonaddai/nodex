@@ -238,6 +238,13 @@ export const api = {
       return request<PaginatedTokensResponse>(`/tokens/top?${q}`)
     },
   },
+  scanner: {
+    scan: (chain: ScanChain, address: string) =>
+      request<ScanResult>(`/scanner/${chain}/${encodeURIComponent(address)}`),
+    /** Solana only. Takes up to a minute the first time a token is analyzed. */
+    bundle: (chain: ScanChain, address: string) =>
+      request<ScanResult>(`/scanner/${chain}/${encodeURIComponent(address)}/bundle`),
+  },
   smartMoney: {
     buys: (params: { chain?: string; page?: number; pageSize?: number; sortBy?: SmartMoneySortKey; sortOrder?: 'asc' | 'desc' }) => {
       const q = new URLSearchParams(
@@ -326,6 +333,75 @@ export interface PaginatedResponse<T> {
   lastUpdated: string | null
   nextUpdate?: string | null
   message?: string
+}
+
+export type ScanChain = 'solana' | 'robinhood'
+export type RiskSeverity = 'critical' | 'high' | 'medium' | 'low'
+
+export interface ScanHolder {
+  rank: number
+  address: string
+  amount: number
+  pctOfSupply: number
+  valueUsd: number
+  nativeBalance: number | null
+  netWorthUsd: number | null
+  isPool: boolean
+  label: string | null
+  fomoHandle: string | null
+  isInsider: boolean
+}
+
+export interface ScanBundle {
+  launchBuyers: number
+  insiderWallets: string[]
+  insiderAcquiredPct: number
+  insiderHoldingPct: number | null
+  insiderStatus: string
+  linkedWallets: number
+  clusters: Array<{ wallets: string[]; boughtPct: number; linkKinds: string[] }>
+  creationBlockSupplyPct: number
+  launchScore: number
+  evidence: string[]
+  launchedAt: string
+}
+
+/** Everything the scanner found about one token, with a buy-or-avoid verdict. */
+export interface ScanResult {
+  chain: ScanChain
+  address: string
+  name: string
+  symbol: string
+  imageUrl: string
+  priceUsd: number | null
+  marketCapUsd: number | null
+  liquidityUsd: number | null
+  volume24hUsd: number | null
+  priceChange24h: number | null
+  ageHours: number | null
+  poolCount: number
+  primaryDex: string | null
+  links: Array<{ label: string; url: string }>
+  security: {
+    mintAuthority: string | null
+    freezeAuthority: string | null
+    transferFeeBps: number | null
+    transferFeeAuthority: string | null
+    permanentDelegate: string | null
+    contractVerified: boolean | null
+  }
+  holders: { count: number | null; top10Pct: number | null; largestHolderPct: number | null; list: ScanHolder[] }
+  trading: { buys24h: number | null; sells24h: number | null; uniqueWallets24h: number | null; churn: number | null }
+  smartMoney: Array<{ handle: string; displayName: string; netBuyUsd: number }>
+  bundle: ScanBundle | null
+  bundleAvailable: boolean
+  risk: {
+    verdict: 'avoid' | 'caution' | 'favorable'
+    riskScore: number
+    flags: Array<{ severity: RiskSeverity; title: string; detail: string }>
+    positives: Array<{ title: string; detail: string }>
+  }
+  scannedAt: string
 }
 
 export type SmartMoneySortKey = 'walletCount' | 'netBuyUsd' | 'marketCap' | 'lastBuyAt' | 'priceChange24h' | 'buyerProfit'
@@ -608,11 +684,17 @@ export interface WatchlistWallet {
   id: string
   name: string
   address: string
-  balance: number
-  pnl7d: number
-  winRate: number
-  lastActive: string
+  /** USD. Null when it could not be measured. */
+  balance: number | null
+  pnl7d: number | null
+  /** Percent. Null on Robinhood Chain, where per-wallet trade history is unavailable. */
+  winRate: number | null
+  lastActive: string | null
   chain: string
-  /** No wallet_analytics row backs this wallet — the metrics above are placeholders. */
+  /** Set when the wallet belongs to a tracked FOMO trader. */
+  handle?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  /** Nothing could be measured for this wallet — the metrics above are empty. */
   analyticsUnavailable?: boolean
 }
