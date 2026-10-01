@@ -328,14 +328,17 @@ function BuysTable({
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           <TokenAvatar imageUrl={token.imageUrl} symbol={token.symbol} fallbackClassName="bg-blue-500" />
-                          <div>
-                            <div className="text-sm font-medium">{token.name || token.symbol}</div>
+                          <div className="min-w-0 max-w-[12rem]">
+                            <div className="truncate text-sm font-medium" title={token.name || token.symbol}>
+                              {token.name || token.symbol}
+                            </div>
                             <a
+                              title={token.symbol}
                               href={tokenUrl(chain, token.contract)}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(event) => event.stopPropagation()}
-                              className="text-xs text-nodex-muted underline-offset-4 hover:text-nodex-teal hover:underline"
+                              className="block truncate text-xs text-nodex-muted underline-offset-4 hover:text-nodex-teal hover:underline"
                             >
                               {token.symbol} · {truncateAddress(token.contract)}
                             </a>

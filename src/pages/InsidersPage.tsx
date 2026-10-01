@@ -334,14 +334,17 @@ export function InsidersPage() {
                           <td className="px-4 py-4">
                             <div className="flex items-center gap-3">
                               <TokenAvatar imageUrl={play.imageUrl} symbol={play.symbol} fallbackClassName="bg-purple-500" />
-                              <div>
-                                <div className="text-sm font-medium">{play.name}</div>
+                              <div className="min-w-0 max-w-[12rem]">
+                                <div className="truncate text-sm font-medium" title={play.name}>
+                                  {play.name}
+                                </div>
                                 <a
+                                  title={play.symbol}
                                   href={tokenUrl('solana', play.contract)}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   onClick={(event) => event.stopPropagation()}
-                                  className="text-xs text-nodex-muted underline-offset-4 hover:text-nodex-teal hover:underline"
+                                  className="block truncate text-xs text-nodex-muted underline-offset-4 hover:text-nodex-teal hover:underline"
                                 >
                                   {play.symbol} · {truncateAddress(play.contract)}
                                 </a>

@@ -179,9 +179,13 @@ export function TokenTable({
                         symbol={token.symbol}
                         fallbackClassName={AVATAR_COLORS[token.rank % AVATAR_COLORS.length]}
                       />
-                      <div>
-                        <div className="text-sm font-medium">{token.name}</div>
-                        <div className="text-xs text-nodex-muted">{token.symbol}</div>
+                      <div className="min-w-0 max-w-[12rem]">
+                        <div className="truncate text-sm font-medium" title={token.name}>
+                          {token.name}
+                        </div>
+                        <div className="truncate text-xs text-nodex-muted" title={token.symbol}>
+                          {token.symbol}
+                        </div>
                       </div>
                       <TokenWatchlistButton token={token} chain={chain} />
                     </div>

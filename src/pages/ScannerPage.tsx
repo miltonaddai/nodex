@@ -490,9 +490,13 @@ export function ScannerPage() {
               <div className="flex flex-wrap items-center gap-4">
                 <TokenAvatar imageUrl={scan.imageUrl} symbol={scan.symbol} fallbackClassName="bg-purple-500" className="h-12 w-12 text-base" />
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold">{scan.name || 'Unknown token'}</span>
-                    <span className="text-sm text-nodex-muted">{scan.symbol}</span>
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="max-w-[28rem] truncate text-xl font-bold" title={scan.name}>
+                      {scan.name || 'Unknown token'}
+                    </span>
+                    <span className="max-w-[10rem] truncate text-sm text-nodex-muted" title={scan.symbol}>
+                      {scan.symbol}
+                    </span>
                     <span className="group">
                       <TokenWatchlistButton token={{ contract: scan.address, name: scan.name, symbol: scan.symbol }} chain={scan.chain} />
                     </span>
