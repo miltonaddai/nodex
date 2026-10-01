@@ -4,11 +4,14 @@ import { motion } from 'framer-motion'
 import {
   CircleCheck,
   ExternalLink,
+  History,
   LoaderCircle,
+  RefreshCw,
   Search,
   ShieldAlert,
   ShieldCheck,
   TriangleAlert,
+  X,
 } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Navbar } from '@/components/layout/Navbar'
@@ -21,6 +24,14 @@ import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
 import { useChainTokenWatchlist } from '@/hooks/useSolanaTokenWatchlist'
 import { api, type RiskSeverity, type ScanChain, type ScanResult } from '@/lib/api'
 import { walletUrl } from '@/lib/chains'
+import {
+  clearScanHistory,
+  findScan,
+  forgetScan,
+  loadScanHistory,
+  rememberScan,
+  type ScanHistoryEntry,
+} from '@/lib/scan-history'
 import { cn, formatCurrency, truncateAddress } from '@/lib/utils'
 
 const SEVERITY_STYLE: Record<RiskSeverity, string> = {
@@ -57,6 +68,80 @@ function formatPrice(price: number | null): string {
 
 function pct(value: number | null, digits = 1): string {
   return value === null ? '—' : `${value.toFixed(digits)}%`
+}
+
+function timeAgo(iso: string): string {
+  const minutes = Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / 60_000))
+  if (minutes < 1) return 'just now'
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  return `${Math.floor(hours / 24)}d ago`
+}
+
+const VERDICT_DOT = { avoid: 'bg-nodex-red', caution: 'bg-nodex-amber', favorable: 'bg-nodex-teal' } as const
+
+/** Past scans saved in this browser. Opening one shows the saved result without calling the API. */
+function RecentScans({
+  entries,
+  activeAddress,
+  onOpen,
+  onForget,
+  onClear,
+}: {
+  entries: ScanHistoryEntry[]
+  activeAddress: string | null
+  onOpen: (entry: ScanHistoryEntry) => void
+  onForget: (entry: ScanHistoryEntry) => void
+  onClear: () => void
+}) {
+  if (entries.length === 0) return null
+  return (
+    <div className="mb-8">
+      <div className="mb-2 flex items-center justify-between">
+        <h2 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">
+          <History className="h-3.5 w-3.5" /> Recent scans
+        </h2>
+        <button type="button" onClick={onClear} className="text-xs text-nodex-muted hover:text-nodex-red">
+          Clear all
+        </button>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {entries.map((entry) => {
+          const active = activeAddress?.toLowerCase() === entry.address.toLowerCase()
+          return (
+            <div
+              key={`${entry.chain}:${entry.address}`}
+              className={cn(
+                'group flex max-w-[16rem] items-center gap-2 rounded-full border py-1 pl-1 pr-2 text-xs transition-colors',
+                active ? 'border-nodex-teal/40 bg-nodex-teal/10' : 'border-white/10 bg-white/[0.03] hover:border-nodex-teal/30'
+              )}
+            >
+              <button
+                type="button"
+                onClick={() => onOpen(entry)}
+                className="flex min-w-0 items-center gap-2"
+                title={`${entry.name || entry.symbol} - ${entry.verdict} - scanned ${timeAgo(entry.scannedAt)}`}
+              >
+                <TokenAvatar imageUrl={entry.imageUrl} symbol={entry.symbol} fallbackClassName="bg-purple-500" className="h-6 w-6 text-[10px]" />
+                <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', VERDICT_DOT[entry.verdict])} />
+                <span className="truncate font-medium">{entry.symbol || entry.name || entry.address.slice(0, 6)}</span>
+                <span className="shrink-0 text-nodex-muted">{timeAgo(entry.scannedAt)}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onForget(entry)}
+                aria-label={`Remove ${entry.symbol} from recent scans`}
+                className="shrink-0 text-nodex-muted opacity-0 transition-opacity hover:text-nodex-red group-hover:opacity-100 focus:opacity-100"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
 }
 
 function Section({ title, aside, children }: { title: string; aside?: ReactNode; children: ReactNode }) {
@@ -374,6 +459,9 @@ export function ScannerPage() {
   const [error, setError] = useState<string | null>(null)
   const [bundleLoading, setBundleLoading] = useState(false)
   const [bundleError, setBundleError] = useState<string | null>(null)
+  const [history, setHistory] = useState<ScanHistoryEntry[]>(() => loadScanHistory())
+  /** True when the result on screen came from saved history rather than a fresh scan. */
+  const [fromHistory, setFromHistory] = useState(false)
   const requestId = useRef(0)
   useChainTokenWatchlist(chain)
 
@@ -383,7 +471,10 @@ export function ScannerPage() {
     api.scanner
       .bundle(target, address)
       .then((result) => {
-        if (id === requestId.current) setScan(result)
+        if (id !== requestId.current) return
+        setScan(result)
+        setFromHistory(false)
+        setHistory(rememberScan(result))
       })
       .catch((err: unknown) => {
         if (id === requestId.current) setBundleError(err instanceof Error ? err.message : 'Bundle analysis failed')
@@ -399,6 +490,7 @@ export function ScannerPage() {
       setLoading(true)
       setError(null)
       setScan(null)
+      setFromHistory(false)
       setBundleError(null)
       setBundleLoading(false)
       api.scanner
@@ -406,6 +498,7 @@ export function ScannerPage() {
         .then((result) => {
           if (id !== requestId.current) return
           setScan(result)
+          setHistory(rememberScan(result))
           // Run the slow launch analysis automatically when nothing is stored for this token.
           if (result.bundleAvailable && !result.bundle) runBundle(target, address, id)
         })
@@ -419,15 +512,36 @@ export function ScannerPage() {
     [runBundle]
   )
 
-  // A scan in the URL (shared link or reload) runs on arrival. Later scans update the URL
-  // themselves, so this only fires once.
+  /** Shows a saved scan without calling the API. */
+  const openSaved = useCallback(
+    (entry: ScanHistoryEntry) => {
+      requestId.current++ // Ignore any scan still in flight.
+      setScan(entry.result)
+      setFromHistory(true)
+      setLoading(false)
+      setError(null)
+      setBundleLoading(false)
+      setBundleError(null)
+      setChain(entry.chain)
+      setInput(entry.address)
+      setParams({ chain: entry.chain, address: entry.address })
+    },
+    [setParams]
+  )
+
+  // A scan in the URL (shared link or reload) opens on arrival: from history when this browser
+  // has it, otherwise as a fresh scan. Later scans update the URL themselves, so this fires once.
   const scannedFromUrl = useRef(false)
   useEffect(() => {
     if (scannedFromUrl.current) return
     scannedFromUrl.current = true
     const address = params.get('address')
-    if (address) runScan(params.get('chain') === 'robinhood' ? 'robinhood' : 'solana', address)
-  }, [params, runScan])
+    if (!address) return
+    const target = params.get('chain') === 'robinhood' ? 'robinhood' : 'solana'
+    const saved = findScan(target, address)
+    if (saved) openSaved(saved)
+    else runScan(target, address)
+  }, [params, runScan, openSaved])
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -477,6 +591,14 @@ export function ScannerPage() {
           </button>
         </form>
 
+        <RecentScans
+          entries={history}
+          activeAddress={scan?.address ?? null}
+          onOpen={openSaved}
+          onForget={(entry) => setHistory(forgetScan(entry.chain, entry.address))}
+          onClear={() => setHistory(clearScanHistory())}
+        />
+
         {error ? <p className="mb-6 text-sm text-nodex-red">{error}</p> : null}
         {loading ? (
           <div className="flex items-center gap-2 text-sm text-nodex-muted">
@@ -486,6 +608,20 @@ export function ScannerPage() {
 
         {scan ? (
           <div className="space-y-5">
+            {fromHistory ? (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm">
+                <span className="text-nodex-muted">
+                  Saved scan from {timeAgo(scan.scannedAt)}. Prices, holders and the verdict may have changed since.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => runScan(scan.chain, scan.address)}
+                  className="inline-flex items-center gap-1.5 font-medium text-nodex-teal hover:underline"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" /> Rescan
+                </button>
+              </div>
+            ) : null}
             <GlassPanel variant="frosted" className="p-5">
               <div className="flex flex-wrap items-center gap-4">
                 <TokenAvatar imageUrl={scan.imageUrl} symbol={scan.symbol} fallbackClassName="bg-purple-500" className="h-12 w-12 text-base" />
