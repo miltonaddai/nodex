@@ -17,6 +17,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { Button } from '@/components/ui/button'
 import { SUBSCRIPTIONS_ENABLED } from '@/lib/subscriptions-enabled'
 import { cn } from '@/lib/utils'
+import { SignupLink } from '@/components/auth/SignupLink'
 
 const facts = [
   { value: '250', label: 'top traders followed' },
@@ -264,10 +265,10 @@ export function LandingPage() {
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button asChild size="lg" className="group h-12 px-7">
-                  <Link to="/signup">
+                  <SignupLink>
                     Get started
                     <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
+                  </SignupLink>
                 </Button>
                 <Button asChild size="lg" variant="dark" className="h-12 px-7">
                   <a href="#features">See what it does</a>
@@ -421,7 +422,7 @@ export function LandingPage() {
                       ))}
                     </ul>
                     <Button asChild variant={plan.featured ? 'default' : 'outline'} className="w-full">
-                      <Link to={`/signup?plan=${plan.name.toLowerCase()}`}>Choose {plan.name}</Link>
+                      <SignupLink to={`/signup?plan=${plan.name.toLowerCase()}`}>Choose {plan.name}</SignupLink>
                     </Button>
                   </motion.div>
                 ))}
@@ -481,12 +482,9 @@ export function LandingPage() {
               <h2 className="text-2xl font-bold md:text-3xl">Check your next token before you buy it.</h2>
               <p className="mt-2 opacity-80">Free to start. Scan any Solana or Robinhood Chain contract in seconds.</p>
             </div>
-            <Link
-              to="/signup"
-              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#ffffff] px-6 py-3 text-sm font-semibold text-nodex-blue transition-opacity hover:opacity-90"
-            >
+            <SignupLink className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#ffffff] px-6 py-3 text-sm font-semibold text-nodex-blue transition-opacity hover:opacity-90">
               Get started <ArrowRight className="h-4 w-4" />
-            </Link>
+            </SignupLink>
           </motion.div>
         </section>
       </main>

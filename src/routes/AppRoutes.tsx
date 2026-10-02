@@ -7,6 +7,8 @@ import { GuestRoute } from '@/components/auth/GuestRoute'
 import { LandingPage } from '@/pages/LandingPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
+import { SignupsClosedRedirect } from '@/components/auth/SignupsClosedRedirect'
+import { SIGNUPS_ENABLED } from '@/lib/signups-enabled'
 // SUBSCRIPTIONS DISABLED — pages kept in the tree, just not routed.
 // import { PricingPage } from '@/pages/PricingPage'
 // import { PricingSuccessPage } from '@/pages/PricingSuccessPage'
@@ -37,9 +39,13 @@ export function AppRoutes() {
         <Route
           path="/signup"
           element={
-            <GuestRoute>
-              <SignupPage />
-            </GuestRoute>
+            SIGNUPS_ENABLED ? (
+              <GuestRoute>
+                <SignupPage />
+              </GuestRoute>
+            ) : (
+              <SignupsClosedRedirect />
+            )
           }
         />
 

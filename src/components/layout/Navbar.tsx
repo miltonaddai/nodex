@@ -15,6 +15,7 @@ import { useTheme } from '@/context/theme-context'
 import { isActiveSubscription } from '@/lib/plans'
 import { DASHBOARD_HOME_PATH } from '@/lib/subscription-routes'
 import { cn } from '@/lib/utils'
+import { SignupLink } from '@/components/auth/SignupLink'
 
 interface NavbarProps {
   variant?: 'public' | 'dashboard'
@@ -197,9 +198,7 @@ export function Navbar({ variant = 'public' }: NavbarProps) {
         <Link to="/login" className={textLink}>
           Login
         </Link>
-        <Link to="/signup" className={pillLink}>
-          Sign up
-        </Link>
+        <SignupLink className={pillLink}>Sign up</SignupLink>
         {themeToggle}
       </>
     )

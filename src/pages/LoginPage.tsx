@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Mail, Lock } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Navbar } from '@/components/layout/Navbar'
 import { AuthShell } from '@/components/layout/AuthShell'
+import { SignupLink } from '@/components/auth/SignupLink'
 import { Button } from '@/components/ui/button'
 import { IconInput } from '@/components/ui/icon-input'
 import { Label } from '@/components/ui/label'
@@ -59,9 +60,7 @@ export function LoginPage() {
         footer={
           <>
             Don&apos;t have an account?{' '}
-            <Link to="/signup" className="font-medium text-nodex-teal hover:underline">
-              Sign up
-            </Link>
+            <SignupLink className="font-medium text-nodex-teal hover:underline">Sign up</SignupLink>
           </>
         }
       >

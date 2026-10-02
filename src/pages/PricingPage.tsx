@@ -16,6 +16,8 @@ import {
   PLANS,
   type PlanId,
 } from '@/lib/plans'
+import { SIGNUPS_CLOSED_MESSAGE, SIGNUPS_ENABLED } from '@/lib/signups-enabled'
+import { toast } from '@/stores/toastStore'
 import { cn } from '@/lib/utils'
 
 export function PricingPage() {
@@ -54,6 +56,10 @@ export function PricingPage() {
       setError('')
 
       if (!isAuthenticated) {
+        if (!SIGNUPS_ENABLED) {
+          toast(SIGNUPS_CLOSED_MESSAGE)
+          return
+        }
         navigate(`/signup?plan=${planId}`)
         return
       }
