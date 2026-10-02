@@ -74,7 +74,7 @@ export function AdvancedFiltersButton<TFilters extends object>({
           <Filter className="h-4 w-4" />
           Filters
           {activeCount > 0 ? (
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-nodex-teal px-1.5 text-[10px] font-bold text-nodex-on-accent">
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-nodex-accent px-1.5 text-[11px] font-bold text-nodex-on-accent">
               {activeCount}
             </span>
           ) : null}
@@ -83,7 +83,7 @@ export function AdvancedFiltersButton<TFilters extends object>({
       <DropdownMenuContent
         align="start"
         sideOffset={8}
-        className="max-h-[min(70vh,620px)] w-[min(calc(100vw-2rem),36rem)] overflow-y-auto border-white/10 bg-nodex-surface/95 p-4 text-white backdrop-blur-xl"
+        className="max-h-[min(70vh,620px)] w-[min(calc(100vw-2rem),36rem)] overflow-y-auto border-nodex-line bg-nodex-surface p-4 text-white"
       >
         <form
           onSubmit={(event) => {
@@ -98,7 +98,7 @@ export function AdvancedFiltersButton<TFilters extends object>({
           <div className="grid gap-3 sm:grid-cols-2">
             {fields.map((field) => (
               <label key={field.key} className="space-y-1.5">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-nodex-muted">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-nodex-muted">
                   {field.label}
                 </span>
                 <input

@@ -31,7 +31,7 @@ function Stat({
 }) {
   return (
     <GlassPanel variant="frosted" className="p-5">
-      <p className="text-[10px] font-semibold tracking-widest uppercase text-nodex-muted">{label}</p>
+      <p className="text-[11px] font-semibold tracking-widest uppercase text-nodex-muted">{label}</p>
       <p className={cn('mt-2 text-xl font-bold', className)}>{value}</p>
     </GlassPanel>
   )
@@ -247,7 +247,7 @@ export function WalletAnalysisPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-white/10 bg-white/[0.04] text-left text-[10px] font-semibold tracking-widest uppercase text-nodex-muted">
+                      <tr className="border-b border-white/10 bg-white/[0.04] text-left text-[11px] font-semibold tracking-widest uppercase text-nodex-muted">
                         <th className="px-4 py-4">Token</th>
                         <th className="px-4 py-4">Alpha</th>
                         <th className="px-4 py-4">Position</th>

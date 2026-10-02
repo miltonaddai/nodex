@@ -1,5 +1,4 @@
 import { type ReactNode } from 'react'
-import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 interface GlassPanelProps {
@@ -10,18 +9,13 @@ interface GlassPanelProps {
   featured?: boolean
 }
 
-export function GlassPanel({
-  children,
-  className,
-  hover = false,
-  variant = 'default',
-  featured = false,
-}: GlassPanelProps) {
+/**
+ * A flat card: solid surface and a 1px line (see the surface classes in index.css). The name and
+ * variants are kept from the earlier glass design so existing pages need no changes.
+ */
+export function GlassPanel({ children, className, hover = false, variant = 'default', featured = false }: GlassPanelProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
+    <div
       className={cn(
         'rounded-2xl',
         variant === 'solid'
@@ -29,13 +23,11 @@ export function GlassPanel({
           : variant === 'frosted'
             ? 'glass-panel-frosted'
             : 'glass-panel',
-        hover &&
-          variant === 'default' &&
-          'transition-all duration-300 hover:border-nodex-teal/30 hover:shadow-[0_0_40px_rgba(77,230,201,0.08)]',
+        hover && 'transition-colors duration-200 hover:border-nodex-teal/40',
         className
       )}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }

@@ -68,10 +68,10 @@ export function WalletTable({
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.04]">
-                <th className="px-4 py-4 text-left text-[10px] font-semibold tracking-widest uppercase text-nodex-muted">
+                <th className="px-4 py-4 text-left text-[11px] font-semibold tracking-widest uppercase text-nodex-muted">
                   #
                 </th>
-                <th className="px-4 py-4 text-left text-[10px] font-semibold tracking-widest uppercase text-nodex-muted">
+                <th className="px-4 py-4 text-left text-[11px] font-semibold tracking-widest uppercase text-nodex-muted">
                   Wallet
                 </th>
                 <SortableHeader label="Wins / List Tokens" column="qualifiedTokens" sortBy={sortBy} sortOrder={sortOrder} onSort={(col) => onSort(col as WalletSortKey)} />
@@ -185,7 +185,7 @@ export function WalletTable({
                       {wallet.qualifiedWins ?? 0}/{wallet.qualifiedTokens ?? 0}
                     </div>
                     {wallet.qualifiedProfitUsd !== undefined && (
-                      <div className="text-[10px] text-nodex-muted">
+                      <div className="text-[11px] text-nodex-muted">
                         {formatPnl(wallet.qualifiedProfitUsd)} on list
                       </div>
                     )}

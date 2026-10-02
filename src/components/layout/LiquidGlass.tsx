@@ -1,70 +1,30 @@
-import { type MouseEvent, type ReactNode, useState } from 'react'
+import { type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 interface LiquidGlassProps {
   children: ReactNode
   className?: string
+  /** Kept for existing callers. Flat surfaces only change their border on hover. */
   interactive?: boolean
   variant?: 'default' | 'solid'
   featured?: boolean
 }
 
 /**
- * Glass surface used for the navbar and cards.
+ * A flat surface for cards. The name is kept from the earlier glass design, which had a
+ * mouse-following light effect and blur. Both are gone.
  */
-export function LiquidGlass({
-  children,
-  className,
-  interactive = false,
-  variant = 'default',
-  featured = false,
-}: LiquidGlassProps) {
-  const [light, setLight] = useState({ x: 50, y: 20 })
-
-  const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
-    if (!interactive) return
-    const rect = event.currentTarget.getBoundingClientRect()
-    setLight({
-      x: ((event.clientX - rect.left) / rect.width) * 100,
-      y: ((event.clientY - rect.top) / rect.height) * 100,
-    })
-  }
-
+export function LiquidGlass({ children, className, interactive = false, variant = 'default', featured = false }: LiquidGlassProps) {
   return (
     <div
-      className={cn('relative overflow-hidden', interactive && 'group', className)}
-      onMouseMove={handleMouseMove}
+      className={cn(
+        'overflow-hidden',
+        variant === 'solid' ? cn('glass-panel-solid', featured && 'glass-panel-solid-featured') : 'glass-panel',
+        interactive && 'transition-colors duration-200 hover:border-nodex-teal/40',
+        className
+      )}
     >
-      <div
-        className={cn(
-          'relative rounded-[inherit]',
-          variant === 'solid'
-            ? cn('glass-panel-solid', featured && 'glass-panel-solid-featured')
-            : 'glass-panel',
-          interactive && 'transition-transform duration-500 group-hover:-translate-y-1'
-        )}
-      >
-        {interactive && variant === 'default' && (
-          <>
-            <div
-              className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-60 transition-opacity duration-300 group-hover:opacity-100"
-              style={{
-                background: `radial-gradient(circle at ${light.x}% ${light.y}%, rgba(255,255,255,.16), rgba(77,230,201,.05) 24%, transparent 54%)`,
-              }}
-            />
-            <div className="pointer-events-none absolute inset-[1px] rounded-[inherit] border border-white/[0.05]" />
-          </>
-        )}
-        {interactive && variant === 'solid' && (
-          <div
-            className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-            style={{
-              background: `radial-gradient(circle at ${light.x}% ${light.y}%, rgba(255,255,255,.08), transparent 55%)`,
-            }}
-          />
-        )}
-        <div className="relative">{children}</div>
-      </div>
+      {children}
     </div>
   )
 }

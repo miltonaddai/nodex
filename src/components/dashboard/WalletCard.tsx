@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { motion } from 'framer-motion'
 import { Check, ExternalLink, Pencil, Trash2, X } from 'lucide-react'
 import { type WatchlistWallet } from '@/lib/api'
@@ -31,6 +31,12 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
 
   // The wallet is still on the watchlist, we just have no analytics to show for it.
   const noData = wallet.analyticsUnavailable === true
+  const tone =
+    noData || wallet.pnl7d === null
+      ? 'var(--color-nodex-teal)'
+      : wallet.pnl7d >= 0
+        ? 'var(--color-nodex-green)'
+        : 'var(--color-nodex-red)'
 
   const cancelEditing = () => {
     setDraftName(wallet.name)
@@ -73,7 +79,9 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.08 }}
-      className="group glass-card rounded-2xl p-5"
+      whileHover={{ y: -4 }}
+      className="group watch-card rounded-2xl p-5"
+      style={{ '--card-tone': tone } as CSSProperties}
     >
       <div className="flex items-start justify-between mb-5">
         <div className="flex items-center gap-3">
@@ -82,7 +90,7 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
           ) : (
             <div
               className={cn(
-                'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white',
+                'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-[#ffffff]',
                 AVATAR_COLORS[index % AVATAR_COLORS.length]
               )}
             >
@@ -153,12 +161,12 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
                 className="h-3 w-3 opacity-0 transition-opacity group-hover/address:opacity-100 group-focus-visible/address:opacity-100"
               />
             </a>
-            {error ? <div className="mt-1 text-[10px] text-nodex-red">{error}</div> : null}
+            {error ? <div className="mt-1 text-[11px] text-nodex-red">{error}</div> : null}
           </div>
         </div>
         {confirmingRemove ? (
           <div className="flex shrink-0 items-center gap-1">
-            <span className="text-[10px] uppercase tracking-widest text-nodex-muted">Remove?</span>
+            <span className="text-[11px] uppercase tracking-widest text-nodex-muted">Remove?</span>
             <button
               type="button"
               disabled={removing}
@@ -195,15 +203,15 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-5">
+      <div className="mb-5 grid grid-cols-3 gap-4 rounded-xl bg-nodex-raised px-3 py-3">
         <div>
-          <div className="text-[10px] tracking-widest uppercase text-nodex-muted mb-1">Balance</div>
+          <div className="text-[11px] tracking-widest uppercase text-nodex-muted mb-1">Balance</div>
           <div className={cn('text-lg font-bold', noData && 'text-nodex-muted')}>
             {noData || wallet.balance === null ? '—' : formatCurrency(wallet.balance)}
           </div>
         </div>
         <div>
-          <div className="text-[10px] tracking-widest uppercase text-nodex-muted mb-1">7D PNL</div>
+          <div className="text-[11px] tracking-widest uppercase text-nodex-muted mb-1">7D PNL</div>
           <div
             className={cn(
               'text-lg font-bold',
@@ -218,7 +226,7 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
           </div>
         </div>
         <div>
-          <div className="text-[10px] tracking-widest uppercase text-nodex-muted mb-1">Win Rate</div>
+          <div className="text-[11px] tracking-widest uppercase text-nodex-muted mb-1">Win Rate</div>
           <div className={cn('text-lg font-bold', noData && 'text-nodex-muted')}>
             {noData || wallet.winRate === null ? '—' : `${wallet.winRate}%`}
           </div>
@@ -233,7 +241,7 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
                 .filter(Boolean)
                 .join(' · ')}
         </span>
-        <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/5">
+        <span className="flex items-center gap-1.5 rounded-full border border-nodex-line bg-nodex-surface px-2 py-1">
           <span className={cn('w-1.5 h-1.5 rounded-full', noData ? 'bg-nodex-muted' : 'bg-nodex-green')} />
           {wallet.chain === 'solana' ? 'Solana' : 'Robinhood Chain'}
         </span>

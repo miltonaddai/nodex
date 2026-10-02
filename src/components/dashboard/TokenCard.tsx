@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { motion } from 'framer-motion'
 import { Check, Copy, Trash2, X } from 'lucide-react'
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
@@ -51,6 +51,11 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
   // out of the recent-token window the tokens table ranks on, so this is expected over time.
   const noData = token.analyticsUnavailable === true
   const tokenAge = formatTokenAge(token.launchedAt, token.ageDays)
+  const tone = noData
+    ? 'var(--color-nodex-teal)'
+    : token.changePct >= 0
+      ? 'var(--color-nodex-green)'
+      : 'var(--color-nodex-red)'
 
   const removeToken = async () => {
     setRemoving(true)
@@ -79,7 +84,9 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.08 }}
-      className="group glass-card rounded-2xl p-5"
+      whileHover={{ y: -4 }}
+      className="group watch-card rounded-2xl p-5"
+      style={{ '--card-tone': tone } as CSSProperties}
     >
       <div className="flex items-start justify-between mb-5">
         <div className="flex items-center gap-3">
@@ -117,12 +124,12 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
                 {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
               </button>
             </div>
-            {error ? <div className="mt-1 text-[10px] text-nodex-red">{error}</div> : null}
+            {error ? <div className="mt-1 text-[11px] text-nodex-red">{error}</div> : null}
           </div>
         </div>
         {confirmingRemove ? (
           <div className="flex shrink-0 items-center gap-1">
-            <span className="text-[10px] uppercase tracking-widest text-nodex-muted">Remove?</span>
+            <span className="text-[11px] uppercase tracking-widest text-nodex-muted">Remove?</span>
             <button
               type="button"
               disabled={removing}
@@ -159,15 +166,15 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-5">
+      <div className="mb-5 grid grid-cols-3 gap-4 rounded-xl bg-nodex-raised px-3 py-3">
         <div>
-          <div className="text-[10px] tracking-widest uppercase text-nodex-muted mb-1">Price</div>
+          <div className="text-[11px] tracking-widest uppercase text-nodex-muted mb-1">Price</div>
           <div className={cn('text-lg font-bold', noData && 'text-nodex-muted')}>
             {noData ? '—' : `$${token.price.toFixed(token.price < 0.01 ? 5 : 2)}`}
           </div>
         </div>
         <div>
-          <div className="text-[10px] tracking-widest uppercase text-nodex-muted mb-1">
+          <div className="text-[11px] tracking-widest uppercase text-nodex-muted mb-1">
             24H Change
           </div>
           <div
@@ -184,7 +191,7 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
           </div>
         </div>
         <div>
-          <div className="text-[10px] tracking-widest uppercase text-nodex-muted mb-1">Mkt Cap</div>
+          <div className="text-[11px] tracking-widest uppercase text-nodex-muted mb-1">Mkt Cap</div>
           <div className={cn('text-lg font-bold', noData && 'text-nodex-muted')}>
             {noData ? '—' : formatCurrency(token.marketCap, true)}
           </div>
@@ -203,7 +210,7 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
                 .filter(Boolean)
                 .join(' · ')}
         </span>
-        <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/5">
+        <span className="flex items-center gap-1.5 rounded-full border border-nodex-line bg-nodex-surface px-2 py-1">
           <span
             className={cn('w-1.5 h-1.5 rounded-full', noData ? 'bg-nodex-muted' : 'bg-nodex-green')}
           />

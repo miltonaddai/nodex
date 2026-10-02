@@ -9,11 +9,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-nodex-teal text-nodex-on-accent hover:bg-nodex-teal/90 hover:shadow-[0_0_30px_rgba(77,230,201,0.4)] active:scale-[0.98]',
+          'bg-nodex-accent text-nodex-on-accent hover:bg-nodex-accent/90 active:scale-[0.98]',
         outline:
-          'border border-nodex-teal text-nodex-teal bg-transparent hover:bg-nodex-teal/10 hover:shadow-[0_0_20px_rgba(77,230,201,0.2)]',
+          'border border-nodex-teal text-nodex-teal bg-transparent hover:bg-nodex-teal/10',
         ghost: 'text-white hover:text-nodex-teal hover:bg-white/5',
-        dark: 'bg-nodex-surface border border-white/10 text-white hover:border-nodex-teal/30',
+        dark: 'bg-nodex-surface border border-nodex-line text-white hover:border-nodex-teal/40',
       },
       size: {
         default: 'h-11 px-8 text-sm tracking-wider uppercase',

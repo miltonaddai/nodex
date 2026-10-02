@@ -79,7 +79,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`
 }
 
-const VERDICT_DOT = { avoid: 'bg-nodex-red', caution: 'bg-nodex-amber', favorable: 'bg-nodex-teal' } as const
+const VERDICT_DOT = { avoid: 'bg-nodex-red', caution: 'bg-nodex-amber', favorable: 'bg-nodex-accent' } as const
 
 /** Past scans saved in this browser. Opening one shows the saved result without calling the API. */
 function RecentScans({
@@ -123,7 +123,7 @@ function RecentScans({
                 className="flex min-w-0 items-center gap-2"
                 title={`${entry.name || entry.symbol} - ${entry.verdict} - scanned ${timeAgo(entry.scannedAt)}`}
               >
-                <TokenAvatar imageUrl={entry.imageUrl} symbol={entry.symbol} fallbackClassName="bg-purple-500" className="h-6 w-6 text-[10px]" />
+                <TokenAvatar imageUrl={entry.imageUrl} symbol={entry.symbol} fallbackClassName="bg-purple-500" className="h-6 w-6 text-[11px]" />
                 <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', VERDICT_DOT[entry.verdict])} />
                 <span className="truncate font-medium">{entry.symbol || entry.name || entry.address.slice(0, 6)}</span>
                 <span className="shrink-0 text-nodex-muted">{timeAgo(entry.scannedAt)}</span>
@@ -159,7 +159,7 @@ function Section({ title, aside, children }: { title: string; aside?: ReactNode;
 function Stat({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-widest text-nodex-muted">{label}</div>
+      <div className="text-[11px] uppercase tracking-widest text-nodex-muted">{label}</div>
       <div className="mt-1 text-lg font-semibold tabular-nums">{value}</div>
       {sub ? <div className="text-xs text-nodex-muted">{sub}</div> : null}
     </div>
@@ -185,7 +185,7 @@ function Verdict({ scan }: { scan: ScanResult }) {
           <ul className="space-y-2">
             {scan.risk.flags.map((flag) => (
               <li key={flag.title} className="flex gap-2 text-sm">
-                <span className={cn('mt-0.5 h-fit shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase', SEVERITY_STYLE[flag.severity])}>
+                <span className={cn('mt-0.5 h-fit shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase', SEVERITY_STYLE[flag.severity])}>
                   {flag.severity}
                 </span>
                 <span>
@@ -271,7 +271,7 @@ function Holders({ scan }: { scan: ScanResult }) {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-[10px] font-semibold uppercase tracking-widest text-nodex-muted">
+            <tr className="text-left text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">
               <th className="py-2 pr-3">#</th>
               <th className="py-2 pr-3">Holder</th>
               <th className="py-2 pr-3">Share</th>
@@ -322,7 +322,7 @@ function Holders({ scan }: { scan: ScanResult }) {
 }
 
 function Tag({ className, children }: { className: string; children: ReactNode }) {
-  return <span className={cn('rounded-full border px-1.5 py-0.5 text-[10px] font-medium', className)}>{children}</span>
+  return <span className={cn('rounded-full border px-1.5 py-0.5 text-[11px] font-medium', className)}>{children}</span>
 }
 
 function Bundle({ scan, loading, error, onRun }: { scan: ScanResult; loading: boolean; error: string | null; onRun: () => void }) {
@@ -374,7 +374,7 @@ function Bundle({ scan, loading, error, onRun }: { scan: ScanResult; loading: bo
             <ul className="space-y-1.5 text-sm">
               {bundle.evidence.map((line) => (
                 <li key={line} className="flex gap-2">
-                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-nodex-teal" />
+                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-nodex-accent" />
                   {line}
                 </li>
               ))}
@@ -585,7 +585,7 @@ export function ScannerPage() {
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="rounded-full bg-nodex-teal px-6 py-2.5 text-sm font-semibold text-nodex-on-accent transition-opacity disabled:opacity-50"
+            className="rounded-full bg-nodex-accent px-6 py-2.5 text-sm font-semibold text-nodex-on-accent transition-opacity disabled:opacity-50"
           >
             {loading ? 'Scanning…' : 'Scan'}
           </button>

@@ -10,7 +10,7 @@ interface TimeframeFilterProps {
 
 export function TimeframeFilter({ value, onChange }: TimeframeFilterProps) {
   return (
-    <div className="flex items-center gap-1 p-1 rounded-full bg-nodex-surface/80 border border-white/5">
+    <div className="flex items-center gap-1 p-1 rounded-full bg-nodex-surface border border-nodex-line">
       {periods.map((period) => (
         <button
           key={period}
@@ -18,7 +18,7 @@ export function TimeframeFilter({ value, onChange }: TimeframeFilterProps) {
           className={cn(
             'px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300',
             value === period
-              ? 'bg-nodex-teal text-nodex-on-accent shadow-[0_0_20px_rgba(77,230,201,0.3)]'
+              ? 'bg-nodex-accent text-nodex-on-accent'
               : 'text-nodex-muted hover:text-white'
           )}
         >

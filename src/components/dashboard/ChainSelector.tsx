@@ -42,7 +42,7 @@ export function ChainSelector({ value, onChange }: ChainSelectorProps) {
           >
             <span className={cn('w-4 h-4 rounded-full bg-gradient-to-br', chain.color)} />
             <span>{chain.label}</span>
-            {!chain.enabled ? <span className="ml-auto text-[10px] uppercase text-nodex-muted">Soon</span> : null}
+            {!chain.enabled ? <span className="ml-auto text-[11px] uppercase text-nodex-muted">Soon</span> : null}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

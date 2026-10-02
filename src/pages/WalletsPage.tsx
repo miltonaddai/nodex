@@ -171,7 +171,7 @@ function BuyersDetail({
     <div className="px-6 pb-5 pt-1">
       <table className="w-full max-w-3xl text-sm">
         <thead>
-          <tr className="text-left text-[10px] font-semibold uppercase tracking-widest text-nodex-muted">
+          <tr className="text-left text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">
             <th className="py-2 pr-4">Trader</th>
             <th className="py-2 pr-4">Rank</th>
             <th className="py-2 pr-4">30d PnL</th>
@@ -280,7 +280,7 @@ function BuysTable({
     />
   )
   const plain = (label: string) => (
-    <th className="px-4 py-4 text-left text-[10px] font-semibold uppercase tracking-widest text-nodex-muted">{label}</th>
+    <th className="px-4 py-4 text-left text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">{label}</th>
   )
 
   if (loading && items.length === 0) return <TokenTableSkeleton />
@@ -352,7 +352,7 @@ function BuysTable({
                           <span className="text-xs text-nodex-muted">{token.walletCount === 1 ? 'trader' : 'traders'}</span>
                         </div>
                         <div
-                          className="text-[10px] text-nodex-muted"
+                          className="text-[11px] text-nodex-muted"
                           title="Combined FOMO 30-day PnL of the traders buying"
                         >
                           {formatCurrency(token.buyerRealizedPnl30d, true)} buyer 30d PnL · {token.buyCount} buys
@@ -361,7 +361,7 @@ function BuysTable({
                       <td className="px-4 py-4 text-sm tabular-nums">
                         <div className="font-medium">{formatCurrency(token.netBuyUsd, true)}</div>
                         {token.sellUsd > 0 ? (
-                          <div className="text-[10px] text-nodex-muted">
+                          <div className="text-[11px] text-nodex-muted">
                             {formatCurrency(token.buyUsd, true)} in · {formatCurrency(token.sellUsd, true)} out
                           </div>
                         ) : null}
@@ -422,7 +422,7 @@ function TrackedWalletsTable({
   }, [chain])
 
   if (loading) return <TokenTableSkeleton />
-  const th = 'px-4 py-4 text-left text-[10px] font-semibold uppercase tracking-widest text-nodex-muted'
+  const th = 'px-4 py-4 text-left text-[11px] font-semibold uppercase tracking-widest text-nodex-muted'
 
   return (
     <>

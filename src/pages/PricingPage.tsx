@@ -125,7 +125,7 @@ export function PricingPage() {
           {welcome && !hasActiveSub && (
             <p className="text-nodex-teal text-sm mb-2">Account created — choose a plan to unlock your dashboard.</p>
           )}
-          <p className="text-white/50 max-w-xl mx-auto">
+          <p className="text-nodex-muted max-w-xl mx-auto">
             Subscribe securely with Stripe. Cancel or change your plan anytime from the billing portal.
           </p>
 
@@ -157,7 +157,7 @@ export function PricingPage() {
           )}
 
           {isAuthenticated && user && !hasActiveSub && !isPastDue && (
-            <p className="mt-6 text-sm text-white/45">
+            <p className="mt-6 text-sm text-nodex-muted">
               Choose a plan below to unlock your dashboard and watchlists.
             </p>
           )}
@@ -209,7 +209,7 @@ export function PricingPage() {
                   featured={plan.popular}
                 >
                   {plan.popular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-nodex-teal text-nodex-on-accent text-xs font-bold tracking-wider uppercase">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-nodex-accent text-nodex-on-accent text-xs font-bold tracking-wider uppercase">
                       Most Popular
                     </span>
                   )}
@@ -254,7 +254,7 @@ export function PricingPage() {
           })}
         </div>
 
-        <p className="mt-10 text-center text-sm text-white/40">
+        <p className="mt-10 text-center text-sm text-nodex-muted">
           {isAuthenticated ? (
             <>
               Questions about billing?{' '}

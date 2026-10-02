@@ -140,14 +140,14 @@ function InsiderDetails({ play }: { play: InsiderPlay }) {
   return (
     <div className="grid gap-6 px-6 pb-6 pt-2 md:grid-cols-2">
       <div>
-        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-nodex-muted">Launch evidence</h3>
+        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">Launch evidence</h3>
         {play.evidence.length === 0 ? (
           <p className="text-sm text-nodex-muted">No individual findings recorded.</p>
         ) : (
           <ul className="space-y-1.5 text-sm">
             {play.evidence.map((line) => (
               <li key={line} className="flex gap-2">
-                <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-nodex-teal" />
+                <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-nodex-accent" />
                 <span>{line}</span>
               </li>
             ))}
@@ -160,7 +160,7 @@ function InsiderDetails({ play }: { play: InsiderPlay }) {
         </p>
       </div>
       <div>
-        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-nodex-muted">
+        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">
           Insider wallets ({play.insiderWallets.length})
         </h3>
         <div className="flex flex-wrap gap-1.5">
@@ -245,7 +245,7 @@ export function InsidersPage() {
     />
   )
   const plainHeader = (label: string) => (
-    <th className="px-4 py-4 text-left text-[10px] font-semibold uppercase tracking-widest text-nodex-muted">{label}</th>
+    <th className="px-4 py-4 text-left text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">{label}</th>
   )
 
   return (
@@ -356,11 +356,11 @@ export function InsidersPage() {
                             <div className={cn('text-lg font-semibold tabular-nums', scoreClass(play.insiderScore))}>
                               {Math.round(play.insiderScore)}
                             </div>
-                            <div className="text-[10px] text-nodex-muted">launch {Math.round(play.launchScore)}</div>
+                            <div className="text-[11px] text-nodex-muted">launch {Math.round(play.launchScore)}</div>
                           </td>
                           <td className="px-4 py-4 text-sm">
                             <div className="font-semibold tabular-nums">{formatPct(play.insiderAcquiredPct)}</div>
-                            <div className="text-[10px] text-nodex-muted">
+                            <div className="text-[11px] text-nodex-muted">
                               {play.linkedWallets} linked wallets · {play.clusters}{' '}
                               {play.clusters === 1 ? 'group' : 'groups'}
                             </div>
@@ -369,7 +369,7 @@ export function InsidersPage() {
                             <div className="mb-1 font-semibold tabular-nums">{formatPct(play.insiderHoldingPct)}</div>
                             <span
                               title={statusStyle.hint}
-                              className={cn('rounded-full border px-2 py-0.5 text-[10px] font-medium', statusStyle.className)}
+                              className={cn('rounded-full border px-2 py-0.5 text-[11px] font-medium', statusStyle.className)}
                             >
                               {statusStyle.label}
                             </span>
@@ -379,7 +379,7 @@ export function InsidersPage() {
                               {patternStyle.label}
                             </div>
                             {play.pricePattern !== 'unknown' ? (
-                              <div className="text-[10px] text-nodex-muted">
+                              <div className="text-[11px] text-nodex-muted">
                                 {formatCurrency(play.launchHighMc, true)} → {formatCurrency(play.postLaunchLowMc, true)}{' '}
                                 → {formatCurrency(play.marketCap, true)}
                               </div>
@@ -389,7 +389,7 @@ export function InsidersPage() {
                             <div className="tabular-nums">{formatCurrency(play.marketCap, true)}</div>
                             <div
                               className={cn(
-                                'text-[10px] tabular-nums',
+                                'text-[11px] tabular-nums',
                                 play.priceChange24h >= 0 ? 'text-nodex-green' : 'text-nodex-red'
                               )}
                             >

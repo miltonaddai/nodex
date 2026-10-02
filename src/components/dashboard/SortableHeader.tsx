@@ -21,7 +21,7 @@ export function SortableHeader({ label, column, sortBy, sortOrder, onSort, class
         type="button"
         onClick={() => onSort(column)}
         className={cn(
-          'inline-flex items-center gap-1 text-[10px] font-semibold tracking-widest uppercase transition-colors',
+          'inline-flex items-center gap-1 text-[11px] font-semibold tracking-widest uppercase transition-colors',
           active ? 'text-nodex-teal' : 'text-nodex-muted hover:text-white'
         )}
       >

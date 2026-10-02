@@ -96,7 +96,7 @@ export function WatchlistPage() {
                 {label}
                 <span
                   className={cn(
-                    'rounded-full px-1.5 py-0.5 text-[10px]',
+                    'rounded-full px-1.5 py-0.5 text-[11px]',
                     active ? 'bg-nodex-teal/15' : 'bg-white/10'
                   )}
                 >

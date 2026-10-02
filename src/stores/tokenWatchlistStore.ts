@@ -89,18 +89,30 @@ export const useTokenWatchlistStore = create<TokenWatchlistState>((set, get) => 
   },
 
   addToken: async (input) => {
-    const token = await api.watchlist.tokens.add(input)
-    set((state) => ({
-      // The backend upserts, so adding a token that is already tracked returns the existing
-      // row — replace it in place rather than appending a duplicate.
-      tokens: state.tokens.some((t) => t.id === token.id)
-        ? state.tokens.map((t) => (t.id === token.id ? token : t))
-        : [...state.tokens, token],
-      lastFetchedAt: Date.now(),
-    }))
+    if (get().tokens.some((t) => t.contract === input.contract)) return
+    // Show the token as tracked straight away, then swap in the saved row (or roll back).
+    const pendingId = `pending:${input.contract}`
+    set((state) => ({ tokens: [...state.tokens, { ...input, id: pendingId } as WatchlistToken] }))
+    try {
+      const token = await api.watchlist.tokens.add(input)
+      set((state) => ({
+        // The backend upserts, so adding a token that is already tracked returns the existing
+        // row — replace it in place rather than appending a duplicate.
+        tokens: state.tokens
+          .filter((t) => t.id !== pendingId)
+          .filter((t) => t.id !== token.id)
+          .concat(token),
+        // The add response carries no metrics, so the watchlist page refetches them.
+        lastFetchedAt: null,
+      }))
+    } catch (err) {
+      set((state) => ({ tokens: state.tokens.filter((t) => t.id !== pendingId) }))
+      throw err
+    }
   },
 
   removeToken: async (id) => {
+    if (id.startsWith('pending:')) return // Still saving; it has no server id yet.
     await api.watchlist.tokens.remove(id, get().chain)
     set((state) => ({
       tokens: state.tokens.filter((token) => token.id !== id),

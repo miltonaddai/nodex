@@ -126,12 +126,12 @@ export function TokenTable({
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.04]">
-                <th className="px-4 py-4 text-left text-[10px] font-semibold tracking-widest uppercase text-nodex-muted">
+                <th className="px-4 py-4 text-left text-[11px] font-semibold tracking-widest uppercase text-nodex-muted">
                   #
                 </th>
                 <SortableHeader label="Token" column="name" sortBy={sortBy} sortOrder={sortOrder} onSort={(col) => onSort(col as TokenSortKey)} />
                 <SortableHeader label="Trader Churn" column="churn" sortBy={sortBy} sortOrder={sortOrder} onSort={(col) => onSort(col as TokenSortKey)} />
-                <th className="px-4 py-4 text-left text-[10px] font-semibold tracking-widest uppercase text-nodex-muted">
+                <th className="px-4 py-4 text-left text-[11px] font-semibold tracking-widest uppercase text-nodex-muted">
                   Contract
                 </th>
                 <SortableHeader label="Price" column="price" sortBy={sortBy} sortOrder={sortOrder} onSort={(col) => onSort(col as TokenSortKey)} />
@@ -198,7 +198,7 @@ export function TokenTable({
                       {(token.churn ?? 0).toFixed(2)}×
                     </div>
                     {token.uniqueWallet24h !== undefined && (
-                      <div className="text-[10px] text-nodex-muted">
+                      <div className="text-[11px] text-nodex-muted">
                         {token.uniqueWallet24h.toLocaleString()} traders ·{' '}
                         {(token.holders ?? 0).toLocaleString()} holders
                       </div>
