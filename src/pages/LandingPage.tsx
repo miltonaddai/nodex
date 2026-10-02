@@ -24,7 +24,14 @@ const facts = [
   { value: '2h', label: 'between data updates' },
 ]
 
-const sources = ['Birdeye', 'Helius', 'Dexscreener', 'FOMO', 'Blockscout']
+/** Brand icons are served from public/logos so the page makes no third-party image requests. */
+const sources = [
+  { name: 'Birdeye', logo: '/logos/birdeye.png' },
+  { name: 'Helius', logo: '/logos/helius.png' },
+  { name: 'Dexscreener', logo: '/logos/dexscreener.png' },
+  { name: 'FOMO', logo: '/logos/fomo.png' },
+  { name: 'Blockscout', logo: '/logos/blockscout.png' },
+]
 
 type Tone = 'brand' | 'teal' | 'amber' | 'sky' | 'green'
 
@@ -292,8 +299,16 @@ export function LandingPage() {
             <span className="text-xs uppercase tracking-[0.2em] text-nodex-muted">Built on data from</span>
             <div className="flex flex-wrap justify-center gap-x-10 gap-y-3">
               {sources.map((source) => (
-                <span key={source} className="text-base font-semibold text-nodex-muted">
-                  {source}
+                <span key={source.name} className="flex items-center gap-2.5 text-base font-semibold text-nodex-muted">
+                  <img
+                    src={source.logo}
+                    alt=""
+                    width={28}
+                    height={28}
+                    loading="lazy"
+                    className="h-7 w-7 rounded-lg bg-[#ffffff] ring-1 ring-nodex-line"
+                  />
+                  {source.name}
                 </span>
               ))}
             </div>
