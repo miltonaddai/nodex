@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { GlassPanel } from '@/components/layout/GlassPanel'
 import { TokenTableSkeleton } from '@/components/dashboard/TokenTableSkeleton'
 import { SortableHeader, type SortOrder } from '@/components/dashboard/SortableHeader'
+import { FirstSeenCell, PeakMultipleCell } from '@/components/dashboard/SightingCells'
 import { TablePagination } from '@/components/dashboard/TablePagination'
 import { TokenWatchlistButton } from '@/components/dashboard/TokenWatchlistButton'
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
@@ -79,7 +80,7 @@ function ContractCell({ contract, chain }: { contract: string; chain: string }) 
   )
 }
 
-export type TokenSortKey = 'churn' | 'alphaScore' | 'marketCap' | 'price' | 'changePct' | 'volume' | 'holders' | 'liquidity' | 'launchedAt' | 'name'
+export type TokenSortKey = 'churn' | 'alphaScore' | 'marketCap' | 'price' | 'changePct' | 'volume' | 'holders' | 'liquidity' | 'launchedAt' | 'name' | 'firstSeenAt' | 'peakMultiple'
 
 interface TokenTableProps {
   tokens: TokenRow[]
@@ -150,6 +151,8 @@ export function TokenTable({
                   sortOrder={sortOrder}
                   onSort={(col) => onSort(col as TokenSortKey)}
                 />
+                <SortableHeader label="First seen" column="firstSeenAt" sortBy={sortBy} sortOrder={sortOrder} onSort={(col) => onSort(col as TokenSortKey)} />
+                <SortableHeader label="Peak since" column="peakMultiple" sortBy={sortBy} sortOrder={sortOrder} onSort={(col) => onSort(col as TokenSortKey)} />
                 <SortableHeader label="Volume" column="volume" sortBy={sortBy} sortOrder={sortOrder} onSort={(col) => onSort(col as TokenSortKey)} />
                 <SortableHeader label="Liquidity" column="liquidity" sortBy={sortBy} sortOrder={sortOrder} onSort={(col) => onSort(col as TokenSortKey)} />
                 <SortableHeader label="Age" column="launchedAt" sortBy={sortBy} sortOrder={sortOrder} onSort={(col) => onSort(col as TokenSortKey)} />
@@ -158,7 +161,7 @@ export function TokenTable({
             <tbody>
               {tokens.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-12 text-center text-sm text-nodex-muted">
+                  <td colSpan={12} className="px-4 py-12 text-center text-sm text-nodex-muted">
                     No tokens match the current filters.
                   </td>
                 </tr>
@@ -230,6 +233,8 @@ export function TokenTable({
                   >
                     {formatPercent(token.changePct)}
                   </td>
+                  <FirstSeenCell token={token} />
+                  <PeakMultipleCell token={token} />
                   <td className="px-4 py-4 text-sm">{formatCurrency(token.volume, true)}</td>
                   <td className="px-4 py-4 text-sm">{formatCurrency(token.liquidity ?? 0, true)}</td>
                   <td className="px-4 py-4 text-sm text-nodex-muted">

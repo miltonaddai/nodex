@@ -6,6 +6,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { DashboardFooter } from '@/components/layout/DashboardFooter'
 import { GlassPanel } from '@/components/layout/GlassPanel'
 import { SortableHeader, type SortOrder } from '@/components/dashboard/SortableHeader'
+import { FirstSeenCell, PeakMultipleCell } from '@/components/dashboard/SightingCells'
 import { LastUpdated, TablePagination } from '@/components/dashboard/TablePagination'
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { TokenTableSkeleton } from '@/components/dashboard/TokenTableSkeleton'
@@ -299,6 +300,8 @@ function BuysTable({
                 {header('Net bought', 'netBuyUsd')}
                 {header('Market cap', 'marketCap', MARKET_CAP_COLUMN)}
                 {header('24h', 'priceChange24h')}
+                {header('First seen', 'firstSeenAt')}
+                {header('Peak since', 'peakMultiple')}
                 {plain('Liquidity')}
                 {header('Latest buy', 'lastBuyAt')}
               </tr>
@@ -306,7 +309,7 @@ function BuysTable({
             <tbody>
               {items.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-sm text-nodex-muted">
+                  <td colSpan={10} className="px-4 py-12 text-center text-sm text-nodex-muted">
                     {message ?? 'None of the tracked wallets are net buying a liquid token right now.'}
                   </td>
                 </tr>
@@ -378,6 +381,8 @@ function BuysTable({
                         {token.priceChange24h >= 0 ? '+' : ''}
                         {token.priceChange24h.toFixed(1)}%
                       </td>
+                      <FirstSeenCell token={token} />
+                      <PeakMultipleCell token={token} />
                       <td className="px-4 py-4 text-sm tabular-nums text-nodex-muted">
                         {formatCurrency(token.liquidity, true)}
                       </td>
@@ -385,7 +390,7 @@ function BuysTable({
                     </tr>
                     {isOpen ? (
                       <tr className="border-b border-white/[0.06] bg-white/[0.03]">
-                        <td colSpan={8}>
+                        <td colSpan={10}>
                           <BuyersDetail token={token} chain={chain} watchlist={watchlist} />
                         </td>
                       </tr>

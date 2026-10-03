@@ -404,7 +404,23 @@ export interface ScanResult {
   scannedAt: string
 }
 
-export type SmartMoneySortKey = 'walletCount' | 'netBuyUsd' | 'marketCap' | 'lastBuyAt' | 'priceChange24h' | 'buyerProfit'
+/** Added to every token row by the API: when NodeX first listed it and its peak multiple since. */
+export interface SightingFields {
+  firstSeenAt?: string | null
+  firstSeenMc?: number | null
+  peakMc?: number | null
+  peakMultiple?: number | null
+}
+
+export type SmartMoneySortKey =
+  | 'walletCount'
+  | 'netBuyUsd'
+  | 'marketCap'
+  | 'lastBuyAt'
+  | 'priceChange24h'
+  | 'buyerProfit'
+  | 'firstSeenAt'
+  | 'peakMultiple'
 
 /** A top FOMO trader's wallet that the smart money feed follows. */
 export interface SmartMoneyWallet {
@@ -422,7 +438,7 @@ export interface SmartMoneyWallet {
 }
 
 /** A token the tracked wallets are net buying. */
-export interface SmartMoneyBuy {
+export interface SmartMoneyBuy extends SightingFields {
   rank: number
   contract: string
   symbol: string
@@ -468,9 +484,11 @@ export type InsiderSortKey =
   | 'insiderAcquired'
   | 'marketCap'
   | 'launchedAt'
+  | 'firstSeenAt'
+  | 'peakMultiple'
 
 /** A token whose launch was bought by wallets under common control. */
-export interface InsiderPlay {
+export interface InsiderPlay extends SightingFields {
   rank: number
   contract: string
   name: string
@@ -603,7 +621,7 @@ export interface WalletDetailResponse {
   positions: WalletPosition[]
 }
 
-export interface TokenRow {
+export interface TokenRow extends SightingFields {
   rank: number
   name: string
   symbol: string

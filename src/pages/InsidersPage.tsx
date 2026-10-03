@@ -6,6 +6,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { DashboardFooter } from '@/components/layout/DashboardFooter'
 import { GlassPanel } from '@/components/layout/GlassPanel'
 import { SortableHeader, type SortOrder } from '@/components/dashboard/SortableHeader'
+import { FirstSeenCell, PeakMultipleCell } from '@/components/dashboard/SightingCells'
 import { LastUpdated, TablePagination } from '@/components/dashboard/TablePagination'
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { TokenTableSkeleton } from '@/components/dashboard/TokenTableSkeleton'
@@ -303,13 +304,15 @@ export function InsidersPage() {
                     {header('Insiders hold now', 'insiderHolding')}
                     {plainHeader('Price shape')}
                     {header('Market cap', 'marketCap', MARKET_CAP_COLUMN)}
+                    {header('First seen', 'firstSeenAt')}
+                    {header('Peak since', 'peakMultiple')}
                     {header('Age', 'launchedAt')}
                   </tr>
                 </thead>
                 <tbody>
                   {plays.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-12 text-center text-sm text-nodex-muted">
+                      <td colSpan={10} className="px-4 py-12 text-center text-sm text-nodex-muted">
                         {message ??
                           'No insider launches found yet. New launches are analyzed on each data update.'}
                       </td>
@@ -397,11 +400,13 @@ export function InsidersPage() {
                               {play.priceChange24h.toFixed(1)}% 24h
                             </div>
                           </td>
+                          <FirstSeenCell token={play} />
+                          <PeakMultipleCell token={play} />
                           <td className="px-4 py-4 text-sm text-nodex-muted">{formatAge(play.launchedAt)}</td>
                         </tr>
                         {isOpen ? (
                           <tr className="border-b border-white/[0.06] bg-white/[0.03]">
-                            <td colSpan={8}>
+                            <td colSpan={10}>
                               <InsiderDetails play={play} />
                             </td>
                           </tr>
