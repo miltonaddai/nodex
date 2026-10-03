@@ -49,7 +49,7 @@ export function WatchlistPage() {
   return (
     <PageLayout>
       <Navbar variant="dashboard" />
-      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 pt-28 pb-16 md:px-8">
+      <main className="mx-auto flex w-full max-w-dashboard flex-1 flex-col px-4 pt-28 pb-16 md:px-8">
         <SubscriptionBanner />
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <motion.h1

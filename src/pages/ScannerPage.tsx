@@ -556,7 +556,7 @@ export function ScannerPage() {
   return (
     <PageLayout>
       <Navbar variant="dashboard" />
-      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 pt-28 pb-16 md:px-8">
+      <main className="mx-auto flex w-full max-w-dashboard flex-1 flex-col px-4 pt-28 pb-16 md:px-8">
         <SubscriptionBanner />
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-3 text-3xl font-bold md:text-4xl">
           Token Scanner

@@ -3,6 +3,8 @@
 
 @theme {
   --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  /* Width of the dashboard pages' content (max-w-dashboard). Was 80rem; wider tables need room. */
+  --container-dashboard: 90rem;
   /* Palette: Graphite #353535, Stormy Teal #3c6e71, White #ffffff, Alabaster Grey #d9d9d9,
      Yale Blue #284b63. Flat design: solid surfaces separated by 1px lines, no blur or glow. */
   /* Dark mode: deep navy slate on Yale Blue's hue. Dark enough to feel modern, light enough that

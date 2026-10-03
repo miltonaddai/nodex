@@ -11,7 +11,7 @@ const links = [
 export function DashboardFooter() {
   return (
     <footer className="mt-auto w-full border-t border-white/[0.06] px-4 py-8 md:px-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 text-xs text-nodex-muted sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto flex max-w-dashboard flex-col gap-4 text-xs text-nodex-muted sm:flex-row sm:items-center sm:justify-between">
         <Link to="/tokens" className="text-sm font-semibold tracking-wide text-nodex-muted transition-colors hover:text-nodex-teal">
           NodeX
         </Link>
