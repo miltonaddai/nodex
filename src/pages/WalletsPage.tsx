@@ -1,11 +1,13 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Check, ChevronDown, ChevronRight, Plus } from 'lucide-react'
+import { Bell, BellOff, Check, ChevronDown, ChevronRight, Plus, Zap } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Navbar } from '@/components/layout/Navbar'
 import { DashboardFooter } from '@/components/layout/DashboardFooter'
 import { GlassPanel } from '@/components/layout/GlassPanel'
 import { SortableHeader, type SortOrder } from '@/components/dashboard/SortableHeader'
+import { FilterSelect, type FilterOption } from '@/components/dashboard/FilterSelect'
 import { FirstSeenCell, PeakMultipleCell } from '@/components/dashboard/SightingCells'
 import { LastUpdated, TablePagination } from '@/components/dashboard/TablePagination'
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
@@ -17,6 +19,8 @@ import { ChainSelector, type Chain } from '@/components/dashboard/ChainSelector'
 import { useDashboardPreferencesStore } from '@/stores/dashboardPreferencesStore'
 import { chainLabel, tokenUrl, walletUrl } from '@/lib/chains'
 import { useWatchlistStore } from '@/stores/watchlistStore'
+import { useEarlySignalStore } from '@/stores/earlySignalStore'
+import { playChime } from '@/lib/chime'
 import { api, type SmartMoneyBuy, type SmartMoneySortKey, type SmartMoneyWallet } from '@/lib/api'
 import { cn, formatCurrency, MARKET_CAP_COLUMN, truncateAddress } from '@/lib/utils'
 
@@ -215,6 +219,57 @@ function BuyersDetail({
   )
 }
 
+const MAX_MARKET_CAP_OPTIONS: FilterOption<number | null>[] = [
+  { value: null, label: 'Any' },
+  { value: 50_000, label: '$50K' },
+  { value: 100_000, label: '$100K' },
+  { value: 250_000, label: '$250K' },
+  { value: 500_000, label: '$500K' },
+  { value: 1_000_000, label: '$1M' },
+  { value: 5_000_000, label: '$5M' },
+  { value: 10_000_000, label: '$10M' },
+]
+
+const MIN_TRADERS_OPTIONS: FilterOption<number | null>[] = [
+  { value: null, label: 'Any' },
+  { value: 2, label: '2+' },
+  { value: 3, label: '3+' },
+  { value: 5, label: '5+' },
+  { value: 10, label: '10+' },
+]
+
+interface BuyFilters {
+  /** The early-signal preset. Combines with the other filters. */
+  earlyOnly: boolean
+  maxMarketCap: number | null
+  minWalletCount: number | null
+}
+
+const FILTERS_KEY = 'nodex_wallet_buy_filters_v1'
+const NO_FILTERS: BuyFilters = { earlyOnly: false, maxMarketCap: null, minWalletCount: null }
+
+/** The last filters used, remembered in this browser. */
+function loadFilters(): BuyFilters {
+  try {
+    const saved = JSON.parse(localStorage.getItem(FILTERS_KEY) ?? 'null') as Partial<BuyFilters> | null
+    return {
+      earlyOnly: saved?.earlyOnly === true,
+      maxMarketCap: typeof saved?.maxMarketCap === 'number' ? saved.maxMarketCap : null,
+      minWalletCount: typeof saved?.minWalletCount === 'number' ? saved.minWalletCount : null,
+    }
+  } catch {
+    return NO_FILTERS
+  }
+}
+
+function saveFilters(filters: BuyFilters) {
+  try {
+    localStorage.setItem(FILTERS_KEY, JSON.stringify(filters))
+  } catch {
+    // Storage unavailable. Filters still apply for this visit.
+  }
+}
+
 function BuysTable({
   chain,
   watchlist,
@@ -233,19 +288,57 @@ function BuysTable({
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [filters, setFilters] = useState<BuyFilters>(loadFilters)
+  const filtered = filters.earlyOnly || filters.maxMarketCap !== null || filters.minWalletCount !== null
+  const [earlyCount, setEarlyCount] = useState(0)
+  const alertsEnabled = useEarlySignalStore((s) => s.alertsEnabled)
+  const setAlertsEnabled = useEarlySignalStore((s) => s.setAlertsEnabled)
+  const [params, setParams] = useSearchParams()
   const requestId = useRef(0)
+
+  const updateFilters = (next: BuyFilters) => {
+    setFilters(next)
+    saveFilters(next)
+    setPage(1)
+  }
+
+  // An alert's "View" link opens the page with ?preset=early.
+  useEffect(() => {
+    if (params.get('preset') !== 'early') return
+    const next = { ...loadFilters(), earlyOnly: true }
+    setFilters(next)
+    saveFilters(next)
+    setPage(1)
+    setParams(
+      (current) => {
+        current.delete('preset')
+        return current
+      },
+      { replace: true }
+    )
+  }, [params, setParams])
 
   useEffect(() => {
     const id = ++requestId.current
     setLoading(true)
     setError(null)
     api.smartMoney
-      .buys({ chain, page, pageSize: PAGE_SIZE, sortBy, sortOrder })
+      .buys({
+        chain,
+        page,
+        pageSize: PAGE_SIZE,
+        sortBy,
+        sortOrder,
+        maxMarketCap: filters.maxMarketCap,
+        minWalletCount: filters.minWalletCount,
+        preset: filters.earlyOnly ? 'early' : undefined,
+      })
       .then((result) => {
         if (id !== requestId.current) return
         setItems(result.items ?? [])
         setTotal(result.total ?? 0)
         setMessage(result.message ?? null)
+        setEarlyCount(result.earlySignalCount ?? 0)
         onMeta({
           tracked: result.trackedWallets ?? 0,
           windowHours: result.windowHours ?? 72,
@@ -259,7 +352,7 @@ function BuysTable({
       .finally(() => {
         if (id === requestId.current) setLoading(false)
       })
-  }, [chain, page, sortBy, sortOrder, onMeta])
+  }, [chain, page, sortBy, sortOrder, filters, onMeta])
 
   const onSort = (column: string) => {
     const key = column as SmartMoneySortKey
@@ -284,10 +377,107 @@ function BuysTable({
     <th className="px-4 py-4 text-left text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">{label}</th>
   )
 
-  if (loading && items.length === 0) return <TokenTableSkeleton />
+  const filterBar = (
+    <div className="mb-4 flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        onClick={() => updateFilters({ ...filters, earlyOnly: !filters.earlyOnly })}
+        aria-pressed={filters.earlyOnly}
+        title="Under $100K market cap, 2+ top traders buying, 24h volume at least 10x market cap, and traders have sold under 30% of what they bought."
+        className={cn(
+          'flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors',
+          filters.earlyOnly
+            ? 'border-transparent bg-nodex-accent text-nodex-on-accent'
+            : 'border-nodex-line bg-nodex-surface text-white hover:border-nodex-teal/40'
+        )}
+      >
+        <Zap className={cn('h-4 w-4', !filters.earlyOnly && 'text-nodex-amber')} />
+        Early signals
+        <span
+          className={cn(
+            'min-w-5 rounded-full px-1.5 text-center text-xs font-bold tabular-nums',
+            filters.earlyOnly
+              ? 'bg-[#ffffff]/20'
+              : earlyCount > 0
+                ? 'bg-nodex-amber/15 text-nodex-amber'
+                : 'bg-nodex-raised text-nodex-muted'
+          )}
+        >
+          {earlyCount}
+        </span>
+      </button>
+      <FilterSelect
+        label="Max mkt cap"
+        value={filters.maxMarketCap}
+        options={MAX_MARKET_CAP_OPTIONS}
+        onChange={(maxMarketCap) => updateFilters({ ...filters, maxMarketCap })}
+      />
+      <FilterSelect
+        label="Min top traders"
+        value={filters.minWalletCount}
+        options={MIN_TRADERS_OPTIONS}
+        onChange={(minWalletCount) => updateFilters({ ...filters, minWalletCount })}
+      />
+      {filtered ? (
+        <>
+          <span className="px-2 text-sm text-nodex-muted">
+            {total} {total === 1 ? 'token matches' : 'tokens match'}
+          </span>
+          <button
+            type="button"
+            onClick={() => updateFilters(NO_FILTERS)}
+            className="rounded-full px-3 py-1.5 text-sm text-nodex-muted transition-colors hover:bg-nodex-raised hover:text-white"
+          >
+            Clear
+          </button>
+        </>
+      ) : null}
+      <button
+        type="button"
+        onClick={() => {
+          const next = !alertsEnabled
+          setAlertsEnabled(next)
+          // Turning alerts on plays the chime once, so you know what to listen for.
+          if (next) playChime()
+        }}
+        aria-pressed={alertsEnabled}
+        title={
+          alertsEnabled
+            ? 'A chime and a toast when a new early signal appears, on any NodeX page left open. Click to mute.'
+            : 'Alerts are off. Click to get a chime when a new early signal appears.'
+        }
+        className={cn(
+          'ml-auto flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors',
+          alertsEnabled
+            ? 'border-nodex-teal/40 text-nodex-teal hover:bg-nodex-teal/10'
+            : 'border-nodex-line text-nodex-muted hover:text-white'
+        )}
+      >
+        {alertsEnabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+        {alertsEnabled ? 'Alerts on' : 'Alerts off'}
+      </button>
+      {filters.earlyOnly ? (
+        <p className="w-full pt-1 text-xs text-nodex-muted">
+          Under $100K · 2+ top traders · 24h volume ≥ 10× market cap · traders sold under 30% of what they bought. In
+          a one-week backtest, 9% of these went 5× or more, against 2% of all tokens bought under $100K. A small sample,
+          so treat it as a lead.
+        </p>
+      ) : null}
+    </div>
+  )
+
+  if (loading && items.length === 0) {
+    return (
+      <>
+        {filterBar}
+        <TokenTableSkeleton />
+      </>
+    )
+  }
 
   return (
     <>
+      {filterBar}
       {error ? <p className="mb-4 text-sm text-nodex-red">{error}</p> : null}
       <GlassPanel variant="frosted" className="overflow-hidden">
         <div className={cn('overflow-x-auto transition-opacity', loading && 'opacity-60')}>
@@ -310,7 +500,11 @@ function BuysTable({
               {items.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="px-4 py-12 text-center text-sm text-nodex-muted">
-                    {message ?? 'None of the tracked wallets are net buying a liquid token right now.'}
+                    {filters.earlyOnly
+                      ? "No early signals right now. With alerts on, you'll hear a chime when one appears."
+                      : filtered
+                      ? 'No tokens match these filters. Try a higher market cap or fewer traders.'
+                      : (message ?? 'None of the tracked wallets are net buying a liquid token right now.')}
                   </td>
                 </tr>
               ) : null}
@@ -332,8 +526,19 @@ function BuysTable({
                         <div className="flex items-center gap-3">
                           <TokenAvatar imageUrl={token.imageUrl} symbol={token.symbol} fallbackClassName="bg-blue-500" />
                           <div className="min-w-0 max-w-[12rem]">
-                            <div className="truncate text-sm font-medium" title={token.name || token.symbol}>
-                              {token.name || token.symbol}
+                            <div className="flex items-center gap-1.5">
+                              <span className="truncate text-sm font-medium" title={token.name || token.symbol}>
+                                {token.name || token.symbol}
+                              </span>
+                              {token.earlySignal ? (
+                                <span
+                                  title="Meets the early-signal preset"
+                                  className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-nodex-amber/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-nodex-amber"
+                                >
+                                  <Zap className="h-2.5 w-2.5" />
+                                  Early
+                                </span>
+                              ) : null}
                             </div>
                             <a
                               title={token.symbol}
@@ -501,6 +706,21 @@ export function WalletsPage() {
     nextUpdate: string | null
   }>({ tracked: 0, windowHours: 72, lastUpdated: null, nextUpdate: null })
   const [chain, setChain] = useState<Chain>(() => useDashboardPreferencesStore.getState().preferredChain)
+  // Alert links carry the chain of the signal they announce.
+  const [urlParams, setUrlParams] = useSearchParams()
+  useEffect(() => {
+    const requested = urlParams.get('chain')
+    if (requested !== 'solana' && requested !== 'robinhood') return
+    setChain(requested)
+    setTab('buys')
+    setUrlParams(
+      (current) => {
+        current.delete('chain')
+        return current
+      },
+      { replace: true }
+    )
+  }, [urlParams, setUrlParams])
   const watchlist = useWalletWatchlist(chain)
   useChainTokenWatchlist(chain)
 

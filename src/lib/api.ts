@@ -246,10 +246,20 @@ export const api = {
       request<ScanResult>(`/scanner/${chain}/${encodeURIComponent(address)}/bundle`),
   },
   smartMoney: {
-    buys: (params: { chain?: string; page?: number; pageSize?: number; sortBy?: SmartMoneySortKey; sortOrder?: 'asc' | 'desc' }) => {
+    buys: (params: {
+      chain?: string
+      page?: number
+      pageSize?: number
+      sortBy?: SmartMoneySortKey
+      sortOrder?: 'asc' | 'desc'
+      maxMarketCap?: number | null
+      minWalletCount?: number | null
+      /** 'early': only tokens meeting the early-signal preset. */
+      preset?: 'early'
+    }) => {
       const q = new URLSearchParams(
         Object.entries(params)
-          .filter(([, v]) => v !== undefined && v !== '')
+          .filter(([, v]) => v !== undefined && v !== null && v !== '')
           .map(([k, v]) => [k, String(v)])
       ).toString()
       return request<SmartMoneyBuysResponse>(`/smart-money/buys?${q}`)
@@ -439,6 +449,8 @@ export interface SmartMoneyWallet {
 
 /** A token the tracked wallets are net buying. */
 export interface SmartMoneyBuy extends SightingFields {
+  /** Meets the early-signal preset: under $100K, 2+ top traders, heavy volume, traders holding. */
+  earlySignal?: boolean
   rank: number
   contract: string
   symbol: string
@@ -471,6 +483,8 @@ export interface SmartMoneyBuy extends SightingFields {
 }
 
 export interface SmartMoneyBuysResponse extends PaginatedResponse<SmartMoneyBuy> {
+  /** Early signals in the whole snapshot, whatever filters are applied. */
+  earlySignalCount?: number
   trackedWallets: number
   windowHours: number
 }

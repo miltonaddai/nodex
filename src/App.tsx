@@ -3,6 +3,7 @@ import { AuthProvider } from '@/context/AuthContext'
 import { ThemeProvider } from '@/context/ThemeContext'
 import { AppRoutes } from '@/routes/AppRoutes'
 import { Toaster } from '@/components/ui/toaster'
+import { EarlySignalWatcher } from '@/components/dashboard/EarlySignalWatcher'
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <BrowserRouter>
           <AppRoutes />
           <Toaster />
+          <EarlySignalWatcher />
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>
