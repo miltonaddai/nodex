@@ -49,7 +49,7 @@ export function AuthShell({ title, subtitle, children, footer }: {
               Find your edge on-chain.
             </motion.h2>
             <motion.p variants={item} className="mt-2 text-sm text-[#ffffff]/75">
-              Solana and Robinhood Chain, updated every 2 hours.
+              Solana, Robinhood Chain and BNB Chain, updated every 2 hours.
             </motion.p>
             <ul className="mt-8 hidden space-y-4 md:block">
               {highlights.map(({ icon: Icon, text }) => (

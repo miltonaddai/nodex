@@ -4,7 +4,7 @@ import { Check, Copy, Trash2, X } from 'lucide-react'
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { type WatchlistToken } from '@/lib/api'
 import { cn, formatCurrency, truncateAddress } from '@/lib/utils'
-import { tokenUrl } from '@/lib/chains'
+import { chainLabel, tokenUrl } from '@/lib/chains'
 
 const AVATAR_COLORS = [
   'bg-orange-500',
@@ -214,7 +214,7 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
           <span
             className={cn('w-1.5 h-1.5 rounded-full', noData ? 'bg-nodex-muted' : 'bg-nodex-green')}
           />
-          {token.chain === 'solana' ? 'Solana' : 'Robinhood Chain'}
+          {chainLabel(token.chain)}
         </span>
       </div>
     </motion.div>

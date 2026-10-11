@@ -23,7 +23,7 @@ import { TokenWatchlistButton } from '@/components/dashboard/TokenWatchlistButto
 import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
 import { useChainTokenWatchlist } from '@/hooks/useSolanaTokenWatchlist'
 import { api, type RiskSeverity, type ScanChain, type ScanResult } from '@/lib/api'
-import { walletUrl } from '@/lib/chains'
+import { chainLabel, isChainId, walletUrl } from '@/lib/chains'
 import {
   clearScanHistory,
   findScan,
@@ -47,9 +47,25 @@ const VERDICT_STYLE = {
   favorable: { label: 'Favorable', icon: ShieldCheck, className: 'border-nodex-teal/40 text-nodex-teal', blurb: 'None of the known traps were found.' },
 } as const
 
-/** 0x addresses are Robinhood Chain; everything else is treated as Solana. */
-function detectChain(address: string): ScanChain {
-  return /^0x/i.test(address.trim()) ? 'robinhood' : 'solana'
+const EVM_SCAN_CHAINS: ScanChain[] = ['bsc', 'robinhood']
+
+/**
+ * 0x addresses are EVM: the selected EVM chain is kept, and BNB Chain is the default. Everything
+ * else is treated as Solana.
+ */
+function detectChain(address: string, current: ScanChain): ScanChain {
+  if (!/^0x/i.test(address.trim())) return 'solana'
+  return EVM_SCAN_CHAINS.includes(current) ? current : 'bsc'
+}
+
+/** A 0x address with no pools on its chain may belong to the other EVM chain. */
+function otherEvmChain(chain: ScanChain): ScanChain | null {
+  if (!EVM_SCAN_CHAINS.includes(chain)) return null
+  return EVM_SCAN_CHAINS.find((candidate) => candidate !== chain) ?? null
+}
+
+function urlChain(value: string | null): ScanChain {
+  return isChainId(value) ? value : 'solana'
 }
 
 function formatAge(hours: number | null): string {
@@ -229,6 +245,31 @@ function SecurityRow({ label, ok, value }: { label: string; ok: boolean | null; 
 
 function Security({ scan }: { scan: ScanResult }) {
   const { security } = scan
+  if (scan.chain === 'bsc') {
+    const tax = security.transferFeeBps
+    return (
+      <Section title="Contract">
+        <SecurityRow
+          label="Honeypot"
+          ok={security.honeypot === null ? null : !security.honeypot}
+          value={security.honeypot === null ? 'Unknown' : security.honeypot ? 'Yes: cannot be sold' : 'No'}
+        />
+        <SecurityRow label="Mint function" ok={!security.mintAuthority} value={security.mintAuthority ? 'Present: supply can grow' : 'None'} />
+        <SecurityRow
+          label="Buy / sell tax"
+          ok={tax === null ? null : tax === 0}
+          value={tax === null ? 'Unknown' : tax === 0 ? 'None' : `Up to ${tax / 100}%`}
+        />
+        {security.transferFeeAuthority ? <SecurityRow label="Tax settings" ok={false} value="Owner can change them" /> : null}
+        <SecurityRow
+          label="Source code"
+          ok={security.contractVerified}
+          value={security.contractVerified === null ? 'Unknown' : security.contractVerified ? 'Verified' : 'Not verified'}
+        />
+        <p className="mt-3 text-xs text-nodex-muted">From Birdeye's contract audit. The full code can be checked on BscScan.</p>
+      </Section>
+    )
+  }
   if (scan.chain !== 'solana') {
     return (
       <Section title="Contract">
@@ -258,7 +299,17 @@ function Security({ scan }: { scan: ScanResult }) {
 }
 
 function Holders({ scan }: { scan: ScanResult }) {
-  const native = scan.chain === 'solana' ? 'SOL' : 'ETH'
+  const native = scan.chain === 'solana' ? 'SOL' : scan.chain === 'bsc' ? 'BNB' : 'ETH'
+  if (scan.holders.list.length === 0 && scan.chain === 'bsc') {
+    return (
+      <Section title="Top holders">
+        <p className="text-sm text-nodex-muted">
+          {scan.holders.count !== null ? `${scan.holders.count.toLocaleString()} holders. ` : ''}
+          The top-holder list is not available on BNB Chain yet. It can be checked on BscScan.
+        </p>
+      </Section>
+    )
+  }
   return (
     <Section
       title="Top holders"
@@ -330,7 +381,7 @@ function Bundle({ scan, loading, error, onRun }: { scan: ScanResult; loading: bo
     return (
       <Section title="Launch bundle">
         <p className="text-sm text-nodex-muted">
-          Bundle detection covers Solana launches. On Robinhood Chain every transaction has a single signer, so the co-signing
+          Bundle detection covers Solana launches. On {chainLabel(scan.chain)} every transaction has a single signer, so the co-signing
           signal it relies on does not exist.
         </p>
       </Section>
@@ -453,7 +504,7 @@ function SmartMoney({ scan }: { scan: ScanResult }) {
 export function ScannerPage() {
   const [params, setParams] = useSearchParams()
   const [input, setInput] = useState(params.get('address') ?? '')
-  const [chain, setChain] = useState<Chain>(() => (params.get('chain') === 'robinhood' ? 'robinhood' : 'solana'))
+  const [chain, setChain] = useState<Chain>(() => urlChain(params.get('chain')))
   const [scan, setScan] = useState<ScanResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -495,12 +546,25 @@ export function ScannerPage() {
       setBundleLoading(false)
       api.scanner
         .scan(target, address)
+        .then(async (result) => {
+          // Nothing trades there: try the other EVM chain once before reporting an empty scan.
+          const fallback = result.poolCount === 0 ? otherEvmChain(target) : null
+          if (fallback) {
+            const other = await api.scanner.scan(fallback, address).catch(() => null)
+            if (other && other.poolCount > 0) {
+              result = other
+              setChain(fallback)
+              setParams({ chain: fallback, address })
+            }
+          }
+          return result
+        })
         .then((result) => {
           if (id !== requestId.current) return
           setScan(result)
           setHistory(rememberScan(result))
           // Run the slow launch analysis automatically when nothing is stored for this token.
-          if (result.bundleAvailable && !result.bundle) runBundle(target, address, id)
+          if (result.bundleAvailable && !result.bundle) runBundle(result.chain, address, id)
         })
         .catch((err: unknown) => {
           if (id === requestId.current) setError(err instanceof Error ? err.message : 'Scan failed')
@@ -509,7 +573,7 @@ export function ScannerPage() {
           if (id === requestId.current) setLoading(false)
         })
     },
-    [runBundle]
+    [runBundle, setParams]
   )
 
   /** Shows a saved scan without calling the API. */
@@ -537,7 +601,7 @@ export function ScannerPage() {
     scannedFromUrl.current = true
     const address = params.get('address')
     if (!address) return
-    const target = params.get('chain') === 'robinhood' ? 'robinhood' : 'solana'
+    const target = urlChain(params.get('chain'))
     const saved = findScan(target, address)
     if (saved) openSaved(saved)
     else runScan(target, address)
@@ -547,7 +611,7 @@ export function ScannerPage() {
     event.preventDefault()
     const address = input.trim()
     if (!address) return
-    const target = detectChain(address)
+    const target = detectChain(address, chain)
     setChain(target)
     setParams({ chain: target, address })
     runScan(target, address)
@@ -573,9 +637,9 @@ export function ScannerPage() {
               value={input}
               onChange={(event) => {
                 setInput(event.target.value)
-                if (event.target.value.trim()) setChain(detectChain(event.target.value))
+                if (event.target.value.trim()) setChain(detectChain(event.target.value, chain))
               }}
-              placeholder="Token contract address (Solana or Robinhood Chain 0x…)"
+              placeholder="Token contract address (Solana, or 0x… on BNB Chain or Robinhood Chain)"
               className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-nodex-muted"
               spellCheck={false}
               autoComplete="off"

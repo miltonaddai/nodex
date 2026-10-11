@@ -345,7 +345,7 @@ export interface PaginatedResponse<T> {
   message?: string
 }
 
-export type ScanChain = 'solana' | 'robinhood'
+export type ScanChain = 'solana' | 'robinhood' | 'bsc'
 export type RiskSeverity = 'critical' | 'high' | 'medium' | 'low'
 
 export interface ScanHolder {
@@ -399,6 +399,8 @@ export interface ScanResult {
     transferFeeAuthority: string | null
     permanentDelegate: string | null
     contractVerified: boolean | null
+    /** BNB Chain contract audit: the token cannot be sold. Null where not checked. */
+    honeypot: boolean | null
   }
   holders: { count: number | null; top10Pct: number | null; largestHolderPct: number | null; list: ScanHolder[] }
   trading: { buys24h: number | null; sells24h: number | null; uniqueWallets24h: number | null; churn: number | null }

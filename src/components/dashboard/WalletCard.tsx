@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { Check, ExternalLink, Pencil, Trash2, X } from 'lucide-react'
 import { type WatchlistWallet } from '@/lib/api'
 import { cn, formatCurrency, formatPnl, truncateAddress } from '@/lib/utils'
-import { walletUrl } from '@/lib/chains'
+import { chainLabel, walletUrl } from '@/lib/chains'
 
 const AVATAR_COLORS = [
   'bg-orange-500',
@@ -243,7 +243,7 @@ export function WalletCard({ wallet, index, onRename, onRemove }: WalletCardProp
         </span>
         <span className="flex items-center gap-1.5 rounded-full border border-nodex-line bg-nodex-surface px-2 py-1">
           <span className={cn('w-1.5 h-1.5 rounded-full', noData ? 'bg-nodex-muted' : 'bg-nodex-green')} />
-          {wallet.chain === 'solana' ? 'Solana' : 'Robinhood Chain'}
+          {chainLabel(wallet.chain)}
         </span>
       </div>
     </motion.div>

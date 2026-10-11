@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { api, type WalletDetailResponse } from '@/lib/api'
 import { cn, formatCurrency, formatPercent, formatPnl, truncateAddress } from '@/lib/utils'
 import { useWatchlistStore } from '@/stores/watchlistStore'
+import { isChainId } from '@/lib/chains'
 
 const PERIODS: Period[] = ['24H', '7D', '30D', 'All']
 
@@ -41,7 +42,8 @@ export function WalletAnalysisPage() {
   const { address = '' } = useParams<{ address: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
-  const chain = searchParams.get('chain') === 'robinhood' ? 'robinhood' : 'solana'
+  const requestedChain = searchParams.get('chain')
+  const chain = isChainId(requestedChain) ? requestedChain : 'solana'
   const periodParam = searchParams.get('period')
   const period: Period = isPeriod(periodParam) ? periodParam : '7D'
   const [detail, setDetail] = useState<WalletDetailResponse | null>(null)

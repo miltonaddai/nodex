@@ -17,7 +17,7 @@ import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
 import { useChainTokenWatchlist } from '@/hooks/useSolanaTokenWatchlist'
 import { ChainSelector, type Chain } from '@/components/dashboard/ChainSelector'
 import { useDashboardPreferencesStore } from '@/stores/dashboardPreferencesStore'
-import { chainLabel, tokenUrl, walletUrl } from '@/lib/chains'
+import { chainLabel, isChainId, tokenUrl, walletUrl } from '@/lib/chains'
 import { useWatchlistStore } from '@/stores/watchlistStore'
 import { useEarlySignalStore } from '@/stores/earlySignalStore'
 import { playChime } from '@/lib/chime'
@@ -710,7 +710,7 @@ export function WalletsPage() {
   const [urlParams, setUrlParams] = useSearchParams()
   useEffect(() => {
     const requested = urlParams.get('chain')
-    if (requested !== 'solana' && requested !== 'robinhood') return
+    if (!isChainId(requested)) return
     setChain(requested)
     setTab('buys')
     setUrlParams(

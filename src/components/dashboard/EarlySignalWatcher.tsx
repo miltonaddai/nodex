@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/auth-context'
 import { api, type SmartMoneyBuy } from '@/lib/api'
+import { CHAIN_IDS, chainLabel } from '@/lib/chains'
 import { playChime } from '@/lib/chime'
 import { formatCurrency } from '@/lib/utils'
 import { useEarlySignalStore } from '@/stores/earlySignalStore'
@@ -14,7 +15,7 @@ import { toast } from '@/stores/toastStore'
  * snapshot, so it costs no data-provider calls.
  */
 const POLL_MS = 3 * 60 * 1000
-const CHAINS = ['solana', 'robinhood'] as const
+const CHAINS = CHAIN_IDS
 const SEEN_KEY = 'nodex_early_seen_v1'
 const MAX_SEEN = 500
 
@@ -98,7 +99,7 @@ export function EarlySignalWatcher() {
         title: fresh.length === 1 ? `Early signal: ${first.symbol || first.name}` : `${fresh.length} new early signals`,
         description:
           fresh.length === 1
-            ? `${first.walletCount} top traders buying at ${formatCurrency(first.marketCap, true)} market cap${fresh[0].chain === 'robinhood' ? ' on Robinhood Chain' : ''}.`
+            ? `${first.walletCount} top traders buying at ${formatCurrency(first.marketCap, true)} market cap${fresh[0].chain !== 'solana' ? ` on ${chainLabel(fresh[0].chain)}` : ''}.`
             : fresh.map((f) => f.token.symbol || f.token.name).slice(0, 4).join(', ') + (fresh.length > 4 ? '…' : ''),
         action: {
           label: 'View',

@@ -135,7 +135,7 @@ const plans = [
     name: 'Pro',
     price: '$49',
     description: 'Deeper signals for serious on-chain traders.',
-    features: ['Everything in Starter', 'Insider plays', 'Unlimited watchlists', 'Robinhood Chain coverage'],
+    features: ['Everything in Starter', 'Insider plays', 'Unlimited watchlists', 'Robinhood Chain and BNB Chain coverage'],
     featured: true,
   },
 ]
@@ -144,7 +144,7 @@ const faqs = [
   {
     question: 'Which chains does NodeX cover?',
     answer:
-      'Solana and Robinhood Chain. Token discovery, the scanner and top-trader tracking work on both. Launch bundle detection covers Solana, where several wallets signing one transaction proves common control.',
+      'Solana, Robinhood Chain and BNB Chain. Token discovery, the scanner and top-trader tracking work on all three. Launch bundle detection covers Solana, where several wallets signing one transaction proves common control.',
   },
   {
     question: 'Who are the top traders?',
@@ -254,7 +254,7 @@ export function LandingPage() {
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-nodex-line bg-nodex-surface px-3 py-1 text-xs text-nodex-muted">
                 <span className="h-1.5 w-1.5 rounded-full bg-nodex-accent" />
-                On-chain intelligence for Solana and Robinhood Chain
+                On-chain intelligence for Solana, Robinhood Chain and BNB Chain
               </span>
               <h1 className="mb-6 text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl">
                 Trade what the best traders buy, <span className="text-nodex-teal">not what bots pump.</span>
@@ -480,7 +480,7 @@ export function LandingPage() {
           >
             <div>
               <h2 className="text-2xl font-bold md:text-3xl">Check your next token before you buy it.</h2>
-              <p className="mt-2 opacity-80">Free to start. Scan any Solana or Robinhood Chain contract in seconds.</p>
+              <p className="mt-2 opacity-80">Free to start. Scan any Solana, Robinhood Chain or BNB Chain contract in seconds.</p>
             </div>
             <SignupLink className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#ffffff] px-6 py-3 text-sm font-semibold text-nodex-blue transition-opacity hover:opacity-90">
               Get started <ArrowRight className="h-4 w-4" />
