@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
-import type { Chain } from '@/components/dashboard/ChainSelector'
+import type { ChainFilter } from '@/components/dashboard/ChainSelector'
 import { api, type WatchlistWallet } from '@/lib/api'
 import { isDashboardStale, createFetchGuard } from '@/stores/dashboard-types'
 import { useDashboardPreferencesStore } from '@/stores/dashboardPreferencesStore'
@@ -11,12 +11,12 @@ interface WatchlistState {
   wallets: WatchlistWallet[]
   loading: boolean
   error: string | null
-  chain: Chain
+  chain: ChainFilter
   lastFetchedAt: number | null
-  fetchedChain: Chain | null
+  fetchedChain: ChainFilter | null
   fetchWatchlist: (force?: boolean) => Promise<void>
   fetchIfNeeded: () => void
-  setChain: (chain: Chain) => void
+  setChain: (chain: ChainFilter) => void
   addWallet: (address: string, name: string, chain: string) => Promise<void>
   renameWallet: (id: string, name: string) => Promise<void>
   removeWallet: (id: string) => Promise<void>
@@ -27,9 +27,9 @@ const initialState = {
   wallets: [] as WatchlistWallet[],
   loading: false,
   error: null as string | null,
-  chain: 'solana' as Chain,
+  chain: 'solana' as ChainFilter,
   lastFetchedAt: null as number | null,
-  fetchedChain: null as Chain | null,
+  fetchedChain: null as ChainFilter | null,
 }
 
 export const useWatchlistStore = create<WatchlistState>((set, get) => ({
@@ -73,16 +73,17 @@ export const useWatchlistStore = create<WatchlistState>((set, get) => ({
   },
 
   fetchIfNeeded: () => {
-    const { lastFetchedAt, fetchWatchlist } = get()
+    const { lastFetchedAt, fetchedChain, chain, fetchWatchlist } = get()
     // An empty persisted watchlist is a valid loaded state. Use the fetch timestamp so
     // revisiting the page does not repeatedly request the same empty list.
-    if (lastFetchedAt === null || isDashboardStale(lastFetchedAt)) {
+    if (lastFetchedAt === null || fetchedChain !== chain || isDashboardStale(lastFetchedAt)) {
       void fetchWatchlist()
     }
   },
 
   setChain: (chain) => {
-    useDashboardPreferencesStore.getState().setPreferredChain(chain)
+    // 'all' is the watchlist page's own filter; the page saves it separately.
+    if (chain !== 'all') useDashboardPreferencesStore.getState().setPreferredChain(chain)
     set({ chain, wallets: [], lastFetchedAt: null })
     void get().fetchWatchlist(true)
   },
@@ -99,7 +100,8 @@ export const useWatchlistStore = create<WatchlistState>((set, get) => ({
   renameWallet: async (id, name) => {
     const trimmedName = name.trim()
     if (!trimmedName) throw new Error('Wallet name is required')
-    const updated = await api.watchlist.rename(id, trimmedName, get().chain)
+    const wallet = get().wallets.find((w) => w.id === id)
+    const updated = await api.watchlist.rename(id, trimmedName, wallet?.chain ?? get().chain)
     set((state) => ({
       wallets: state.wallets.map((wallet) =>
         wallet.id === id ? { ...wallet, name: updated.name } : wallet
@@ -109,7 +111,8 @@ export const useWatchlistStore = create<WatchlistState>((set, get) => ({
   },
 
   removeWallet: async (id) => {
-    await api.watchlist.remove(id, get().chain)
+    const wallet = get().wallets.find((w) => w.id === id)
+    await api.watchlist.remove(id, wallet?.chain ?? get().chain)
     set((state) => ({
       wallets: state.wallets.filter((w) => w.id !== id),
       lastFetchedAt: Date.now(),

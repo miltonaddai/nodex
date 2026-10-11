@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
-import type { Chain } from '@/components/dashboard/ChainSelector'
+import type { ChainFilter } from '@/components/dashboard/ChainSelector'
 import { api, type WatchlistToken } from '@/lib/api'
 import { isDashboardStale, createFetchGuard } from '@/stores/dashboard-types'
 import { useDashboardPreferencesStore } from '@/stores/dashboardPreferencesStore'
@@ -11,12 +11,12 @@ interface TokenWatchlistState {
   tokens: WatchlistToken[]
   loading: boolean
   error: string | null
-  chain: Chain
+  chain: ChainFilter
   lastFetchedAt: number | null
-  fetchedChain: Chain | null
+  fetchedChain: ChainFilter | null
   fetchTokens: (force?: boolean) => Promise<void>
   fetchIfNeeded: () => void
-  setChain: (chain: Chain) => void
+  setChain: (chain: ChainFilter) => void
   addToken: (token: { contract: string; name: string; symbol: string; chain: string }) => Promise<void>
   removeToken: (id: string) => Promise<void>
   isTracked: (contract: string) => boolean
@@ -27,9 +27,9 @@ const initialState = {
   tokens: [] as WatchlistToken[],
   loading: false,
   error: null as string | null,
-  chain: 'solana' as Chain,
+  chain: 'solana' as ChainFilter,
   lastFetchedAt: null as number | null,
-  fetchedChain: null as Chain | null,
+  fetchedChain: null as ChainFilter | null,
 }
 
 export const useTokenWatchlistStore = create<TokenWatchlistState>((set, get) => ({
@@ -83,7 +83,8 @@ export const useTokenWatchlistStore = create<TokenWatchlistState>((set, get) => 
   },
 
   setChain: (chain) => {
-    useDashboardPreferencesStore.getState().setPreferredChain(chain)
+    // 'all' is the watchlist page's own filter; the page saves it separately.
+    if (chain !== 'all') useDashboardPreferencesStore.getState().setPreferredChain(chain)
     set({ chain, tokens: [], lastFetchedAt: null })
     void get().fetchTokens(true)
   },
@@ -113,7 +114,8 @@ export const useTokenWatchlistStore = create<TokenWatchlistState>((set, get) => 
 
   removeToken: async (id) => {
     if (id.startsWith('pending:')) return // Still saving; it has no server id yet.
-    await api.watchlist.tokens.remove(id, get().chain)
+    const token = get().tokens.find((t) => t.id === id)
+    await api.watchlist.tokens.remove(id, token?.chain ?? get().chain)
     set((state) => ({
       tokens: state.tokens.filter((token) => token.id !== id),
       lastFetchedAt: Date.now(),

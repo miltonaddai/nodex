@@ -4,7 +4,7 @@ import { Coins, Plus, Wallet } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Navbar } from '@/components/layout/Navbar'
 import { DashboardFooter } from '@/components/layout/DashboardFooter'
-import { ChainSelector } from '@/components/dashboard/ChainSelector'
+import { ChainSelector, type ChainFilter } from '@/components/dashboard/ChainSelector'
 import { WalletCard } from '@/components/dashboard/WalletCard'
 import { TokenCard } from '@/components/dashboard/TokenCard'
 import { WatchlistGridSkeleton } from '@/components/dashboard/WatchlistGridSkeleton'
@@ -13,6 +13,7 @@ import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
 import { useWatchlistPageInit } from '@/hooks/useWatchlistPageInit'
 import { useWatchlistDashboard } from '@/stores/watchlistStore'
 import { useTokenWatchlistDashboard } from '@/stores/tokenWatchlistStore'
+import { useDashboardPreferencesStore } from '@/stores/dashboardPreferencesStore'
 import { cn } from '@/lib/utils'
 
 type WatchlistTab = 'wallets' | 'tokens'
@@ -38,13 +39,15 @@ export function WatchlistPage() {
 
   // Both lists are chain-scoped, so the single selector has to drive both stores or the
   // inactive tab would still be showing the previous chain when you switch back to it.
-  const handleChainChange = (next: typeof chain) => {
+  const handleChainChange = (next: ChainFilter) => {
+    useDashboardPreferencesStore.getState().setWatchlistChain(next)
     setChain(next)
     setTokensChain(next)
   }
 
   const activeError = tab === 'wallets' ? error : tokensError
-  const activeLoading = tab === 'wallets' ? loading : tokensLoading
+  // A refresh keeps the cards already on screen; the skeleton is only for an empty list.
+  const activeLoading = tab === 'wallets' ? loading && wallets.length === 0 : tokensLoading && tokens.length === 0
 
   return (
     <PageLayout>
@@ -60,7 +63,7 @@ export function WatchlistPage() {
             Watchlist
           </motion.h1>
           <div className="flex items-center gap-3">
-            <ChainSelector value={chain} onChange={handleChainChange} />
+            <ChainSelector<ChainFilter> value={chain} onChange={handleChainChange} includeAll />
             {tab === 'wallets' ? (
               <Button variant="dark" size="sm" className="rounded-full normal-case tracking-normal">
                 <Plus className="w-4 h-4" />

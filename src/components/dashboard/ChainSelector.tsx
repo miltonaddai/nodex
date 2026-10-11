@@ -14,14 +14,21 @@ const chains = [
 ] as const
 
 export type Chain = (typeof chains)[number]['id']
+/** A chain, or every chain at once (the watchlist page). */
+export type ChainFilter = Chain | 'all'
 
-interface ChainSelectorProps {
-  value: Chain
-  onChange: (chain: Chain) => void
+const allChains = { id: 'all', label: 'All chains', color: 'from-purple-500 via-emerald-400 to-amber-400', enabled: true } as const
+
+interface ChainSelectorProps<T extends ChainFilter> {
+  value: T
+  onChange: (chain: T) => void
+  /** Adds an "All chains" option. Only valid where `T` includes 'all'. */
+  includeAll?: boolean
 }
 
-export function ChainSelector({ value, onChange }: ChainSelectorProps) {
-  const current = chains.find((c) => c.id === value) ?? chains[0]
+export function ChainSelector<T extends ChainFilter = Chain>({ value, onChange, includeAll = false }: ChainSelectorProps<T>) {
+  const options = includeAll ? [allChains, ...chains] : chains
+  const current = options.find((c) => c.id === value) ?? options[0]
 
   return (
     <DropdownMenu>
@@ -31,11 +38,11 @@ export function ChainSelector({ value, onChange }: ChainSelectorProps) {
         <ChevronDown className="w-4 h-4 text-nodex-muted" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="bg-nodex-surface border-white/10">
-        {chains.map((chain) => (
+        {options.map((chain) => (
           <DropdownMenuItem
             key={chain.id}
             disabled={!chain.enabled}
-            onClick={() => chain.enabled && onChange(chain.id)}
+            onClick={() => chain.enabled && onChange(chain.id as T)}
             className={cn(
               'flex items-center gap-2 cursor-pointer focus:bg-nodex-teal/10 focus:text-nodex-teal',
               !chain.enabled && 'opacity-50 cursor-not-allowed'
