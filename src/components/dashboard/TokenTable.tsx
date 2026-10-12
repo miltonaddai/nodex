@@ -11,6 +11,8 @@ import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { type TokenRow } from '@/lib/api'
 import { cn, formatCurrency, formatPercent, MARKET_CAP_COLUMN, truncateAddress } from '@/lib/utils'
 import { tokenUrl } from '@/lib/chains'
+import { markTokenViewed, useViewedTokens } from '@/lib/viewed-tokens'
+import { VIEWED_ROW, ViewedTokenIcon } from '@/components/dashboard/ViewedTokenIcon'
 
 const AVATAR_COLORS = [
   'bg-green-500',
@@ -38,7 +40,7 @@ function formatTokenAge(launchedAt?: string, fallbackDays?: number): string {
   return fallbackDays === undefined ? '—' : `${fallbackDays}d`
 }
 
-function ContractCell({ contract, chain }: { contract: string; chain: string }) {
+function ContractCell({ contract, chain, viewed }: { contract: string; chain: string; viewed: boolean }) {
   const [copied, setCopied] = useState(false)
 
   const copyContract = async () => {
@@ -58,10 +60,13 @@ function ContractCell({ contract, chain }: { contract: string; chain: string }) 
         target="_blank"
         rel="noopener noreferrer"
         title="Open token in Dexscreener"
+        onClick={() => markTokenViewed(chain, contract)}
+        onAuxClick={() => markTokenViewed(chain, contract)}
         className="underline-offset-4 hover:text-nodex-teal hover:underline focus-visible:text-nodex-teal focus-visible:underline focus-visible:outline-none"
       >
         {truncateAddress(contract)}
       </a>
+      {viewed ? <ViewedTokenIcon /> : null}
       <button
         type="button"
         onClick={() => void copyContract()}
@@ -110,6 +115,7 @@ export function TokenTable({
   onSort,
   onPageChange,
 }: TokenTableProps) {
+  const isViewed = useViewedTokens()
   const showInitialSkeleton = loading && tokens.length === 0
 
   if (showInitialSkeleton) {
@@ -172,7 +178,10 @@ export function TokenTable({
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: i * 0.05 }}
-                  className="group border-b border-white/[0.06] hover:bg-white/[0.04] transition-colors duration-200"
+                  className={cn(
+                    'group border-b border-white/[0.06] hover:bg-white/[0.04] transition-colors duration-200',
+                    isViewed(chain, token.contract) && VIEWED_ROW
+                  )}
                 >
                   <td className="px-4 py-4 text-sm text-nodex-muted">{token.rank}</td>
                   <td className="px-4 py-4">
@@ -221,7 +230,7 @@ export function TokenTable({
                     )}
                   </td>
                   <td className="px-4 py-4 text-sm text-nodex-muted">
-                    <ContractCell contract={token.contract} chain={chain} />
+                    <ContractCell contract={token.contract} chain={chain} viewed={isViewed(chain, token.contract)} />
                   </td>
                   <td className="px-4 py-4 text-sm">${token.price.toFixed(token.price < 0.01 ? 5 : 2)}</td>
                   <td className={cn('px-4 py-4 text-sm', MARKET_CAP_COLUMN)}>{formatCurrency(token.marketCap, true)}</td>

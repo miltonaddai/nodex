@@ -13,11 +13,13 @@ import { LastUpdated, TablePagination } from '@/components/dashboard/TablePagina
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { TokenTableSkeleton } from '@/components/dashboard/TokenTableSkeleton'
 import { TokenWatchlistButton } from '@/components/dashboard/TokenWatchlistButton'
+import { VIEWED_ROW, ViewedTokenIcon } from '@/components/dashboard/ViewedTokenIcon'
 import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
 import { useChainTokenWatchlist } from '@/hooks/useSolanaTokenWatchlist'
 import { ChainSelector, type Chain } from '@/components/dashboard/ChainSelector'
 import { useDashboardPreferencesStore } from '@/stores/dashboardPreferencesStore'
 import { chainLabel, isChainId, tokenUrl, walletUrl } from '@/lib/chains'
+import { markTokenViewed, useViewedTokens } from '@/lib/viewed-tokens'
 import { useWatchlistStore } from '@/stores/watchlistStore'
 import { useEarlySignalStore } from '@/stores/earlySignalStore'
 import { playChime } from '@/lib/chime'
@@ -288,6 +290,7 @@ function BuysTable({
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [expanded, setExpanded] = useState<string | null>(null)
+  const isViewed = useViewedTokens()
   const [filters, setFilters] = useState<BuyFilters>(loadFilters)
   const filtered = filters.earlyOnly || filters.maxMarketCap !== null || filters.minWalletCount !== null
   const [earlyCount, setEarlyCount] = useState(0)
@@ -510,13 +513,15 @@ function BuysTable({
               ) : null}
               {items.map((token) => {
                 const isOpen = expanded === token.contract
+                const viewed = isViewed(chain, token.contract)
                 return (
                   <Fragment key={token.contract}>
                     <tr
                       onClick={() => setExpanded(isOpen ? null : token.contract)}
                       className={cn(
                         'group cursor-pointer border-b border-white/[0.06] transition-colors duration-200 hover:bg-white/[0.04]',
-                        isOpen && 'bg-white/[0.03]'
+                        isOpen && 'bg-white/[0.03]',
+                        viewed && VIEWED_ROW
                       )}
                     >
                       <td className="px-4 py-4 text-nodex-muted">
@@ -540,16 +545,23 @@ function BuysTable({
                                 </span>
                               ) : null}
                             </div>
-                            <a
-                              title={token.symbol}
-                              href={tokenUrl(chain, token.contract)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(event) => event.stopPropagation()}
-                              className="block truncate text-xs text-nodex-muted underline-offset-4 hover:text-nodex-teal hover:underline"
-                            >
-                              {token.symbol} · {truncateAddress(token.contract)}
-                            </a>
+                            <div className="flex items-center gap-1">
+                              <a
+                                title={token.symbol}
+                                href={tokenUrl(chain, token.contract)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(event) => {
+                                  event.stopPropagation()
+                                  markTokenViewed(chain, token.contract)
+                                }}
+                                onAuxClick={() => markTokenViewed(chain, token.contract)}
+                                className="min-w-0 truncate text-xs text-nodex-muted underline-offset-4 hover:text-nodex-teal hover:underline"
+                              >
+                                {token.symbol} · {truncateAddress(token.contract)}
+                              </a>
+                              {viewed ? <ViewedTokenIcon /> : null}
+                            </div>
                           </div>
                           <TokenWatchlistButton token={token} chain={chain} />
                         </div>

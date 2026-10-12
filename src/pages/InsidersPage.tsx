@@ -11,6 +11,7 @@ import { LastUpdated, TablePagination } from '@/components/dashboard/TablePagina
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { TokenTableSkeleton } from '@/components/dashboard/TokenTableSkeleton'
 import { TokenWatchlistButton } from '@/components/dashboard/TokenWatchlistButton'
+import { VIEWED_ROW, ViewedTokenIcon } from '@/components/dashboard/ViewedTokenIcon'
 import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
 import { useSolanaTokenWatchlist } from '@/hooks/useSolanaTokenWatchlist'
 import {
@@ -22,6 +23,7 @@ import {
 } from '@/lib/api'
 import { cn, formatCurrency, MARKET_CAP_COLUMN, truncateAddress } from '@/lib/utils'
 import { tokenUrl, walletUrl } from '@/lib/chains'
+import { markTokenViewed, useViewedTokens } from '@/lib/viewed-tokens'
 
 const PAGE_SIZE = 20
 
@@ -200,6 +202,7 @@ export function InsidersPage() {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
   const [nextUpdate, setNextUpdate] = useState<string | null>(null)
   const [expanded, setExpanded] = useState<string | null>(null)
+  const isViewed = useViewedTokens()
   const requestId = useRef(0)
 
   useEffect(() => {
@@ -320,6 +323,7 @@ export function InsidersPage() {
                   ) : null}
                   {plays.map((play) => {
                     const isOpen = expanded === play.contract
+                    const viewed = isViewed('solana', play.contract)
                     const statusStyle = STATUS_STYLE[play.insiderStatus] ?? STATUS_STYLE.unknown
                     const patternStyle = PATTERN_STYLE[play.pricePattern] ?? PATTERN_STYLE.unknown
                     return (
@@ -328,7 +332,8 @@ export function InsidersPage() {
                           onClick={() => setExpanded(isOpen ? null : play.contract)}
                           className={cn(
                             'group cursor-pointer border-b border-white/[0.06] transition-colors duration-200 hover:bg-white/[0.04]',
-                            isOpen && 'bg-white/[0.03]'
+                            isOpen && 'bg-white/[0.03]',
+                            viewed && VIEWED_ROW
                           )}
                         >
                           <td className="px-4 py-4 text-nodex-muted">
@@ -341,16 +346,23 @@ export function InsidersPage() {
                                 <div className="truncate text-sm font-medium" title={play.name}>
                                   {play.name}
                                 </div>
-                                <a
-                                  title={play.symbol}
-                                  href={tokenUrl('solana', play.contract)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  onClick={(event) => event.stopPropagation()}
-                                  className="block truncate text-xs text-nodex-muted underline-offset-4 hover:text-nodex-teal hover:underline"
-                                >
-                                  {play.symbol} · {truncateAddress(play.contract)}
-                                </a>
+                                <div className="flex items-center gap-1">
+                                  <a
+                                    title={play.symbol}
+                                    href={tokenUrl('solana', play.contract)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(event) => {
+                                      event.stopPropagation()
+                                      markTokenViewed('solana', play.contract)
+                                    }}
+                                    onAuxClick={() => markTokenViewed('solana', play.contract)}
+                                    className="min-w-0 truncate text-xs text-nodex-muted underline-offset-4 hover:text-nodex-teal hover:underline"
+                                  >
+                                    {play.symbol} · {truncateAddress(play.contract)}
+                                  </a>
+                                  {viewed ? <ViewedTokenIcon /> : null}
+                                </div>
                               </div>
                               <TokenWatchlistButton token={play} chain="solana" />
                             </div>
