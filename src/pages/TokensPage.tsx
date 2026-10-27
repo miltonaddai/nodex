@@ -12,7 +12,8 @@ import {
 import { LastUpdated } from '@/components/dashboard/TablePagination'
 import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
 import { useTokensPageInit } from '@/hooks/useTokensPageInit'
-import { useTokensDashboard } from '@/stores/tokensStore'
+import { useTokensDashboard, useTokensStore } from '@/stores/tokensStore'
+import { useCatchUpRefetch } from '@/hooks/useCatchUpRefetch'
 import { useTokenWatchlistStore } from '@/stores/tokenWatchlistStore'
 import type { TokenTableFilters } from '@/lib/api'
 
@@ -59,6 +60,8 @@ export function TokensPage() {
     setSort,
     setFilters,
   } = useTokensDashboard()
+  // The API may answer with a snapshot from before the latest worker run; pick up the new one quietly
+  useCatchUpRefetch(lastUpdated, nextUpdate, () => void useTokensStore.getState().fetchTokens(true, true))
 
   // Keep the tracked-token set on the same chain as the table, so each row's add control
   // reflects reality after a chain switch.

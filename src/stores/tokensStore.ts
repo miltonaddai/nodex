@@ -35,7 +35,8 @@ interface TokensState {
   sortOrder: SortOrder
   filters: TokenTableFilters
   fetchedQueryKey: string | null
-  fetchTokens: (force?: boolean) => Promise<void>
+  /** `silent`: background catch-up refetch, no loading state (the table keeps showing current rows). */
+  fetchTokens: (force?: boolean, silent?: boolean) => Promise<void>
   fetchIfNeeded: () => void
   setPeriod: (period: Period) => void
   setChain: (chain: Chain) => void
@@ -67,10 +68,10 @@ const initialState = {
 export const useTokensStore = create<TokensState>((set, get) => ({
   ...initialState,
 
-  fetchTokens: async (force = false) => {
+  fetchTokens: async (force = false, silent = false) => {
     const state = get()
     const queryKey = buildQueryKey(state)
-    if (!force && state.loading) return
+    if ((!force || silent) && state.loading) return
     if (
       !force &&
       state.tokens.length > 0 &&
@@ -81,7 +82,7 @@ export const useTokensStore = create<TokensState>((set, get) => ({
     }
 
     const generation = fetchGuard.next()
-    set({ loading: true, error: null })
+    if (!silent) set({ loading: true, error: null })
 
     try {
       const { chain, period, page, pageSize, sortBy, sortOrder, filters } = get()
@@ -102,6 +103,8 @@ export const useTokensStore = create<TokensState>((set, get) => ({
       })
     } catch (err) {
       if (fetchGuard.isStale(generation)) return
+      // A failed background refetch keeps the rows on screen; the next poll tries again
+      if (silent) return
       set({
         loading: false,
         error: err instanceof Error ? err.message : 'Failed to load tokens',

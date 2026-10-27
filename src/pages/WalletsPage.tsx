@@ -12,6 +12,7 @@ import { FirstSeenCell, PeakMultipleCell } from '@/components/dashboard/Sighting
 import { LastUpdated, TablePagination } from '@/components/dashboard/TablePagination'
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { TokenTableSkeleton } from '@/components/dashboard/TokenTableSkeleton'
+import { useCatchUpRefetch } from '@/hooks/useCatchUpRefetch'
 import { TokenWatchlistButton } from '@/components/dashboard/TokenWatchlistButton'
 import { VIEWED_ROW, ViewedTokenIcon } from '@/components/dashboard/ViewedTokenIcon'
 import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
@@ -298,6 +299,14 @@ function BuysTable({
   const setAlertsEnabled = useEarlySignalStore((s) => s.setAlertsEnabled)
   const [params, setParams] = useSearchParams()
   const requestId = useRef(0)
+  // Background catch-up refetches (useCatchUpRefetch) bump the tick and skip the loading state
+  const [stamp, setStamp] = useState<{ lastUpdated: string | null; nextUpdate: string | null }>({ lastUpdated: null, nextUpdate: null })
+  const [refreshTick, setRefreshTick] = useState(0)
+  const silentRef = useRef(false)
+  useCatchUpRefetch(stamp.lastUpdated, stamp.nextUpdate, () => {
+    silentRef.current = true
+    setRefreshTick((n) => n + 1)
+  })
 
   const updateFilters = (next: BuyFilters) => {
     setFilters(next)
@@ -323,8 +332,12 @@ function BuysTable({
 
   useEffect(() => {
     const id = ++requestId.current
-    setLoading(true)
-    setError(null)
+    const silent = silentRef.current
+    silentRef.current = false
+    if (!silent) {
+      setLoading(true)
+      setError(null)
+    }
     api.smartMoney
       .buys({
         chain,
@@ -348,14 +361,15 @@ function BuysTable({
           lastUpdated: result.lastUpdated ?? null,
           nextUpdate: result.nextUpdate ?? null,
         })
+        setStamp({ lastUpdated: result.lastUpdated ?? null, nextUpdate: result.nextUpdate ?? null })
       })
       .catch((err: unknown) => {
-        if (id === requestId.current) setError(err instanceof Error ? err.message : 'Failed to load')
+        if (id === requestId.current && !silent) setError(err instanceof Error ? err.message : 'Failed to load')
       })
       .finally(() => {
         if (id === requestId.current) setLoading(false)
       })
-  }, [chain, page, sortBy, sortOrder, filters, onMeta])
+  }, [chain, page, sortBy, sortOrder, filters, onMeta, refreshTick])
 
   const onSort = (column: string) => {
     const key = column as SmartMoneySortKey

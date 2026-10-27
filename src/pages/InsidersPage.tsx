@@ -10,6 +10,7 @@ import { FirstSeenCell, PeakMultipleCell } from '@/components/dashboard/Sighting
 import { LastUpdated, TablePagination } from '@/components/dashboard/TablePagination'
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { TokenTableSkeleton } from '@/components/dashboard/TokenTableSkeleton'
+import { useCatchUpRefetch } from '@/hooks/useCatchUpRefetch'
 import { TokenWatchlistButton } from '@/components/dashboard/TokenWatchlistButton'
 import { VIEWED_ROW, ViewedTokenIcon } from '@/components/dashboard/ViewedTokenIcon'
 import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
@@ -204,11 +205,22 @@ export function InsidersPage() {
   const [expanded, setExpanded] = useState<string | null>(null)
   const isViewed = useViewedTokens()
   const requestId = useRef(0)
+  // Background catch-up refetches (useCatchUpRefetch) bump the tick and skip the loading state
+  const [refreshTick, setRefreshTick] = useState(0)
+  const silentRef = useRef(false)
+  useCatchUpRefetch(lastUpdated, nextUpdate, () => {
+    silentRef.current = true
+    setRefreshTick((n) => n + 1)
+  })
 
   useEffect(() => {
     const id = ++requestId.current
-    setLoading(true)
-    setError(null)
+    const silent = silentRef.current
+    silentRef.current = false
+    if (!silent) {
+      setLoading(true)
+      setError(null)
+    }
     api.insiders
       .list({ chain: 'solana', page, pageSize: PAGE_SIZE, sortBy, sortOrder, status: status || undefined, pattern: pattern || undefined })
       .then((result) => {
@@ -220,13 +232,13 @@ export function InsidersPage() {
         setNextUpdate(result.nextUpdate ?? null)
       })
       .catch((err: unknown) => {
-        if (id !== requestId.current) return
+        if (id !== requestId.current || silent) return
         setError(err instanceof Error ? err.message : 'Failed to load insider plays')
       })
       .finally(() => {
         if (id === requestId.current) setLoading(false)
       })
-  }, [page, sortBy, sortOrder, status, pattern])
+  }, [page, sortBy, sortOrder, status, pattern, refreshTick])
 
   const onSort = (column: string) => {
     const key = column as InsiderSortKey
