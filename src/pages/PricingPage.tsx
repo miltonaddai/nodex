@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AlertCircle, Check, CreditCard, Sparkles } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { PublicFooter } from '@/components/layout/PublicFooter'
 import { Navbar } from '@/components/layout/Navbar'
 import { Button } from '@/components/ui/button'
 import { GlassPanel } from '@/components/layout/GlassPanel'
@@ -121,39 +122,39 @@ export function PricingPage() {
   return (
     <PageLayout>
       <Navbar variant={isAuthenticated ? 'dashboard' : 'public'} />
-      <main className="min-h-screen px-4 pt-28 pb-16">
+      <main className="flex-1 px-4 pt-28 pb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Select a Plan</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Subscribe to WhaleMo</h1>
           {welcome && !hasActiveSub && (
-            <p className="text-nodex-teal text-sm mb-2">Account created — choose a plan to unlock your dashboard.</p>
+            <p className="text-whalemo-teal text-sm mb-2">Account created — subscribe to unlock your dashboard.</p>
           )}
-          <p className="text-nodex-muted max-w-xl mx-auto">
-            Subscribe securely with Stripe. Cancel or change your plan anytime from the billing portal.
+          <p className="text-whalemo-muted max-w-xl mx-auto">
+            One flat price of ${PLANS[0].price}/month. Subscribe securely with Stripe and cancel anytime from the billing portal.
           </p>
 
           {updated && (
-            <div className="mx-auto mt-6 flex max-w-lg items-center justify-center gap-2 rounded-full border border-nodex-teal/30 bg-nodex-teal/10 px-4 py-2 text-sm text-nodex-teal">
+            <div className="mx-auto mt-6 flex max-w-lg items-center justify-center gap-2 rounded-md border border-whalemo-teal/30 bg-whalemo-teal/10 px-4 py-2 text-sm text-whalemo-teal">
               <Sparkles className="h-4 w-4 shrink-0" />
-              Your plan is active. Welcome to NodeX.
+              Your plan is active. Welcome to WhaleMo.
             </div>
           )}
 
           {canceled && (
-            <p className="mt-4 text-sm text-nodex-muted">Checkout was canceled. You can try again below.</p>
+            <p className="mt-4 text-sm text-whalemo-muted">Checkout was canceled. You can try again below.</p>
           )}
 
           {isPastDue && (
-            <div className="mx-auto mt-6 flex max-w-xl flex-col items-center gap-3 rounded-2xl border border-nodex-red/30 bg-nodex-red/10 px-5 py-4 text-sm text-nodex-red sm:flex-row sm:justify-center">
+            <div className="mx-auto mt-6 flex max-w-xl flex-col items-center gap-3 rounded-md border border-whalemo-red/30 bg-whalemo-red/10 px-5 py-4 text-sm text-whalemo-red sm:flex-row sm:justify-center">
               <AlertCircle className="h-5 w-5 shrink-0" />
               <span>Your last payment failed. Update your payment method to restore access.</span>
               <Button
                 variant="outline"
                 size="sm"
-                className="normal-case tracking-normal border-nodex-red/40 text-nodex-red hover:bg-nodex-red/10"
+                className="normal-case tracking-normal border-whalemo-red/40 text-whalemo-red hover:bg-whalemo-red/10"
                 disabled={portalLoading}
                 onClick={() => void handleManageBilling()}
               >
@@ -163,17 +164,17 @@ export function PricingPage() {
           )}
 
           {isAuthenticated && user && !hasActiveSub && !isPastDue && (
-            <p className="mt-6 text-sm text-nodex-muted">
-              Choose a plan below to unlock your dashboard and watchlists.
+            <p className="mt-6 text-sm text-whalemo-muted">
+              Subscribe below to unlock your dashboard and watchlists.
             </p>
           )}
 
-          {error && <p className="mt-4 text-sm text-nodex-red">{error}</p>}
+          {error && <p className="mt-4 text-sm text-whalemo-red">{error}</p>}
 
           {user && hasActiveSub && (
             <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <span className="rounded-full border border-nodex-teal/30 bg-nodex-teal/10 px-4 py-1.5 text-sm text-nodex-teal">
-                Current plan: {user.subscription.plan === 'pro' ? 'Pro' : 'Starter'}
+              <span className="rounded-md border border-whalemo-teal/30 bg-whalemo-teal/10 px-4 py-1.5 text-sm text-whalemo-teal">
+                Current plan: WhaleMo
                 {user.subscription.currentPeriodEnd
                   ? ` · Renews ${formatRenewalDate(user.subscription.currentPeriodEnd)}`
                   : ''}
@@ -192,7 +193,7 @@ export function PricingPage() {
           )}
         </motion.div>
 
-        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+        <div className="mx-auto grid max-w-md gap-8">
           {PLANS.map((plan, i) => {
             const isCurrent = user?.subscription.plan === plan.id && hasActiveSub
             const isHighlighted = preselectedPlan === plan.id
@@ -208,32 +209,32 @@ export function PricingPage() {
                 <GlassPanel
                   className={cn(
                     'relative flex h-full flex-col p-8 transition-shadow',
-                    isHighlighted && 'ring-2 ring-nodex-teal/50'
+                    isHighlighted && 'ring-2 ring-whalemo-teal/50'
                   )}
                   hover
                   variant="solid"
                   featured={plan.popular}
                 >
                   {plan.popular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-nodex-accent text-nodex-on-accent text-xs font-bold tracking-wider uppercase">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-sm bg-whalemo-accent text-whalemo-on-accent text-xs font-bold tracking-wider uppercase">
                       Most Popular
                     </span>
                   )}
                   <h2 className="text-2xl font-bold mb-2">{plan.name}</h2>
                   <div className="mb-4">
                     <span className="text-4xl font-bold">${plan.price}</span>
-                    <span className="text-nodex-muted"> /mo</span>
+                    <span className="text-whalemo-muted"> /mo</span>
                   </div>
-                  <p className="text-nodex-muted text-sm mb-8">{plan.description}</p>
+                  <p className="text-whalemo-muted text-sm mb-8">{plan.description}</p>
                   <ul className="space-y-3 mb-8 flex-1">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-center gap-3 text-sm">
-                        <Check className="w-4 h-4 text-nodex-teal shrink-0" />
+                        <Check className="w-4 h-4 text-whalemo-teal shrink-0" />
                         <span
                           className={
                             // Only the Pro plan declares a `highlight`, so narrow before reading it.
                             'highlight' in plan && feature === plan.highlight
-                              ? 'text-nodex-teal font-semibold'
+                              ? 'text-whalemo-teal font-semibold'
                               : ''
                           }
                         >
@@ -260,14 +261,14 @@ export function PricingPage() {
           })}
         </div>
 
-        <p className="mt-10 text-center text-sm text-nodex-muted">
+        <p className="mt-10 text-center text-sm text-whalemo-muted">
           {isAuthenticated ? (
             <>
               Questions about billing?{' '}
               <button
                 type="button"
                 onClick={() => void handleManageBilling()}
-                className="text-nodex-teal hover:underline"
+                className="text-whalemo-teal hover:underline"
               >
                 Open customer portal
               </button>
@@ -275,7 +276,7 @@ export function PricingPage() {
                 <>
                   {' '}
                   ·{' '}
-                  <Link to="/tokens" className="text-nodex-teal hover:underline">
+                  <Link to="/wallets" className="text-whalemo-teal hover:underline">
                     Go to dashboard
                   </Link>
                 </>
@@ -284,13 +285,14 @@ export function PricingPage() {
           ) : (
             <>
               Already have an account?{' '}
-              <Link to="/login" className="text-nodex-teal hover:underline">
+              <Link to="/login" className="text-whalemo-teal hover:underline">
                 Login
               </Link>
             </>
           )}
         </p>
       </main>
+      <PublicFooter />
     </PageLayout>
   )
 }

@@ -1,6 +1,6 @@
-/** Where a token or wallet on each chain can be looked at outside NodeX. */
+/** Where a token or wallet on each chain can be looked at outside WhaleMo. */
 
-/** Chains NodeX covers, in selector order. */
+/** Chains WhaleMo covers, in selector order. */
 export const CHAIN_IDS = ['solana', 'robinhood', 'bsc'] as const
 
 export function isChainId(value: string | null | undefined): value is (typeof CHAIN_IDS)[number] {

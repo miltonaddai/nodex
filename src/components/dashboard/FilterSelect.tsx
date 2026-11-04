@@ -31,25 +31,25 @@ export function FilterSelect<T extends string | number | null>({
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
-          'flex items-center gap-2 rounded-full border px-4 py-2 text-sm outline-none transition-colors',
+          'flex items-center gap-2 rounded-md border px-4 py-2 text-sm outline-none transition-colors',
           active
-            ? 'border-nodex-teal/50 bg-nodex-teal/10 text-nodex-teal'
-            : 'border-nodex-line bg-nodex-surface text-white hover:border-nodex-teal/40'
+            ? 'border-whalemo-teal/50 bg-whalemo-teal/10 text-whalemo-teal'
+            : 'border-whalemo-line bg-whalemo-surface text-white hover:border-whalemo-teal/40'
         )}
       >
-        <span className={cn(!active && 'text-nodex-muted')}>{label}</span>
+        <span className={cn(!active && 'text-whalemo-muted')}>{label}</span>
         <span className="font-semibold">{current.label}</span>
         <ChevronDown className="h-4 w-4 opacity-70" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-[10rem] border-nodex-line bg-nodex-surface">
+      <DropdownMenuContent align="start" className="min-w-[10rem] border-whalemo-line bg-whalemo-surface">
         {options.map((option) => (
           <DropdownMenuItem
             key={String(option.value)}
             onClick={() => onChange(option.value)}
-            className="flex cursor-pointer items-center justify-between gap-6 focus:bg-nodex-teal/10 focus:text-nodex-teal"
+            className="flex cursor-pointer items-center justify-between gap-6 focus:bg-whalemo-teal/10 focus:text-whalemo-teal"
           >
             {option.label}
-            {option.value === current.value ? <Check className="h-3.5 w-3.5 text-nodex-teal" /> : null}
+            {option.value === current.value ? <Check className="h-3.5 w-3.5 text-whalemo-teal" /> : null}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

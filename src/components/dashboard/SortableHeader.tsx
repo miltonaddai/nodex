@@ -22,7 +22,7 @@ export function SortableHeader({ label, column, sortBy, sortOrder, onSort, class
         onClick={() => onSort(column)}
         className={cn(
           'inline-flex items-center gap-1 text-[11px] font-semibold tracking-widest uppercase transition-colors',
-          active ? 'text-nodex-teal' : 'text-nodex-muted hover:text-white'
+          active ? 'text-whalemo-teal' : 'text-whalemo-muted hover:text-white'
         )}
       >
         {label}

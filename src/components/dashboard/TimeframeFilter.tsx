@@ -10,16 +10,16 @@ interface TimeframeFilterProps {
 
 export function TimeframeFilter({ value, onChange }: TimeframeFilterProps) {
   return (
-    <div className="flex items-center gap-1 p-1 rounded-full bg-nodex-surface border border-nodex-line">
+    <div className="flex items-center gap-1 p-1 rounded-md bg-whalemo-surface border border-whalemo-line">
       {periods.map((period) => (
         <button
           key={period}
           onClick={() => onChange(period)}
           className={cn(
-            'px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300',
+            'px-4 py-1.5 rounded-sm text-xs font-semibold tracking-wider uppercase transition-all duration-300',
             value === period
-              ? 'bg-nodex-accent text-nodex-on-accent'
-              : 'text-nodex-muted hover:text-white'
+              ? 'bg-whalemo-accent text-whalemo-on-accent'
+              : 'text-whalemo-muted hover:text-white'
           )}
         >
           {period}

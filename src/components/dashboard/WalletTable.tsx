@@ -68,10 +68,10 @@ export function WalletTable({
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.04]">
-                <th className="px-4 py-4 text-left text-[11px] font-semibold tracking-widest uppercase text-nodex-muted">
+                <th className="px-4 py-4 text-left text-[11px] font-semibold tracking-widest uppercase text-whalemo-muted">
                   #
                 </th>
-                <th className="px-4 py-4 text-left text-[11px] font-semibold tracking-widest uppercase text-nodex-muted">
+                <th className="px-4 py-4 text-left text-[11px] font-semibold tracking-widest uppercase text-whalemo-muted">
                   Wallet
                 </th>
                 <SortableHeader label="Wins / List Tokens" column="qualifiedTokens" sortBy={sortBy} sortOrder={sortOrder} onSort={(col) => onSort(col as WalletSortKey)} />
@@ -99,7 +99,7 @@ export function WalletTable({
             <tbody>
               {wallets.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-12 text-center text-sm text-nodex-muted">
+                  <td colSpan={10} className="px-4 py-12 text-center text-sm text-whalemo-muted">
                     No wallets match the current filters.
                   </td>
                 </tr>
@@ -121,7 +121,7 @@ export function WalletTable({
                   tabIndex={0}
                   className="group cursor-pointer border-b border-white/[0.06] hover:bg-white/[0.04] focus-visible:bg-white/[0.04] focus-visible:outline-none transition-colors duration-200"
                 >
-                  <td className="px-4 py-4 text-sm text-nodex-muted">{wallet.rank}</td>
+                  <td className="px-4 py-4 text-sm text-whalemo-muted">{wallet.rank}</td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
                       <div
@@ -138,7 +138,7 @@ export function WalletTable({
                         rel="noopener noreferrer"
                         title="Open wallet in Solscan"
                         onClick={(event) => event.stopPropagation()}
-                        className="text-sm font-medium underline-offset-4 hover:text-nodex-teal hover:underline focus-visible:text-nodex-teal focus-visible:underline focus-visible:outline-none"
+                        className="text-sm font-medium underline-offset-4 hover:text-whalemo-teal hover:underline focus-visible:text-whalemo-teal focus-visible:underline focus-visible:outline-none"
                       >
                         {truncateAddress(wallet.address)}
                       </a>
@@ -160,10 +160,10 @@ export function WalletTable({
                           onAddToWatchlist?.(wallet)
                         }}
                         className={cn(
-                          'ml-1 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 transition-all',
+                          'ml-1 inline-flex h-7 w-7 items-center justify-center rounded-md border border-white/10 bg-white/5 transition-all',
                           watchedAddresses.has(wallet.address)
-                            ? 'text-nodex-teal opacity-100'
-                            : 'text-nodex-muted opacity-0 hover:border-nodex-teal/40 hover:text-nodex-teal group-hover:opacity-100 focus:opacity-100',
+                            ? 'text-whalemo-teal opacity-100'
+                            : 'text-whalemo-muted opacity-0 hover:border-whalemo-teal/40 hover:text-whalemo-teal group-hover:opacity-100 focus:opacity-100',
                           addingAddress === wallet.address && 'opacity-100'
                         )}
                       >
@@ -179,26 +179,26 @@ export function WalletTable({
                   </td>
                   <td className="px-4 py-4 text-sm">
                     <div
-                      className="font-semibold text-nodex-green"
+                      className="font-semibold text-whalemo-green"
                       title="Tokens from the current list this wallet traded, and how many it profited on"
                     >
                       {wallet.qualifiedWins ?? 0}/{wallet.qualifiedTokens ?? 0}
                     </div>
                     {wallet.qualifiedProfitUsd !== undefined && (
-                      <div className="text-[11px] text-nodex-muted">
+                      <div className="text-[11px] text-whalemo-muted">
                         {formatPnl(wallet.qualifiedProfitUsd)} on list
                       </div>
                     )}
                   </td>
                   <td className="px-4 py-4 text-sm">{formatCurrency(wallet.balance)}</td>
-                  <td className="px-4 py-4 text-sm font-semibold text-nodex-green">
+                  <td className="px-4 py-4 text-sm font-semibold text-whalemo-green">
                     {formatPnl(wallet.totalProfit)}
                   </td>
                   <td className="px-4 py-4 text-sm">{wallet.winRate}%</td>
-                  <td className="px-4 py-4 text-sm text-nodex-muted">{wallet.trades}</td>
+                  <td className="px-4 py-4 text-sm text-whalemo-muted">{wallet.trades}</td>
                   <td className="px-4 py-4 text-sm">{wallet.tokensHeld.toLocaleString()}</td>
                   <td className="px-4 py-4 text-sm">{formatCurrency(wallet.volume, true)}</td>
-                  <td className="px-4 py-4 text-sm text-nodex-muted">{wallet.lastActive}</td>
+                  <td className="px-4 py-4 text-sm text-whalemo-muted">{wallet.lastActive}</td>
                 </motion.tr>
               ))}
             </tbody>

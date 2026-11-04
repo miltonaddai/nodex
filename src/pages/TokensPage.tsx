@@ -95,7 +95,7 @@ export function TokensPage() {
           <ChainSelector value={chain} onChange={handleChainChange} />
         </div>
 
-        {error ? <p className="mb-4 text-sm text-nodex-red">{error}</p> : null}
+        {error ? <p className="mb-4 text-sm text-whalemo-red">{error}</p> : null}
 
         <TokenTable
           tokens={tokens}

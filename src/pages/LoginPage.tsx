@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Mail, Lock } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Navbar } from '@/components/layout/Navbar'
@@ -15,11 +15,13 @@ import { DASHBOARD_HOME_PATH, SELECT_PLAN_WELCOME_PATH } from '@/lib/subscriptio
 export function LoginPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const location = useLocation()
   const { login, isDemo } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [info, setInfo] = useState('')
+  // The reset password page sends users here with a confirmation to show.
+  const [info, setInfo] = useState((location.state as { info?: string } | null)?.info ?? '')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,7 +37,7 @@ export function LoginPage() {
       }
 
       const redirectParam = searchParams.get('redirect')
-      const dashboardPaths = ['/wallets', '/tokens', '/insiders', '/scanner', '/watchlist']
+      const dashboardPaths = ['/wallets', '/insiders', '/scanner', '/watchlist']
       const hasPlan = isActiveSubscription(result.user)
 
       if (redirectParam && (!dashboardPaths.includes(redirectParam) || hasPlan)) {
@@ -56,11 +58,11 @@ export function LoginPage() {
       <Navbar />
       <AuthShell
         title="Welcome back"
-        subtitle={isDemo ? 'Demo mode: use any email and password to explore the app.' : 'Sign in to your NodeX dashboard.'}
+        subtitle={isDemo ? 'Demo mode: use any email and password to explore the app.' : 'Sign in to your WhaleMo dashboard.'}
         footer={
           <>
             Don&apos;t have an account?{' '}
-            <SignupLink className="font-medium text-nodex-teal hover:underline">Sign up</SignupLink>
+            <SignupLink className="font-medium text-whalemo-teal hover:underline">Sign up</SignupLink>
           </>
         }
       >
@@ -78,7 +80,14 @@ export function LoginPage() {
             />
           </div>
           <div>
-            <Label htmlFor="password">Password</Label>
+            <div className="mb-2 flex items-center justify-between">
+              <Label htmlFor="password" className="mb-0">Password</Label>
+              {!isDemo && (
+                <Link to="/forgot-password" className="text-xs font-medium text-whalemo-teal hover:underline">
+                  Forgot password?
+                </Link>
+              )}
+            </div>
             <IconInput
               id="password"
               icon={Lock}
@@ -89,8 +98,8 @@ export function LoginPage() {
               required
             />
           </div>
-          {info && <p className="text-nodex-teal text-sm text-center">{info}</p>}
-          {error && <p className="text-nodex-red text-sm text-center">{error}</p>}
+          {info && <p className="text-whalemo-teal text-sm text-center">{info}</p>}
+          {error && <p className="text-whalemo-red text-sm text-center">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </Button>

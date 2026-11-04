@@ -1,7 +1,7 @@
 import { useCallback, useSyncExternalStore } from 'react'
 
 /**
- * Tokens the user has opened on Dexscreener from a NodeX table, kept in this browser so tables
+ * Tokens the user has opened on Dexscreener from a WhaleMo table, kept in this browser so tables
  * can mark rows already looked at. Capped so the list can't grow without bound.
  */
 

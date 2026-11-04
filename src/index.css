@@ -5,33 +5,43 @@
   --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
   /* Width of the dashboard pages' content (max-w-dashboard). Was 80rem; wider tables need room. */
   --container-dashboard: 90rem;
+  /* Square corners everywhere. Every rounded-* step is zero; rounded-full still draws circles
+     (avatars, token images, status dots). */
+  --radius-xs: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
+  --radius-4xl: 0;
   /* Palette: Graphite #353535, Stormy Teal #3c6e71, White #ffffff, Alabaster Grey #d9d9d9,
      Yale Blue #284b63. Flat design: solid surfaces separated by 1px lines, no blur or glow. */
   /* Dark mode: deep navy slate on Yale Blue's hue. Dark enough to feel modern, light enough that
      cards and lines stay visible. */
-  --color-nodex-bg: #0f1923;
-  --color-nodex-surface: #16222e;
-  --color-nodex-raised: #1d2b39;
-  --color-nodex-line: #283a4b;
-  --color-nodex-foreground: #eef3f7;
+  --color-whalemo-bg: #0f1923;
+  --color-whalemo-surface: #16222e;
+  --color-whalemo-raised: #1d2b39;
+  --color-whalemo-line: #283a4b;
+  --color-whalemo-foreground: #eef3f7;
   /* Solid fills (buttons, badges). Stormy Teal carries white text in both themes. */
-  --color-nodex-accent: #3c6e71;
-  --color-nodex-on-accent: #ffffff;
-  --color-white: var(--color-nodex-foreground);
+  --color-whalemo-accent: #3c6e71;
+  --color-whalemo-on-accent: #ffffff;
+  --color-white: var(--color-whalemo-foreground);
   /* Accent text, links and tints. Stormy Teal itself is too dark to read on Graphite, so dark
      mode uses a lighter tint of the same hue. */
-  --color-nodex-teal: #8dc2c5;
-  --color-nodex-teal-dim: #284b63;
-  --color-nodex-blue: #284b63;
+  --color-whalemo-teal: #8dc2c5;
+  --color-whalemo-teal-dim: #284b63;
+  --color-whalemo-blue: #284b63;
   /* Yale Blue as text and tints. Lightened in dark mode to read on navy. */
-  --color-nodex-sky: #8fb8d6;
-  --color-nodex-green: #4ade80;
-  --color-nodex-red: #f87171;
+  --color-whalemo-sky: #8fb8d6;
+  --color-whalemo-green: #4ade80;
+  --color-whalemo-red: #f87171;
   /* Caution: mid-range scores and partial states. Yellow reads on dark, not on light. */
-  --color-nodex-amber: #fcd34d;
+  --color-whalemo-amber: #fcd34d;
   /* Secondary text: about 6.5:1 on the surface color. */
-  --color-nodex-muted: #9aabba;
-  --color-nodex-border: var(--color-nodex-line);
+  --color-whalemo-muted: #9aabba;
+  --color-whalemo-border: var(--color-whalemo-line);
 }
 
 :root {
@@ -40,22 +50,22 @@
 
 :root[data-theme='light'] {
   color-scheme: light;
-  --color-nodex-bg: #ffffff;
-  --color-nodex-surface: #ffffff;
-  --color-nodex-raised: #f4f4f4;
-  --color-nodex-line: #d9d9d9;
-  --color-nodex-foreground: #353535;
-  --color-nodex-accent: #3c6e71;
-  --color-nodex-on-accent: #ffffff;
-  --color-nodex-teal: #3c6e71;
-  --color-nodex-teal-dim: #284b63;
-  --color-nodex-blue: #284b63;
-  --color-nodex-sky: #284b63;
-  --color-nodex-green: #0b8a60;
-  --color-nodex-red: #d64545;
-  --color-nodex-amber: #c2410c;
-  --color-nodex-muted: #666666;
-  --color-nodex-border: var(--color-nodex-line);
+  --color-whalemo-bg: #ffffff;
+  --color-whalemo-surface: #ffffff;
+  --color-whalemo-raised: #f4f4f4;
+  --color-whalemo-line: #d9d9d9;
+  --color-whalemo-foreground: #353535;
+  --color-whalemo-accent: #3c6e71;
+  --color-whalemo-on-accent: #ffffff;
+  --color-whalemo-teal: #3c6e71;
+  --color-whalemo-teal-dim: #284b63;
+  --color-whalemo-blue: #284b63;
+  --color-whalemo-sky: #284b63;
+  --color-whalemo-green: #0b8a60;
+  --color-whalemo-red: #d64545;
+  --color-whalemo-amber: #c2410c;
+  --color-whalemo-muted: #666666;
+  --color-whalemo-border: var(--color-whalemo-line);
 }
 
 * {
@@ -70,8 +80,8 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: var(--font-sans);
-  background-color: var(--color-nodex-bg);
-  color: var(--color-nodex-foreground);
+  background-color: var(--color-whalemo-bg);
+  color: var(--color-whalemo-foreground);
   transition: background-color 0.25s ease, color 0.25s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -110,19 +120,19 @@ body {
 .glass-panel-solid,
 .glass-panel-solid-featured,
 .glass-card {
-  background: var(--color-nodex-surface);
-  border: 1px solid var(--color-nodex-line);
+  background: var(--color-whalemo-surface);
+  border: 1px solid var(--color-whalemo-line);
   box-shadow: none;
   transition: border-color 0.2s ease;
 }
 
 .glass-panel-solid-featured {
-  border-color: var(--color-nodex-teal);
+  border-color: var(--color-whalemo-teal);
 }
 
 .glass-panel-solid:hover,
 .glass-card:hover {
-  border-color: color-mix(in srgb, var(--color-nodex-teal) 45%, var(--color-nodex-line));
+  border-color: color-mix(in srgb, var(--color-whalemo-teal) 45%, var(--color-whalemo-line));
 }
 
 /*
@@ -130,9 +140,9 @@ body {
  * fixed so it stays put while content scrolls. Dot and glow strength are the two knobs.
  */
 .app-pattern {
-  --pattern-dot: color-mix(in srgb, var(--color-nodex-foreground) 11%, transparent);
-  --pattern-glow: color-mix(in srgb, var(--color-nodex-teal) 12%, transparent);
-  background-color: var(--color-nodex-bg);
+  --pattern-dot: color-mix(in srgb, var(--color-whalemo-foreground) 11%, transparent);
+  --pattern-glow: color-mix(in srgb, var(--color-whalemo-teal) 12%, transparent);
+  background-color: var(--color-whalemo-bg);
   background-image:
     radial-gradient(ellipse 80% 45% at 50% -5%, var(--pattern-glow), transparent 70%),
     radial-gradient(circle at 1px 1px, var(--pattern-dot) 1px, transparent 0);
@@ -141,8 +151,8 @@ body {
 }
 
 :root[data-theme='light'] .app-pattern {
-  --pattern-dot: color-mix(in srgb, var(--color-nodex-foreground) 13%, transparent);
-  --pattern-glow: color-mix(in srgb, var(--color-nodex-teal) 9%, transparent);
+  --pattern-dot: color-mix(in srgb, var(--color-whalemo-foreground) 13%, transparent);
+  --pattern-glow: color-mix(in srgb, var(--color-whalemo-teal) 9%, transparent);
 }
 
 /*
@@ -151,13 +161,13 @@ body {
  * light mode is what lifts white cards off the white page.
  */
 .watch-card {
-  --card-tone: var(--color-nodex-teal);
+  --card-tone: var(--color-whalemo-teal);
   position: relative;
   overflow: hidden;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--card-tone) 12%, var(--color-nodex-surface)) 0%,
-    var(--color-nodex-surface) 60%
+    color-mix(in srgb, var(--card-tone) 12%, var(--color-whalemo-surface)) 0%,
+    var(--color-whalemo-surface) 60%
   );
   border: 0;
   box-shadow: 0 1px 3px rgba(15, 25, 35, 0.1), 0 12px 32px -14px rgba(15, 25, 35, 0.28);
@@ -177,14 +187,14 @@ body {
 }
 
 .glass-input {
-  background: var(--color-nodex-surface);
-  border: 1px solid var(--color-nodex-line);
+  background: var(--color-whalemo-surface);
+  border: 1px solid var(--color-whalemo-line);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .glass-input:focus {
-  border-color: var(--color-nodex-teal);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-nodex-teal) 18%, transparent);
+  border-color: var(--color-whalemo-teal);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-whalemo-teal) 18%, transparent);
   outline: none;
 }
 
@@ -226,15 +236,44 @@ body {
   animation: skeleton-shimmer 2s ease-in-out infinite;
 }
 
-/* Scrollbar */
+/*
+ * Scrollbar: square, like the rest of the UI. A flat track with a hairline edge and a solid
+ * thumb that turns teal on hover. Firefox gets the closest it supports: thin, with the same colors.
+ */
+/* Chrome drops the ::-webkit-scrollbar styles below when scrollbar-color is set, so only browsers
+   without them (Firefox) get the standard properties. */
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-whalemo-line) var(--color-whalemo-bg);
+  }
+}
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--color-whalemo-bg);
+  border-left: 1px solid var(--color-whalemo-line);
+}
+::-webkit-scrollbar-track:horizontal {
+  border-left: 0;
+  border-top: 1px solid var(--color-whalemo-line);
 }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--color-nodex-teal) 35%, transparent);
-  border-radius: 3px;
+  background: var(--color-whalemo-line);
+  border: 2px solid var(--color-whalemo-bg);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-whalemo-teal);
+}
+::-webkit-scrollbar-thumb:active {
+  background: var(--color-whalemo-accent);
+}
+::-webkit-scrollbar-corner {
+  background: var(--color-whalemo-bg);
+}
+::-webkit-scrollbar-button {
+  display: none;
 }

@@ -62,7 +62,7 @@ function ContractCell({ contract, chain, viewed }: { contract: string; chain: st
         title="Open token in Dexscreener"
         onClick={() => markTokenViewed(chain, contract)}
         onAuxClick={() => markTokenViewed(chain, contract)}
-        className="underline-offset-4 hover:text-nodex-teal hover:underline focus-visible:text-nodex-teal focus-visible:underline focus-visible:outline-none"
+        className="underline-offset-4 hover:text-whalemo-teal hover:underline focus-visible:text-whalemo-teal focus-visible:underline focus-visible:outline-none"
       >
         {truncateAddress(contract)}
       </a>
@@ -73,10 +73,10 @@ function ContractCell({ contract, chain, viewed }: { contract: string; chain: st
         aria-label={copied ? 'Contract address copied' : 'Copy contract address'}
         title={copied ? 'Copied' : 'Copy contract address'}
         className={cn(
-          'flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-transparent opacity-0 transition-all duration-200 group-hover/contract:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nodex-teal/50',
+          'flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-transparent opacity-0 transition-all duration-200 group-hover/contract:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-whalemo-teal/50',
           copied
-            ? 'text-nodex-green opacity-100'
-            : 'text-nodex-muted hover:border-nodex-teal/30 hover:bg-nodex-teal/10 hover:text-nodex-teal'
+            ? 'text-whalemo-green opacity-100'
+            : 'text-whalemo-muted hover:border-whalemo-teal/30 hover:bg-whalemo-teal/10 hover:text-whalemo-teal'
         )}
       >
         {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
@@ -133,12 +133,12 @@ export function TokenTable({
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.04]">
-                <th className="px-4 py-4 text-left text-[11px] font-semibold tracking-widest uppercase text-nodex-muted">
+                <th className="px-4 py-4 text-left text-[11px] font-semibold tracking-widest uppercase text-whalemo-muted">
                   #
                 </th>
                 <SortableHeader label="Token" column="name" sortBy={sortBy} sortOrder={sortOrder} onSort={(col) => onSort(col as TokenSortKey)} />
                 <SortableHeader label="Trader Churn" column="churn" sortBy={sortBy} sortOrder={sortOrder} onSort={(col) => onSort(col as TokenSortKey)} />
-                <th className="px-4 py-4 text-left text-[11px] font-semibold tracking-widest uppercase text-nodex-muted">
+                <th className="px-4 py-4 text-left text-[11px] font-semibold tracking-widest uppercase text-whalemo-muted">
                   Contract
                 </th>
                 <SortableHeader label="Price" column="price" sortBy={sortBy} sortOrder={sortOrder} onSort={(col) => onSort(col as TokenSortKey)} />
@@ -167,7 +167,7 @@ export function TokenTable({
             <tbody>
               {tokens.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className="px-4 py-12 text-center text-sm text-nodex-muted">
+                  <td colSpan={12} className="px-4 py-12 text-center text-sm text-whalemo-muted">
                     No tokens match the current filters.
                   </td>
                 </tr>
@@ -183,7 +183,7 @@ export function TokenTable({
                     isViewed(chain, token.contract) && VIEWED_ROW
                   )}
                 >
-                  <td className="px-4 py-4 text-sm text-nodex-muted">{token.rank}</td>
+                  <td className="px-4 py-4 text-sm text-whalemo-muted">{token.rank}</td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
                       <TokenAvatar
@@ -191,11 +191,11 @@ export function TokenTable({
                         symbol={token.symbol}
                         fallbackClassName={AVATAR_COLORS[token.rank % AVATAR_COLORS.length]}
                       />
-                      <div className="min-w-0 max-w-[12rem]">
+                      <div className="min-w-0 max-w-[7.5rem] sm:max-w-[12rem]">
                         <div className="truncate text-sm font-medium" title={token.name}>
                           {token.name}
                         </div>
-                        <div className="truncate text-xs text-nodex-muted" title={token.symbol}>
+                        <div className="truncate text-xs text-whalemo-muted" title={token.symbol}>
                           {token.symbol}
                         </div>
                       </div>
@@ -204,13 +204,13 @@ export function TokenTable({
                   </td>
                   <td className="px-4 py-4 text-sm">
                     <div
-                      className="font-semibold text-nodex-green"
+                      className="font-semibold text-whalemo-green"
                       title="Unique wallets trading in 24h ÷ holders. Bot farms sit near 1.0; organic tokens run higher."
                     >
                       {(token.churn ?? 0).toFixed(2)}×
                     </div>
                     {token.uniqueWallet24h !== undefined && (
-                      <div className="text-[11px] text-nodex-muted">
+                      <div className="text-[11px] text-whalemo-muted">
                         {token.uniqueWallet24h.toLocaleString()} traders ·{' '}
                         {(token.holders ?? 0).toLocaleString()} holders
                       </div>
@@ -221,7 +221,7 @@ export function TokenTable({
                           <span
                             key={flag}
                             title={flag.replace(/_/g, ' ')}
-                            className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9px] tracking-wide text-amber-300/90"
+                            className="rounded-none bg-amber-500/15 px-1.5 py-0.5 text-[9px] tracking-wide text-amber-300/90"
                           >
                             {flag.replace(/_/g, ' ')}
                           </span>
@@ -229,7 +229,7 @@ export function TokenTable({
                       </div>
                     )}
                   </td>
-                  <td className="px-4 py-4 text-sm text-nodex-muted">
+                  <td className="px-4 py-4 text-sm text-whalemo-muted">
                     <ContractCell contract={token.contract} chain={chain} viewed={isViewed(chain, token.contract)} />
                   </td>
                   <td className="px-4 py-4 text-sm">${token.price.toFixed(token.price < 0.01 ? 5 : 2)}</td>
@@ -237,7 +237,7 @@ export function TokenTable({
                   <td
                     className={cn(
                       'px-4 py-4 text-sm font-semibold',
-                      token.changePct >= 0 ? 'text-nodex-green' : 'text-nodex-red'
+                      token.changePct >= 0 ? 'text-whalemo-green' : 'text-whalemo-red'
                     )}
                   >
                     {formatPercent(token.changePct)}
@@ -246,7 +246,7 @@ export function TokenTable({
                   <PeakMultipleCell token={token} />
                   <td className="px-4 py-4 text-sm">{formatCurrency(token.volume, true)}</td>
                   <td className="px-4 py-4 text-sm">{formatCurrency(token.liquidity ?? 0, true)}</td>
-                  <td className="px-4 py-4 text-sm text-nodex-muted">
+                  <td className="px-4 py-4 text-sm text-whalemo-muted">
                     {formatTokenAge(token.launchedAt, token.ageDays)}
                   </td>
                 </motion.tr>

@@ -68,13 +68,13 @@ export function AdvancedFiltersButton<TFilters extends object>({
         <Button
           variant="dark"
           size="sm"
-          className="rounded-full normal-case tracking-normal"
+          className="rounded-md normal-case tracking-normal"
           aria-label={activeCount > 0 ? `Filters, ${activeCount} active` : 'Filters'}
         >
           <Filter className="h-4 w-4" />
           Filters
           {activeCount > 0 ? (
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-nodex-accent px-1.5 text-[11px] font-bold text-nodex-on-accent">
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-sm bg-whalemo-accent px-1.5 text-[11px] font-bold text-whalemo-on-accent">
               {activeCount}
             </span>
           ) : null}
@@ -83,7 +83,7 @@ export function AdvancedFiltersButton<TFilters extends object>({
       <DropdownMenuContent
         align="start"
         sideOffset={8}
-        className="max-h-[min(70vh,620px)] w-[min(calc(100vw-2rem),36rem)] overflow-y-auto border-nodex-line bg-nodex-surface p-4 text-white"
+        className="max-h-[min(70vh,620px)] w-[min(calc(100vw-2rem),36rem)] overflow-y-auto border-whalemo-line bg-whalemo-surface p-4 text-white"
       >
         <form
           onSubmit={(event) => {
@@ -93,12 +93,12 @@ export function AdvancedFiltersButton<TFilters extends object>({
         >
           <div className="mb-4">
             <p className="text-sm font-semibold text-white">Advanced filters</p>
-            <p className="mt-1 text-xs text-nodex-muted">Set any combination of column limits.</p>
+            <p className="mt-1 text-xs text-whalemo-muted">Set any combination of column limits.</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {fields.map((field) => (
               <label key={field.key} className="space-y-1.5">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-nodex-muted">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-whalemo-muted">
                   {field.label}
                 </span>
                 <input
@@ -112,7 +112,7 @@ export function AdvancedFiltersButton<TFilters extends object>({
                   onChange={(event) =>
                     setDraft((current) => ({ ...current, [field.key]: event.target.value }))
                   }
-                  className="glass-input h-10 w-full rounded-lg px-3 text-sm text-white placeholder:text-nodex-muted/50"
+                  className="glass-input h-10 w-full rounded-sm px-3 text-sm text-white placeholder:text-whalemo-muted/50"
                 />
               </label>
             ))}

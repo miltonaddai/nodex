@@ -8,5 +8,5 @@ export const SIGNUPS_ENABLED = import.meta.env.VITE_SIGNUPS_ENABLED === 'true'
 
 export const SIGNUPS_CLOSED_MESSAGE = {
   title: 'Signups are closed',
-  description: 'NodeX is not accepting new accounts right now. Existing users can still log in.',
+  description: 'WhaleMo is not accepting new accounts right now. Existing users can still log in.',
 }

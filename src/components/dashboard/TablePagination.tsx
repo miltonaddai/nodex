@@ -36,14 +36,14 @@ export function TablePagination({ page, pageSize, total, onPageChange, disabled 
 
   return (
     <div className="flex items-center justify-between gap-4 border-t border-white/10 px-4 py-4">
-      <p className="text-xs text-nodex-muted">
+      <p className="text-xs text-whalemo-muted">
         Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} of {total}
       </p>
       <div className="flex items-center gap-1">
         <Button
           variant="dark"
           size="sm"
-          className="h-8 w-8 rounded-full p-0"
+          className="h-8 w-8 rounded-md p-0"
           disabled={disabled || page <= 1}
           onClick={() => onPageChange(page - 1)}
         >
@@ -51,7 +51,7 @@ export function TablePagination({ page, pageSize, total, onPageChange, disabled 
         </Button>
         {pages.map((item, index) =>
           item === 'ellipsis' ? (
-            <span key={`ellipsis-${index}`} className="px-2 text-xs text-nodex-muted">
+            <span key={`ellipsis-${index}`} className="px-2 text-xs text-whalemo-muted">
               …
             </span>
           ) : (
@@ -61,8 +61,8 @@ export function TablePagination({ page, pageSize, total, onPageChange, disabled 
               size="sm"
               disabled={disabled}
               className={cn(
-                'h-8 min-w-8 rounded-full px-2 text-xs',
-                item === page && 'bg-nodex-teal/20 text-nodex-teal border-nodex-teal/30'
+                'h-8 min-w-8 rounded-md px-2 text-xs',
+                item === page && 'bg-whalemo-teal/20 text-whalemo-teal border-whalemo-teal/30'
               )}
               onClick={() => onPageChange(item)}
             >
@@ -73,7 +73,7 @@ export function TablePagination({ page, pageSize, total, onPageChange, disabled 
         <Button
           variant="dark"
           size="sm"
-          className="h-8 w-8 rounded-full p-0"
+          className="h-8 w-8 rounded-md p-0"
           disabled={disabled || page >= totalPages}
           onClick={() => onPageChange(page + 1)}
         >
@@ -106,18 +106,18 @@ function NextUpdateCountdown({ value }: { value: string }) {
   if (Number.isNaN(target)) return null
   const remaining = target - now
   if (remaining <= 0) {
-    return <span className="text-nodex-teal">Update in progress — new data shortly</span>
+    return <span className="text-whalemo-teal">Update in progress — new data shortly</span>
   }
   return (
     <span>
-      Next update in <span className="tabular-nums text-nodex-teal">{formatCountdown(remaining)}</span>
+      Next update in <span className="tabular-nums text-whalemo-teal">{formatCountdown(remaining)}</span>
     </span>
   )
 }
 
 export function LastUpdated({ value, nextUpdate }: { value: string | null; nextUpdate?: string | null }) {
   if (!value) {
-    return <p className="mt-3 text-xs text-nodex-muted">Demo data — live sync not available</p>
+    return <p className="mt-3 text-xs text-whalemo-muted">Demo data — live sync not available</p>
   }
 
   const date = new Date(value)
@@ -129,7 +129,7 @@ export function LastUpdated({ value, nextUpdate }: { value: string | null; nextU
       )
 
   return (
-    <p className="mt-3 text-xs text-nodex-muted">
+    <p className="mt-3 text-xs text-whalemo-muted">
       Last updated {label} · {date.toLocaleString()}
       {nextUpdate && (
         <>

@@ -12,6 +12,7 @@ import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { TokenTableSkeleton } from '@/components/dashboard/TokenTableSkeleton'
 import { useCatchUpRefetch } from '@/hooks/useCatchUpRefetch'
 import { TokenWatchlistButton } from '@/components/dashboard/TokenWatchlistButton'
+import { ScrollHint } from '@/components/dashboard/ScrollHint'
 import { VIEWED_ROW, ViewedTokenIcon } from '@/components/dashboard/ViewedTokenIcon'
 import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
 import { useSolanaTokenWatchlist } from '@/hooks/useSolanaTokenWatchlist'
@@ -45,22 +46,22 @@ const PATTERN_FILTERS: Array<{ value: InsiderPricePattern | ''; label: string }>
 const STATUS_STYLE: Record<InsiderStatus, { label: string; className: string; hint: string }> = {
   holding: {
     label: 'Holding',
-    className: 'border-nodex-teal/30 bg-nodex-teal/10 text-nodex-teal',
+    className: 'border-whalemo-teal/30 bg-whalemo-teal/10 text-whalemo-teal',
     hint: 'Insider wallets still hold at least half of their launch position.',
   },
   distributing: {
     label: 'Distributing',
-    className: 'border-nodex-amber/30 bg-nodex-amber/10 text-nodex-amber',
+    className: 'border-whalemo-amber/30 bg-whalemo-amber/10 text-whalemo-amber',
     hint: 'Insider wallets have sold part of their launch position.',
   },
   exited: {
     label: 'Exited',
-    className: 'border-white/10 bg-white/[0.04] text-nodex-muted',
+    className: 'border-white/10 bg-white/[0.04] text-whalemo-muted',
     hint: 'Insider wallets hold under 20% of their launch position.',
   },
   unknown: {
     label: 'Unknown',
-    className: 'border-white/10 bg-white/[0.04] text-nodex-muted',
+    className: 'border-white/10 bg-white/[0.04] text-whalemo-muted',
     hint: 'Insider wallets kept no tokens past the launch window.',
   },
 }
@@ -68,27 +69,27 @@ const STATUS_STYLE: Record<InsiderStatus, { label: string; className: string; hi
 const PATTERN_STYLE: Record<InsiderPricePattern, { label: string; className: string; hint: string }> = {
   reclaiming: {
     label: 'Reclaiming',
-    className: 'text-nodex-green',
+    className: 'text-whalemo-green',
     hint: 'Fell at least 50% from the launch high, then doubled off the low.',
   },
   retracing: {
     label: 'Retracing',
-    className: 'text-nodex-red',
+    className: 'text-whalemo-red',
     hint: 'Trading below half of the launch high.',
   },
   new_highs: {
     label: 'Above launch high',
-    className: 'text-nodex-teal',
+    className: 'text-whalemo-teal',
     hint: 'Trading above the launch-window high without a deep retrace first.',
   },
   ranging: {
     label: 'Ranging',
-    className: 'text-nodex-muted',
+    className: 'text-whalemo-muted',
     hint: 'Between half the launch high and the launch high.',
   },
   unknown: {
     label: 'Too early',
-    className: 'text-nodex-muted',
+    className: 'text-whalemo-muted',
     hint: 'Under 6 hours of price history, so the launch high is not settled yet.',
   },
 }
@@ -107,9 +108,9 @@ function formatPct(value: number): string {
 }
 
 function scoreClass(score: number): string {
-  if (score >= 60) return 'text-nodex-red'
-  if (score >= 35) return 'text-nodex-amber'
-  return 'text-nodex-muted'
+  if (score >= 60) return 'text-whalemo-red'
+  if (score >= 35) return 'text-whalemo-amber'
+  return 'text-whalemo-muted'
 }
 
 function FilterChips<T extends string>({
@@ -122,15 +123,15 @@ function FilterChips<T extends string>({
   onChange: (value: T | '') => void
 }) {
   return (
-    <div className="flex flex-wrap gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1">
+    <div className="flex flex-wrap gap-1 rounded-md border border-white/10 bg-white/[0.03] p-1">
       {options.map((option) => (
         <button
           key={option.label}
           type="button"
           onClick={() => onChange(option.value)}
           className={cn(
-            'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
-            value === option.value ? 'bg-nodex-teal/20 text-nodex-teal' : 'text-nodex-muted hover:text-white'
+            'rounded-sm px-3 py-1.5 text-xs font-medium transition-colors',
+            value === option.value ? 'bg-whalemo-teal/20 text-whalemo-teal' : 'text-whalemo-muted hover:text-white'
           )}
         >
           {option.label}
@@ -144,27 +145,27 @@ function InsiderDetails({ play }: { play: InsiderPlay }) {
   return (
     <div className="grid gap-6 px-6 pb-6 pt-2 md:grid-cols-2">
       <div>
-        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">Launch evidence</h3>
+        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-whalemo-muted">Launch evidence</h3>
         {play.evidence.length === 0 ? (
-          <p className="text-sm text-nodex-muted">No individual findings recorded.</p>
+          <p className="text-sm text-whalemo-muted">No individual findings recorded.</p>
         ) : (
           <ul className="space-y-1.5 text-sm">
             {play.evidence.map((line) => (
               <li key={line} className="flex gap-2">
-                <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-nodex-accent" />
+                <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-whalemo-accent" />
                 <span>{line}</span>
               </li>
             ))}
           </ul>
         )}
-        <p className="mt-4 text-xs text-nodex-muted">
+        <p className="mt-4 text-xs text-whalemo-muted">
           {play.launchBuyers.toLocaleString()} wallets bought in the first 2 minutes. Launch high{' '}
           {formatCurrency(play.launchHighMc, true)}, low since then {formatCurrency(play.postLaunchLowMc, true)}, high
           so far {formatCurrency(play.athMc, true)}.
         </p>
       </div>
       <div>
-        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">
+        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-whalemo-muted">
           Insider wallets ({play.insiderWallets.length})
         </h3>
         <div className="flex flex-wrap gap-1.5">
@@ -174,13 +175,13 @@ function InsiderDetails({ play }: { play: InsiderPlay }) {
               href={walletUrl('solana', wallet)}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 font-mono text-xs text-nodex-muted transition-colors hover:border-nodex-teal/30 hover:text-nodex-teal"
+              className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 font-mono text-xs text-whalemo-muted transition-colors hover:border-whalemo-teal/30 hover:text-whalemo-teal"
             >
               {truncateAddress(wallet)}
             </a>
           ))}
           {play.insiderWallets.length > 16 ? (
-            <span className="px-2 py-1 text-xs text-nodex-muted">+{play.insiderWallets.length - 16} more</span>
+            <span className="px-2 py-1 text-xs text-whalemo-muted">+{play.insiderWallets.length - 16} more</span>
           ) : null}
         </div>
       </div>
@@ -261,7 +262,7 @@ export function InsidersPage() {
     />
   )
   const plainHeader = (label: string) => (
-    <th className="px-4 py-4 text-left text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">{label}</th>
+    <th className="px-4 py-4 text-left text-[11px] font-semibold uppercase tracking-widest text-whalemo-muted">{label}</th>
   )
 
   return (
@@ -276,7 +277,7 @@ export function InsidersPage() {
         >
           Insider Plays
         </motion.h1>
-        <p className="mb-8 max-w-3xl text-sm text-nodex-muted">
+        <p className="mb-8 max-w-3xl text-sm text-whalemo-muted">
           Tokens whose launch was bought by wallets under one person's control: buys co-signed in a single
           transaction, wallets funded by the same private wallet, and bags split into fresh wallets. Most insider
           launches go to zero. The setup worth watching is insiders still holding while price reclaims from its
@@ -302,11 +303,13 @@ export function InsidersPage() {
           />
         </div>
 
-        {error ? <p className="mb-4 text-sm text-nodex-red">{error}</p> : null}
+        {error ? <p className="mb-4 text-sm text-whalemo-red">{error}</p> : null}
 
         {loading && plays.length === 0 ? (
           <TokenTableSkeleton />
         ) : (
+          <>
+          <ScrollHint />
           <GlassPanel variant="frosted" className="overflow-hidden">
             <div className={cn('overflow-x-auto transition-opacity', loading && 'opacity-60')}>
               <table className="w-full">
@@ -327,7 +330,7 @@ export function InsidersPage() {
                 <tbody>
                   {plays.length === 0 ? (
                     <tr>
-                      <td colSpan={10} className="px-4 py-12 text-center text-sm text-nodex-muted">
+                      <td colSpan={10} className="px-4 py-12 text-center text-sm text-whalemo-muted">
                         {message ??
                           'No insider launches found yet. New launches are analyzed on each data update.'}
                       </td>
@@ -348,13 +351,13 @@ export function InsidersPage() {
                             viewed && VIEWED_ROW
                           )}
                         >
-                          <td className="px-4 py-4 text-nodex-muted">
+                          <td className="px-4 py-4 text-whalemo-muted">
                             {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                           </td>
                           <td className="px-4 py-4">
                             <div className="flex items-center gap-3">
                               <TokenAvatar imageUrl={play.imageUrl} symbol={play.symbol} fallbackClassName="bg-purple-500" />
-                              <div className="min-w-0 max-w-[12rem]">
+                              <div className="min-w-0 max-w-[7.5rem] sm:max-w-[12rem]">
                                 <div className="truncate text-sm font-medium" title={play.name}>
                                   {play.name}
                                 </div>
@@ -369,7 +372,7 @@ export function InsidersPage() {
                                       markTokenViewed('solana', play.contract)
                                     }}
                                     onAuxClick={() => markTokenViewed('solana', play.contract)}
-                                    className="min-w-0 truncate text-xs text-nodex-muted underline-offset-4 hover:text-nodex-teal hover:underline"
+                                    className="min-w-0 truncate text-xs text-whalemo-muted underline-offset-4 hover:text-whalemo-teal hover:underline"
                                   >
                                     {play.symbol} · {truncateAddress(play.contract)}
                                   </a>
@@ -383,11 +386,11 @@ export function InsidersPage() {
                             <div className={cn('text-lg font-semibold tabular-nums', scoreClass(play.insiderScore))}>
                               {Math.round(play.insiderScore)}
                             </div>
-                            <div className="text-[11px] text-nodex-muted">launch {Math.round(play.launchScore)}</div>
+                            <div className="text-[11px] text-whalemo-muted">launch {Math.round(play.launchScore)}</div>
                           </td>
                           <td className="px-4 py-4 text-sm">
                             <div className="font-semibold tabular-nums">{formatPct(play.insiderAcquiredPct)}</div>
-                            <div className="text-[11px] text-nodex-muted">
+                            <div className="text-[11px] text-whalemo-muted">
                               {play.linkedWallets} linked wallets · {play.clusters}{' '}
                               {play.clusters === 1 ? 'group' : 'groups'}
                             </div>
@@ -396,7 +399,7 @@ export function InsidersPage() {
                             <div className="mb-1 font-semibold tabular-nums">{formatPct(play.insiderHoldingPct)}</div>
                             <span
                               title={statusStyle.hint}
-                              className={cn('rounded-full border px-2 py-0.5 text-[11px] font-medium', statusStyle.className)}
+                              className={cn('rounded-sm border px-2 py-0.5 text-[11px] font-medium', statusStyle.className)}
                             >
                               {statusStyle.label}
                             </span>
@@ -406,7 +409,7 @@ export function InsidersPage() {
                               {patternStyle.label}
                             </div>
                             {play.pricePattern !== 'unknown' ? (
-                              <div className="text-[11px] text-nodex-muted">
+                              <div className="text-[11px] text-whalemo-muted">
                                 {formatCurrency(play.launchHighMc, true)} → {formatCurrency(play.postLaunchLowMc, true)}{' '}
                                 → {formatCurrency(play.marketCap, true)}
                               </div>
@@ -417,7 +420,7 @@ export function InsidersPage() {
                             <div
                               className={cn(
                                 'text-[11px] tabular-nums',
-                                play.priceChange24h >= 0 ? 'text-nodex-green' : 'text-nodex-red'
+                                play.priceChange24h >= 0 ? 'text-whalemo-green' : 'text-whalemo-red'
                               )}
                             >
                               {play.priceChange24h >= 0 ? '+' : ''}
@@ -426,7 +429,7 @@ export function InsidersPage() {
                           </td>
                           <FirstSeenCell token={play} />
                           <PeakMultipleCell token={play} />
-                          <td className="px-4 py-4 text-sm text-nodex-muted">{formatAge(play.launchedAt)}</td>
+                          <td className="px-4 py-4 text-sm text-whalemo-muted">{formatAge(play.launchedAt)}</td>
                         </tr>
                         {isOpen ? (
                           <tr className="border-b border-white/[0.06] bg-white/[0.03]">
@@ -443,6 +446,7 @@ export function InsidersPage() {
             </div>
             <TablePagination page={page} pageSize={PAGE_SIZE} total={total} onPageChange={setPage} disabled={loading} />
           </GlassPanel>
+          </>
         )}
         <LastUpdated value={lastUpdated} nextUpdate={nextUpdate} />
       </main>

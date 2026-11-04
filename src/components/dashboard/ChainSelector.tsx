@@ -32,25 +32,25 @@ export function ChainSelector<T extends ChainFilter = Chain>({ value, onChange, 
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-2 px-4 py-2 rounded-full glass-panel text-sm font-medium transition-all duration-300 hover:border-nodex-teal/30 outline-none">
+      <DropdownMenuTrigger className="flex items-center gap-2 px-4 py-2 rounded-md glass-panel text-sm font-medium transition-all duration-300 hover:border-whalemo-teal/30 outline-none">
         <span className={cn('w-5 h-5 rounded-full bg-gradient-to-br', current.color)} />
         {current.label}
-        <ChevronDown className="w-4 h-4 text-nodex-muted" />
+        <ChevronDown className="w-4 h-4 text-whalemo-muted" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-nodex-surface border-white/10">
+      <DropdownMenuContent align="end" className="bg-whalemo-surface border-white/10">
         {options.map((chain) => (
           <DropdownMenuItem
             key={chain.id}
             disabled={!chain.enabled}
             onClick={() => chain.enabled && onChange(chain.id as T)}
             className={cn(
-              'flex items-center gap-2 cursor-pointer focus:bg-nodex-teal/10 focus:text-nodex-teal',
+              'flex items-center gap-2 cursor-pointer focus:bg-whalemo-teal/10 focus:text-whalemo-teal',
               !chain.enabled && 'opacity-50 cursor-not-allowed'
             )}
           >
             <span className={cn('w-4 h-4 rounded-full bg-gradient-to-br', chain.color)} />
             <span>{chain.label}</span>
-            {!chain.enabled ? <span className="ml-auto text-[11px] uppercase text-nodex-muted">Soon</span> : null}
+            {!chain.enabled ? <span className="ml-auto text-[11px] uppercase text-whalemo-muted">Soon</span> : null}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

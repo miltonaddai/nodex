@@ -56,12 +56,12 @@ export function TokenWatchlistButton({
       title={error ?? (tracked ? 'Already in watchlist' : 'Add to watchlist')}
       aria-label={tracked ? `${token.symbol} is in your watchlist` : `Add ${token.symbol} to watchlist`}
       className={cn(
-        'ml-1 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 transition-all',
+        'ml-1 inline-flex h-7 w-7 items-center justify-center rounded-md border border-white/10 bg-white/5 transition-all',
         error
-          ? 'text-nodex-red opacity-100'
+          ? 'text-whalemo-red opacity-100'
           : tracked
-            ? 'text-nodex-teal opacity-100'
-            : 'text-nodex-muted opacity-0 hover:border-nodex-teal/40 hover:text-nodex-teal group-hover:opacity-100 focus:opacity-100',
+            ? 'text-whalemo-teal opacity-100'
+            : 'text-whalemo-muted opacity-0 hover:border-whalemo-teal/40 hover:text-whalemo-teal group-hover:opacity-100 focus:opacity-100',
         busy && 'opacity-100'
       )}
     >

@@ -15,11 +15,11 @@ function formatMultiple(multiple: number): string {
 
 const PENDING = 'Recorded at the next data update'
 
-/** When NodeX first listed the token, and its market cap then. */
+/** When WhaleMo first listed the token, and its market cap then. */
 export function FirstSeenCell({ token, className }: { token: SightingFields; className?: string }) {
   if (!token.firstSeenAt) {
     return (
-      <td className={cn('px-4 py-4 text-sm text-nodex-muted', className)} title={PENDING}>
+      <td className={cn('px-4 py-4 text-sm text-whalemo-muted', className)} title={PENDING}>
         —
       </td>
     )
@@ -28,7 +28,7 @@ export function FirstSeenCell({ token, className }: { token: SightingFields; cla
     <td className={cn('px-4 py-4 text-sm', className)} title={`First seen ${new Date(token.firstSeenAt).toLocaleString()}`}>
       <div className="whitespace-nowrap">{timeAgo(token.firstSeenAt)}</div>
       {token.firstSeenMc ? (
-        <div className="whitespace-nowrap text-[11px] text-nodex-muted">at {formatCurrency(token.firstSeenMc, true)}</div>
+        <div className="whitespace-nowrap text-[11px] text-whalemo-muted">at {formatCurrency(token.firstSeenMc, true)}</div>
       ) : null}
     </td>
   )
@@ -39,7 +39,7 @@ export function PeakMultipleCell({ token, className }: { token: SightingFields; 
   const multiple = token.peakMultiple
   if (!multiple) {
     return (
-      <td className={cn('px-4 py-4 text-sm text-nodex-muted', className)} title={PENDING}>
+      <td className={cn('px-4 py-4 text-sm text-whalemo-muted', className)} title={PENDING}>
         —
       </td>
     )
@@ -47,22 +47,22 @@ export function PeakMultipleCell({ token, className }: { token: SightingFields; 
   return (
     <td
       className={cn('px-4 py-4 text-sm', className)}
-      title="Highest price since NodeX first saw this token, divided by its price then. Checked every 2 hours, so short spikes between checks are missed."
+      title="Highest price since WhaleMo first saw this token, divided by its price then. Checked every 2 hours, so short spikes between checks are missed."
     >
       <div
         className={cn(
           'whitespace-nowrap tabular-nums',
           multiple >= 10
-            ? 'text-base font-bold text-nodex-green'
+            ? 'text-base font-bold text-whalemo-green'
             : multiple >= 2
-              ? 'font-semibold text-nodex-green'
-              : 'text-nodex-muted'
+              ? 'font-semibold text-whalemo-green'
+              : 'text-whalemo-muted'
         )}
       >
         {formatMultiple(multiple)}
       </div>
       {token.peakMc && multiple >= 1.05 ? (
-        <div className="whitespace-nowrap text-[11px] text-nodex-muted">peak {formatCurrency(token.peakMc, true)}</div>
+        <div className="whitespace-nowrap text-[11px] text-whalemo-muted">peak {formatCurrency(token.peakMc, true)}</div>
       ) : null}
     </td>
   )

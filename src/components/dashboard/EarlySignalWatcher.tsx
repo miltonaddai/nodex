@@ -9,7 +9,7 @@ import { useEarlySignalStore } from '@/stores/earlySignalStore'
 import { toast } from '@/stores/toastStore'
 
 /**
- * Watches for new early signals while NodeX is open on any page, and announces each new one with
+ * Watches for new early signals while WhaleMo is open on any page, and announces each new one with
  * a chime and a toast. New data only lands once per pipeline run (every 2 hours), but checking
  * every few minutes catches a run soon after it finishes. Each check reads the API's cached
  * snapshot, so it costs no data-provider calls.

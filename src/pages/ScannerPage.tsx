@@ -35,16 +35,16 @@ import {
 import { cn, formatCurrency, truncateAddress } from '@/lib/utils'
 
 const SEVERITY_STYLE: Record<RiskSeverity, string> = {
-  critical: 'border-nodex-red/40 bg-nodex-red/15 text-nodex-red',
-  high: 'border-nodex-red/30 bg-nodex-red/10 text-nodex-red',
-  medium: 'border-nodex-amber/30 bg-nodex-amber/10 text-nodex-amber',
-  low: 'border-white/10 bg-white/[0.04] text-nodex-muted',
+  critical: 'border-whalemo-red/40 bg-whalemo-red/15 text-whalemo-red',
+  high: 'border-whalemo-red/30 bg-whalemo-red/10 text-whalemo-red',
+  medium: 'border-whalemo-amber/30 bg-whalemo-amber/10 text-whalemo-amber',
+  low: 'border-white/10 bg-white/[0.04] text-whalemo-muted',
 }
 
 const VERDICT_STYLE = {
-  avoid: { label: 'Avoid', icon: ShieldAlert, className: 'border-nodex-red/40 text-nodex-red', blurb: 'Serious risks were found.' },
-  caution: { label: 'Caution', icon: TriangleAlert, className: 'border-nodex-amber/40 text-nodex-amber', blurb: 'Tradeable, with risks to weigh.' },
-  favorable: { label: 'Favorable', icon: ShieldCheck, className: 'border-nodex-teal/40 text-nodex-teal', blurb: 'None of the known traps were found.' },
+  avoid: { label: 'Avoid', icon: ShieldAlert, className: 'border-whalemo-red/40 text-whalemo-red', blurb: 'Serious risks were found.' },
+  caution: { label: 'Caution', icon: TriangleAlert, className: 'border-whalemo-amber/40 text-whalemo-amber', blurb: 'Tradeable, with risks to weigh.' },
+  favorable: { label: 'Favorable', icon: ShieldCheck, className: 'border-whalemo-teal/40 text-whalemo-teal', blurb: 'None of the known traps were found.' },
 } as const
 
 const EVM_SCAN_CHAINS: ScanChain[] = ['bsc', 'robinhood']
@@ -95,7 +95,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`
 }
 
-const VERDICT_DOT = { avoid: 'bg-nodex-red', caution: 'bg-nodex-amber', favorable: 'bg-nodex-accent' } as const
+const VERDICT_DOT = { avoid: 'bg-whalemo-red', caution: 'bg-whalemo-amber', favorable: 'bg-whalemo-accent' } as const
 
 /** Past scans saved in this browser. Opening one shows the saved result without calling the API. */
 function RecentScans({
@@ -115,10 +115,10 @@ function RecentScans({
   return (
     <div className="mb-8">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">
+        <h2 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-whalemo-muted">
           <History className="h-3.5 w-3.5" /> Recent scans
         </h2>
-        <button type="button" onClick={onClear} className="text-xs text-nodex-muted hover:text-nodex-red">
+        <button type="button" onClick={onClear} className="text-xs text-whalemo-muted hover:text-whalemo-red">
           Clear all
         </button>
       </div>
@@ -129,8 +129,8 @@ function RecentScans({
             <div
               key={`${entry.chain}:${entry.address}`}
               className={cn(
-                'group flex max-w-[16rem] items-center gap-2 rounded-full border py-1 pl-1 pr-2 text-xs transition-colors',
-                active ? 'border-nodex-teal/40 bg-nodex-teal/10' : 'border-white/10 bg-white/[0.03] hover:border-nodex-teal/30'
+                'group flex max-w-[16rem] items-center gap-2 rounded-md border py-1 pl-1 pr-2 text-xs transition-colors',
+                active ? 'border-whalemo-teal/40 bg-whalemo-teal/10' : 'border-white/10 bg-white/[0.03] hover:border-whalemo-teal/30'
               )}
             >
               <button
@@ -142,13 +142,13 @@ function RecentScans({
                 <TokenAvatar imageUrl={entry.imageUrl} symbol={entry.symbol} fallbackClassName="bg-purple-500" className="h-6 w-6 text-[11px]" />
                 <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', VERDICT_DOT[entry.verdict])} />
                 <span className="truncate font-medium">{entry.symbol || entry.name || entry.address.slice(0, 6)}</span>
-                <span className="shrink-0 text-nodex-muted">{timeAgo(entry.scannedAt)}</span>
+                <span className="shrink-0 text-whalemo-muted">{timeAgo(entry.scannedAt)}</span>
               </button>
               <button
                 type="button"
                 onClick={() => onForget(entry)}
                 aria-label={`Remove ${entry.symbol} from recent scans`}
-                className="shrink-0 text-nodex-muted opacity-0 transition-opacity hover:text-nodex-red group-hover:opacity-100 focus:opacity-100"
+                className="shrink-0 text-whalemo-muted opacity-0 transition-opacity hover:text-whalemo-red group-hover:opacity-100 focus:opacity-100"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -164,7 +164,7 @@ function Section({ title, aside, children }: { title: string; aside?: ReactNode;
   return (
     <GlassPanel variant="frosted" className="p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">{title}</h2>
+        <h2 className="text-[11px] font-semibold uppercase tracking-widest text-whalemo-muted">{title}</h2>
         {aside}
       </div>
       {children}
@@ -175,9 +175,9 @@ function Section({ title, aside, children }: { title: string; aside?: ReactNode;
 function Stat({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
     <div>
-      <div className="text-[11px] uppercase tracking-widest text-nodex-muted">{label}</div>
+      <div className="text-[11px] uppercase tracking-widest text-whalemo-muted">{label}</div>
       <div className="mt-1 text-lg font-semibold tabular-nums">{value}</div>
-      {sub ? <div className="text-xs text-nodex-muted">{sub}</div> : null}
+      {sub ? <div className="text-xs text-whalemo-muted">{sub}</div> : null}
     </div>
   )
 }
@@ -186,8 +186,8 @@ function Verdict({ scan }: { scan: ScanResult }) {
   const style = VERDICT_STYLE[scan.risk.verdict]
   const Icon = style.icon
   return (
-    <Section title="Verdict" aside={<span className="text-xs text-nodex-muted">Risk score {scan.risk.riskScore}/100</span>}>
-      <div className={cn('mb-5 flex items-center gap-3 rounded-xl border p-4', style.className)}>
+    <Section title="Verdict" aside={<span className="text-xs text-whalemo-muted">Risk score {scan.risk.riskScore}/100</span>}>
+      <div className={cn('mb-5 flex items-center gap-3 rounded-md border p-4', style.className)}>
         <Icon className="h-7 w-7 shrink-0" />
         <div>
           <div className="text-xl font-bold">{style.label}</div>
@@ -196,37 +196,37 @@ function Verdict({ scan }: { scan: ScanResult }) {
       </div>
       <div className="grid gap-5 md:grid-cols-2">
         <div>
-          <h3 className="mb-2 text-xs font-semibold text-nodex-muted">Red flags ({scan.risk.flags.length})</h3>
-          {scan.risk.flags.length === 0 ? <p className="text-sm text-nodex-muted">None found.</p> : null}
+          <h3 className="mb-2 text-xs font-semibold text-whalemo-muted">Red flags ({scan.risk.flags.length})</h3>
+          {scan.risk.flags.length === 0 ? <p className="text-sm text-whalemo-muted">None found.</p> : null}
           <ul className="space-y-2">
             {scan.risk.flags.map((flag) => (
               <li key={flag.title} className="flex gap-2 text-sm">
-                <span className={cn('mt-0.5 h-fit shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase', SEVERITY_STYLE[flag.severity])}>
+                <span className={cn('mt-0.5 h-fit shrink-0 rounded-sm border px-2 py-0.5 text-[11px] font-semibold uppercase', SEVERITY_STYLE[flag.severity])}>
                   {flag.severity}
                 </span>
                 <span>
-                  <span className="font-medium">{flag.title}.</span> <span className="text-nodex-muted">{flag.detail}</span>
+                  <span className="font-medium">{flag.title}.</span> <span className="text-whalemo-muted">{flag.detail}</span>
                 </span>
               </li>
             ))}
           </ul>
         </div>
         <div>
-          <h3 className="mb-2 text-xs font-semibold text-nodex-muted">In its favor ({scan.risk.positives.length})</h3>
-          {scan.risk.positives.length === 0 ? <p className="text-sm text-nodex-muted">Nothing notable.</p> : null}
+          <h3 className="mb-2 text-xs font-semibold text-whalemo-muted">In its favor ({scan.risk.positives.length})</h3>
+          {scan.risk.positives.length === 0 ? <p className="text-sm text-whalemo-muted">Nothing notable.</p> : null}
           <ul className="space-y-2">
             {scan.risk.positives.map((item) => (
               <li key={item.title} className="flex gap-2 text-sm">
-                <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-nodex-green" />
+                <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-whalemo-green" />
                 <span>
-                  <span className="font-medium">{item.title}.</span> <span className="text-nodex-muted">{item.detail}</span>
+                  <span className="font-medium">{item.title}.</span> <span className="text-whalemo-muted">{item.detail}</span>
                 </span>
               </li>
             ))}
           </ul>
         </div>
       </div>
-      <p className="mt-5 text-[11px] text-nodex-muted">
+      <p className="mt-5 text-[11px] text-whalemo-muted">
         Risk triage from on-chain data, not financial advice. A clean result means no known traps were found, not that the
         price will go up.
       </p>
@@ -237,8 +237,8 @@ function Verdict({ scan }: { scan: ScanResult }) {
 function SecurityRow({ label, ok, value }: { label: string; ok: boolean | null; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] py-2 text-sm last:border-0">
-      <span className="text-nodex-muted">{label}</span>
-      <span className={cn('font-medium', ok === null ? 'text-nodex-muted' : ok ? 'text-nodex-green' : 'text-nodex-red')}>{value}</span>
+      <span className="text-whalemo-muted">{label}</span>
+      <span className={cn('font-medium', ok === null ? 'text-whalemo-muted' : ok ? 'text-whalemo-green' : 'text-whalemo-red')}>{value}</span>
     </div>
   )
 }
@@ -266,7 +266,7 @@ function Security({ scan }: { scan: ScanResult }) {
           ok={security.contractVerified}
           value={security.contractVerified === null ? 'Unknown' : security.contractVerified ? 'Verified' : 'Not verified'}
         />
-        <p className="mt-3 text-xs text-nodex-muted">From Birdeye's contract audit. The full code can be checked on BscScan.</p>
+        <p className="mt-3 text-xs text-whalemo-muted">From Birdeye's contract audit. The full code can be checked on BscScan.</p>
       </Section>
     )
   }
@@ -278,7 +278,7 @@ function Security({ scan }: { scan: ScanResult }) {
           ok={security.contractVerified}
           value={security.contractVerified === null ? 'Unknown' : security.contractVerified ? 'Verified' : 'Not verified'}
         />
-        <p className="mt-3 text-xs text-nodex-muted">
+        <p className="mt-3 text-xs text-whalemo-muted">
           Mint, fee and pause functions are not read on Robinhood Chain yet. A verified contract can be checked on Blockscout.
         </p>
       </Section>
@@ -303,7 +303,7 @@ function Holders({ scan }: { scan: ScanResult }) {
   if (scan.holders.list.length === 0 && scan.chain === 'bsc') {
     return (
       <Section title="Top holders">
-        <p className="text-sm text-nodex-muted">
+        <p className="text-sm text-whalemo-muted">
           {scan.holders.count !== null ? `${scan.holders.count.toLocaleString()} holders. ` : ''}
           The top-holder list is not available on BNB Chain yet. It can be checked on BscScan.
         </p>
@@ -314,7 +314,7 @@ function Holders({ scan }: { scan: ScanResult }) {
     <Section
       title="Top holders"
       aside={
-        <span className="text-xs text-nodex-muted">
+        <span className="text-xs text-whalemo-muted">
           {scan.holders.count !== null ? `${scan.holders.count.toLocaleString()} holders · ` : ''}top 10 wallets {pct(scan.holders.top10Pct)}
         </span>
       }
@@ -322,7 +322,7 @@ function Holders({ scan }: { scan: ScanResult }) {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">
+            <tr className="text-left text-[11px] font-semibold uppercase tracking-widest text-whalemo-muted">
               <th className="py-2 pr-3">#</th>
               <th className="py-2 pr-3">Holder</th>
               <th className="py-2 pr-3">Share</th>
@@ -334,29 +334,29 @@ function Holders({ scan }: { scan: ScanResult }) {
           <tbody>
             {scan.holders.list.map((holder) => (
               <tr key={holder.address} className={cn('border-t border-white/[0.06]', holder.isPool && 'opacity-60')}>
-                <td className="py-2 pr-3 text-nodex-muted">{holder.rank}</td>
+                <td className="py-2 pr-3 text-whalemo-muted">{holder.rank}</td>
                 <td className="py-2 pr-3">
                   <div className="flex flex-wrap items-center gap-1.5">
                     <a
                       href={walletUrl(scan.chain, holder.address)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-mono text-xs underline-offset-4 hover:text-nodex-teal hover:underline"
+                      className="font-mono text-xs underline-offset-4 hover:text-whalemo-teal hover:underline"
                     >
                       {truncateAddress(holder.address)}
                     </a>
-                    {holder.label ? <Tag className="border-white/10 text-nodex-muted">{holder.label}</Tag> : null}
-                    {holder.isInsider ? <Tag className="border-nodex-red/30 bg-nodex-red/10 text-nodex-red">Launch insider</Tag> : null}
-                    {holder.fomoHandle ? <Tag className="border-nodex-teal/30 bg-nodex-teal/10 text-nodex-teal">@{holder.fomoHandle}</Tag> : null}
+                    {holder.label ? <Tag className="border-white/10 text-whalemo-muted">{holder.label}</Tag> : null}
+                    {holder.isInsider ? <Tag className="border-whalemo-red/30 bg-whalemo-red/10 text-whalemo-red">Launch insider</Tag> : null}
+                    {holder.fomoHandle ? <Tag className="border-whalemo-teal/30 bg-whalemo-teal/10 text-whalemo-teal">@{holder.fomoHandle}</Tag> : null}
                   </div>
                 </td>
                 <td className="py-2 pr-3 tabular-nums">{pct(holder.pctOfSupply, 2)}</td>
                 <td className="py-2 pr-3 tabular-nums">{formatCurrency(holder.valueUsd, true)}</td>
-                <td className="py-2 pr-3 tabular-nums text-nodex-muted">
+                <td className="py-2 pr-3 tabular-nums text-whalemo-muted">
                   {holder.nativeBalance === null ? '—' : holder.nativeBalance.toFixed(holder.nativeBalance >= 100 ? 0 : 2)}
                 </td>
                 {scan.chain === 'solana' ? (
-                  <td className="py-2 pr-3 tabular-nums text-nodex-muted">
+                  <td className="py-2 pr-3 tabular-nums text-whalemo-muted">
                     {holder.netWorthUsd === null ? '—' : formatCurrency(holder.netWorthUsd, true)}
                   </td>
                 ) : null}
@@ -365,7 +365,7 @@ function Holders({ scan }: { scan: ScanResult }) {
           </tbody>
         </table>
       </div>
-      <p className="mt-3 text-[11px] text-nodex-muted">
+      <p className="mt-3 text-[11px] text-whalemo-muted">
         Faded rows are pools and contracts, left out of concentration. Balances are shown for the 10 largest wallets.
       </p>
     </Section>
@@ -373,14 +373,14 @@ function Holders({ scan }: { scan: ScanResult }) {
 }
 
 function Tag({ className, children }: { className: string; children: ReactNode }) {
-  return <span className={cn('rounded-full border px-1.5 py-0.5 text-[11px] font-medium', className)}>{children}</span>
+  return <span className={cn('rounded-sm border px-1.5 py-0.5 text-[11px] font-medium', className)}>{children}</span>
 }
 
 function Bundle({ scan, loading, error, onRun }: { scan: ScanResult; loading: boolean; error: string | null; onRun: () => void }) {
   if (!scan.bundleAvailable) {
     return (
       <Section title="Launch bundle">
-        <p className="text-sm text-nodex-muted">
+        <p className="text-sm text-whalemo-muted">
           Bundle detection covers Solana launches. On {chainLabel(scan.chain)} every transaction has a single signer, so the co-signing
           signal it relies on does not exist.
         </p>
@@ -393,21 +393,21 @@ function Bundle({ scan, loading, error, onRun }: { scan: ScanResult; loading: bo
       title="Launch bundle"
       aside={
         !loading && (!bundle || bundle.clusters.length === 0) ? (
-          <button type="button" onClick={onRun} className="text-xs font-medium text-nodex-teal hover:underline">
+          <button type="button" onClick={onRun} className="text-xs font-medium text-whalemo-teal hover:underline">
             {bundle ? 'Re-run with wallet groups' : 'Analyze launch'}
           </button>
         ) : null
       }
     >
       {loading ? (
-        <div className="flex items-center gap-2 text-sm text-nodex-muted">
+        <div className="flex items-center gap-2 text-sm text-whalemo-muted">
           <LoaderCircle className="h-4 w-4 animate-spin" />
           Reading the launch transactions and who funded the first buyers. This takes up to a minute the first time.
         </div>
       ) : null}
-      {error ? <p className="text-sm text-nodex-red">{error}</p> : null}
+      {error ? <p className="text-sm text-whalemo-red">{error}</p> : null}
       {!loading && !bundle && !error ? (
-        <p className="text-sm text-nodex-muted">Checks whether one person bought the launch through several wallets.</p>
+        <p className="text-sm text-whalemo-muted">Checks whether one person bought the launch through several wallets.</p>
       ) : null}
       {bundle ? (
         <div className={cn('space-y-4', loading && 'opacity-50')}>
@@ -425,17 +425,17 @@ function Bundle({ scan, loading, error, onRun }: { scan: ScanResult; loading: bo
             <ul className="space-y-1.5 text-sm">
               {bundle.evidence.map((line) => (
                 <li key={line} className="flex gap-2">
-                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-nodex-accent" />
+                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-whalemo-accent" />
                   {line}
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-nodex-muted">No linked wallets were found at launch.</p>
+            <p className="text-sm text-whalemo-muted">No linked wallets were found at launch.</p>
           )}
           {bundle.clusters.map((cluster, i) => (
-            <div key={i} className="rounded-lg border border-white/[0.06] p-3">
-              <div className="mb-2 text-xs text-nodex-muted">
+            <div key={i} className="rounded-sm border border-white/[0.06] p-3">
+              <div className="mb-2 text-xs text-whalemo-muted">
                 Group {i + 1}: {cluster.wallets.length} wallets, {pct(cluster.boughtPct)} of supply ·{' '}
                 {cluster.linkKinds.map((k) => k.replace('_', ' ')).join(', ')}
               </div>
@@ -446,7 +446,7 @@ function Bundle({ scan, loading, error, onRun }: { scan: ScanResult; loading: bo
                     href={walletUrl('solana', wallet)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-xs text-nodex-muted hover:text-nodex-teal"
+                    className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-xs text-whalemo-muted hover:text-whalemo-teal"
                   >
                     {truncateAddress(wallet)}
                   </a>
@@ -473,7 +473,7 @@ function Activity({ scan }: { scan: ScanResult }) {
           sub={trading.uniqueWallets24h !== null ? `${trading.uniqueWallets24h.toLocaleString()} traders` : undefined}
         />
       </div>
-      <p className="mt-3 text-[11px] text-nodex-muted">
+      <p className="mt-3 text-[11px] text-whalemo-muted">
         Churn is traders in 24h divided by holders. Bot farms sit between 0.5× and 1.2×; organic tokens run above 1.5×.
       </p>
     </Section>
@@ -484,15 +484,15 @@ function SmartMoney({ scan }: { scan: ScanResult }) {
   return (
     <Section title="Top traders buying (72h)">
       {scan.smartMoney.length === 0 ? (
-        <p className="text-sm text-nodex-muted">None of the tracked FOMO top traders are net buyers.</p>
+        <p className="text-sm text-whalemo-muted">None of the tracked FOMO top traders are net buyers.</p>
       ) : (
         <ul className="space-y-1.5 text-sm">
           {scan.smartMoney.map((trader) => (
             <li key={trader.handle} className="flex justify-between gap-3">
               <span>
-                {trader.displayName} <span className="text-nodex-muted">@{trader.handle}</span>
+                {trader.displayName} <span className="text-whalemo-muted">@{trader.handle}</span>
               </span>
-              <span className="tabular-nums text-nodex-green">{formatCurrency(trader.netBuyUsd, true)}</span>
+              <span className="tabular-nums text-whalemo-green">{formatCurrency(trader.netBuyUsd, true)}</span>
             </li>
           ))}
         </ul>
@@ -625,14 +625,14 @@ export function ScannerPage() {
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-3 text-3xl font-bold md:text-4xl">
           Token Scanner
         </motion.h1>
-        <p className="mb-6 max-w-3xl text-sm text-nodex-muted">
+        <p className="mb-6 max-w-3xl text-sm text-whalemo-muted">
           Paste a token contract address to check its liquidity, contract controls, holders and their wallets, launch bundles and
           top-trader activity, with a verdict on whether it is worth the risk.
         </p>
 
         <form onSubmit={onSubmit} className="mb-8 flex flex-wrap items-center gap-3">
-          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 focus-within:border-nodex-teal/40">
-            <Search className="h-4 w-4 shrink-0 text-nodex-muted" />
+          <div className="flex min-w-0 basis-full items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-4 py-2.5 focus-within:border-whalemo-teal/40 sm:basis-auto sm:flex-1">
+            <Search className="h-4 w-4 shrink-0 text-whalemo-muted" />
             <input
               value={input}
               onChange={(event) => {
@@ -640,7 +640,7 @@ export function ScannerPage() {
                 if (event.target.value.trim()) setChain(detectChain(event.target.value, chain))
               }}
               placeholder="Token contract address (Solana, or 0x… on BNB Chain or Robinhood Chain)"
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-nodex-muted"
+              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-whalemo-muted"
               spellCheck={false}
               autoComplete="off"
             />
@@ -649,7 +649,7 @@ export function ScannerPage() {
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="rounded-full bg-nodex-accent px-6 py-2.5 text-sm font-semibold text-nodex-on-accent transition-opacity disabled:opacity-50"
+            className="flex-1 rounded-md bg-whalemo-accent px-6 py-2.5 text-sm font-semibold text-whalemo-on-accent transition-opacity disabled:opacity-50 sm:flex-none"
           >
             {loading ? 'Scanning…' : 'Scan'}
           </button>
@@ -663,9 +663,9 @@ export function ScannerPage() {
           onClear={() => setHistory(clearScanHistory())}
         />
 
-        {error ? <p className="mb-6 text-sm text-nodex-red">{error}</p> : null}
+        {error ? <p className="mb-6 text-sm text-whalemo-red">{error}</p> : null}
         {loading ? (
-          <div className="flex items-center gap-2 text-sm text-nodex-muted">
+          <div className="flex items-center gap-2 text-sm text-whalemo-muted">
             <LoaderCircle className="h-4 w-4 animate-spin" /> Checking market data, contract controls and holders…
           </div>
         ) : null}
@@ -673,14 +673,14 @@ export function ScannerPage() {
         {scan ? (
           <div className="space-y-5">
             {fromHistory ? (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm">
-                <span className="text-nodex-muted">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm">
+                <span className="text-whalemo-muted">
                   Saved scan from {timeAgo(scan.scannedAt)}. Prices, holders and the verdict may have changed since.
                 </span>
                 <button
                   type="button"
                   onClick={() => runScan(scan.chain, scan.address)}
-                  className="inline-flex items-center gap-1.5 font-medium text-nodex-teal hover:underline"
+                  className="inline-flex items-center gap-1.5 font-medium text-whalemo-teal hover:underline"
                 >
                   <RefreshCw className="h-3.5 w-3.5" /> Rescan
                 </button>
@@ -694,14 +694,14 @@ export function ScannerPage() {
                     <span className="max-w-[28rem] truncate text-xl font-bold" title={scan.name}>
                       {scan.name || 'Unknown token'}
                     </span>
-                    <span className="max-w-[10rem] truncate text-sm text-nodex-muted" title={scan.symbol}>
+                    <span className="max-w-[10rem] truncate text-sm text-whalemo-muted" title={scan.symbol}>
                       {scan.symbol}
                     </span>
                     <span className="group">
                       <TokenWatchlistButton token={{ contract: scan.address, name: scan.name, symbol: scan.symbol }} chain={scan.chain} />
                     </span>
                   </div>
-                  <div className="font-mono text-xs text-nodex-muted">{scan.address}</div>
+                  <div className="font-mono text-xs text-whalemo-muted">{scan.address}</div>
                 </div>
                 <div className="ml-auto flex flex-wrap gap-2">
                   {scan.links.map((link) => (
@@ -710,7 +710,7 @@ export function ScannerPage() {
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1 text-xs text-nodex-muted hover:border-nodex-teal/30 hover:text-nodex-teal"
+                      className="inline-flex items-center gap-1 rounded-md border border-white/10 px-3 py-1 text-xs text-whalemo-muted hover:border-whalemo-teal/30 hover:text-whalemo-teal"
                     >
                       {link.label} <ExternalLink className="h-3 w-3" />
                     </a>
@@ -732,7 +732,7 @@ export function ScannerPage() {
                 <Stat
                   label="Change 24h"
                   value={
-                    <span className={cn((scan.priceChange24h ?? 0) >= 0 ? 'text-nodex-green' : 'text-nodex-red')}>
+                    <span className={cn((scan.priceChange24h ?? 0) >= 0 ? 'text-whalemo-green' : 'text-whalemo-red')}>
                       {scan.priceChange24h === null ? '—' : `${scan.priceChange24h >= 0 ? '+' : ''}${scan.priceChange24h.toFixed(1)}%`}
                     </span>
                   }
@@ -751,7 +751,7 @@ export function ScannerPage() {
 
             <Bundle scan={scan} loading={bundleLoading} error={bundleError} onRun={() => runBundle(scan.chain, scan.address, requestId.current)} />
             <Holders scan={scan} />
-            <p className="text-[11px] text-nodex-muted">Scanned {new Date(scan.scannedAt).toLocaleString()}.</p>
+            <p className="text-[11px] text-whalemo-muted">Scanned {new Date(scan.scannedAt).toLocaleString()}.</p>
           </div>
         ) : null}
       </main>

@@ -17,13 +17,13 @@ export function GlassPanel({ children, className, hover = false, variant = 'defa
   return (
     <div
       className={cn(
-        'rounded-2xl',
+        'rounded-md',
         variant === 'solid'
           ? cn('glass-panel-solid', featured && 'glass-panel-solid-featured')
           : variant === 'frosted'
             ? 'glass-panel-frosted'
             : 'glass-panel',
-        hover && 'transition-colors duration-200 hover:border-nodex-teal/40',
+        hover && 'transition-colors duration-200 hover:border-whalemo-teal/40',
         className
       )}
     >

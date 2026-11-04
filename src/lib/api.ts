@@ -185,6 +185,16 @@ export const api = {
         return { token: session.token, user: demoProfile(email, plan ?? 'starter') }
       }
     },
+    forgotPassword: (email: string) =>
+      request<{ message: string }>('/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      }),
+    resetPassword: (params: { accessToken: string; refreshToken: string; password: string }) =>
+      request<{ message: string }>('/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify(params),
+      }),
     me: () => request<UserProfile>('/auth/me'),
     updateProfile: (updates: {
       displayName?: string | null
@@ -416,7 +426,7 @@ export interface ScanResult {
   scannedAt: string
 }
 
-/** Added to every token row by the API: when NodeX first listed it and its peak multiple since. */
+/** Added to every token row by the API: when WhaleMo first listed it and its peak multiple since. */
 export interface SightingFields {
   firstSeenAt?: string | null
   firstSeenMc?: number | null

@@ -20,7 +20,7 @@ export function LiquidGlass({ children, className, interactive = false, variant 
       className={cn(
         'overflow-hidden',
         variant === 'solid' ? cn('glass-panel-solid', featured && 'glass-panel-solid-featured') : 'glass-panel',
-        interactive && 'transition-colors duration-200 hover:border-nodex-teal/40',
+        interactive && 'transition-colors duration-200 hover:border-whalemo-teal/40',
         className
       )}
     >

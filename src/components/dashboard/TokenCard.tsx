@@ -52,10 +52,10 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
   const noData = token.analyticsUnavailable === true
   const tokenAge = formatTokenAge(token.launchedAt, token.ageDays)
   const tone = noData
-    ? 'var(--color-nodex-teal)'
+    ? 'var(--color-whalemo-teal)'
     : token.changePct >= 0
-      ? 'var(--color-nodex-green)'
-      : 'var(--color-nodex-red)'
+      ? 'var(--color-whalemo-green)'
+      : 'var(--color-whalemo-red)'
 
   const removeToken = async () => {
     setRemoving(true)
@@ -85,7 +85,7 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.08 }}
       whileHover={{ y: -4 }}
-      className="group watch-card rounded-2xl p-5"
+      className="group watch-card rounded-md p-5"
       style={{ '--card-tone': tone } as CSSProperties}
     >
       <div className="flex items-start justify-between mb-5">
@@ -98,14 +98,14 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
           />
           <div className="min-w-0">
             <div className="truncate text-sm font-semibold">{token.symbol}</div>
-            <div className="truncate text-xs text-nodex-muted">{token.name}</div>
-            <div className="group/contract flex items-center gap-1.5 text-xs text-nodex-muted">
+            <div className="truncate text-xs text-whalemo-muted">{token.name}</div>
+            <div className="group/contract flex items-center gap-1.5 text-xs text-whalemo-muted">
               <a
                 href={tokenUrl(token.chain, token.contract)}
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Open token in Dexscreener"
-                className="underline-offset-4 hover:text-nodex-teal hover:underline focus-visible:text-nodex-teal focus-visible:underline focus-visible:outline-none"
+                className="underline-offset-4 hover:text-whalemo-teal hover:underline focus-visible:text-whalemo-teal focus-visible:underline focus-visible:outline-none"
               >
                 {truncateAddress(token.contract)}
               </a>
@@ -115,27 +115,27 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
                 aria-label={copied ? 'Contract address copied' : 'Copy contract address'}
                 title={copied ? 'Copied' : 'Copy contract address'}
                 className={cn(
-                  'rounded p-0.5 opacity-0 transition-all group-hover/contract:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nodex-teal/50',
+                  'rounded-none p-0.5 opacity-0 transition-all group-hover/contract:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-whalemo-teal/50',
                   copied
-                    ? 'text-nodex-green opacity-100'
-                    : 'hover:bg-nodex-teal/10 hover:text-nodex-teal'
+                    ? 'text-whalemo-green opacity-100'
+                    : 'hover:bg-whalemo-teal/10 hover:text-whalemo-teal'
                 )}
               >
                 {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
               </button>
             </div>
-            {error ? <div className="mt-1 text-[11px] text-nodex-red">{error}</div> : null}
+            {error ? <div className="mt-1 text-[11px] text-whalemo-red">{error}</div> : null}
           </div>
         </div>
         {confirmingRemove ? (
           <div className="flex shrink-0 items-center gap-1">
-            <span className="text-[11px] uppercase tracking-widest text-nodex-muted">Remove?</span>
+            <span className="text-[11px] uppercase tracking-widest text-whalemo-muted">Remove?</span>
             <button
               type="button"
               disabled={removing}
               onClick={() => void removeToken()}
               aria-label={`Confirm removing ${token.symbol}`}
-              className="rounded p-1 text-nodex-red hover:bg-white/10 disabled:opacity-50"
+              className="rounded-none p-1 text-whalemo-red hover:bg-white/10 disabled:opacity-50"
             >
               <Check className="h-3.5 w-3.5" />
             </button>
@@ -144,7 +144,7 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
               disabled={removing}
               onClick={() => setConfirmingRemove(false)}
               aria-label="Cancel removing token"
-              className="rounded p-1 text-nodex-muted hover:bg-white/10 hover:text-white disabled:opacity-50"
+              className="rounded-none p-1 text-whalemo-muted hover:bg-white/10 hover:text-white disabled:opacity-50"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -158,7 +158,7 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
                 setConfirmingRemove(true)
               }}
               aria-label={`Remove ${token.symbol} from watchlist`}
-              className="rounded p-1 text-nodex-muted opacity-0 transition-opacity hover:bg-white/10 hover:text-nodex-red focus:opacity-100 group-hover:opacity-100"
+              className="rounded-none p-1 text-whalemo-muted opacity-0 transition-opacity hover:bg-white/10 hover:text-whalemo-red focus:opacity-100 group-hover:opacity-100"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -166,39 +166,39 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
         )}
       </div>
 
-      <div className="mb-5 grid grid-cols-3 gap-4 rounded-xl bg-nodex-raised px-3 py-3">
+      <div className="mb-5 grid grid-cols-3 gap-4 rounded-md bg-whalemo-raised px-3 py-3">
         <div>
-          <div className="text-[11px] tracking-widest uppercase text-nodex-muted mb-1">Price</div>
-          <div className={cn('text-lg font-bold', noData && 'text-nodex-muted')}>
+          <div className="text-[11px] tracking-widest uppercase text-whalemo-muted mb-1">Price</div>
+          <div className={cn('text-lg font-bold', noData && 'text-whalemo-muted')}>
             {noData ? '—' : `$${token.price.toFixed(token.price < 0.01 ? 5 : 2)}`}
           </div>
         </div>
         <div>
-          <div className="text-[11px] tracking-widest uppercase text-nodex-muted mb-1">
+          <div className="text-[11px] tracking-widest uppercase text-whalemo-muted mb-1">
             24H Change
           </div>
           <div
             className={cn(
               'text-lg font-bold',
               noData
-                ? 'text-nodex-muted'
+                ? 'text-whalemo-muted'
                 : token.changePct >= 0
-                  ? 'text-nodex-green'
-                  : 'text-nodex-red'
+                  ? 'text-whalemo-green'
+                  : 'text-whalemo-red'
             )}
           >
             {noData ? '—' : `${token.changePct >= 0 ? '+' : ''}${token.changePct.toFixed(1)}%`}
           </div>
         </div>
         <div>
-          <div className="text-[11px] tracking-widest uppercase text-nodex-muted mb-1">Mkt Cap</div>
-          <div className={cn('text-lg font-bold', noData && 'text-nodex-muted')}>
+          <div className="text-[11px] tracking-widest uppercase text-whalemo-muted mb-1">Mkt Cap</div>
+          <div className={cn('text-lg font-bold', noData && 'text-whalemo-muted')}>
             {noData ? '—' : formatCurrency(token.marketCap, true)}
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between text-xs text-nodex-muted">
+      <div className="flex items-center justify-between text-xs text-whalemo-muted">
         <span>
           {noData
             ? 'No market data found'
@@ -210,9 +210,9 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
                 .filter(Boolean)
                 .join(' · ')}
         </span>
-        <span className="flex items-center gap-1.5 rounded-full border border-nodex-line bg-nodex-surface px-2 py-1">
+        <span className="flex items-center gap-1.5 rounded-sm border border-whalemo-line bg-whalemo-surface px-2 py-1">
           <span
-            className={cn('w-1.5 h-1.5 rounded-full', noData ? 'bg-nodex-muted' : 'bg-nodex-green')}
+            className={cn('w-1.5 h-1.5 rounded-full', noData ? 'bg-whalemo-muted' : 'bg-whalemo-green')}
           />
           {chainLabel(token.chain)}
         </span>

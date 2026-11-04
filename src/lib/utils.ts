@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
  * Faint tint for the market cap column in every token table, so it stays easy to find while
  * scrolling. Built on the theme's teal token, so it works in light and dark mode.
  */
-export const MARKET_CAP_COLUMN = 'bg-nodex-teal/[0.07]'
+export const MARKET_CAP_COLUMN = 'bg-whalemo-teal/[0.07]'
 
 export function truncateAddress(address: string, chars = 4): string {
   if (address.length <= chars * 2 + 3) return address

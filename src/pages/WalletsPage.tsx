@@ -24,6 +24,7 @@ import { markTokenViewed, useViewedTokens } from '@/lib/viewed-tokens'
 import { useWatchlistStore } from '@/stores/watchlistStore'
 import { useEarlySignalStore } from '@/stores/earlySignalStore'
 import { playChime } from '@/lib/chime'
+import { ScrollHint } from '@/components/dashboard/ScrollHint'
 import { api, type SmartMoneyBuy, type SmartMoneySortKey, type SmartMoneyWallet } from '@/lib/api'
 import { cn, formatCurrency, MARKET_CAP_COLUMN, truncateAddress } from '@/lib/utils'
 
@@ -55,7 +56,7 @@ function WalletLink({ address, chain }: { address: string; chain: Chain }) {
       target="_blank"
       rel="noopener noreferrer"
       onClick={(event) => event.stopPropagation()}
-      className="font-mono text-xs underline-offset-4 hover:text-nodex-teal hover:underline"
+      className="font-mono text-xs underline-offset-4 hover:text-whalemo-teal hover:underline"
     >
       {truncateAddress(address)}
     </a>
@@ -90,10 +91,10 @@ function TraderCell({
         {label ? (
           <div className="truncate text-sm font-medium">
             {label}
-            {handle ? <span className="ml-1.5 text-xs font-normal text-nodex-muted">@{handle}</span> : null}
+            {handle ? <span className="ml-1.5 text-xs font-normal text-whalemo-muted">@{handle}</span> : null}
           </div>
         ) : null}
-        <div className="text-nodex-muted">
+        <div className="text-whalemo-muted">
           <WalletLink address={address} chain={chain} />
         </div>
       </div>
@@ -125,8 +126,8 @@ function WatchButton({
       className={cn(
         'flex h-7 w-7 items-center justify-center rounded-md border transition-colors',
         watched
-          ? 'border-nodex-teal/30 text-nodex-teal'
-          : 'border-white/10 text-nodex-muted hover:border-nodex-teal/30 hover:text-nodex-teal'
+          ? 'border-whalemo-teal/30 text-whalemo-teal'
+          : 'border-white/10 text-whalemo-muted hover:border-whalemo-teal/30 hover:text-whalemo-teal'
       )}
     >
       {watched ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
@@ -176,10 +177,10 @@ function BuyersDetail({
   watchlist: ReturnType<typeof useWalletWatchlist>
 }) {
   return (
-    <div className="px-6 pb-5 pt-1">
+    <div className="overflow-x-auto px-4 pb-5 pt-1 md:px-6">
       <table className="w-full max-w-3xl text-sm">
         <thead>
-          <tr className="text-left text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">
+          <tr className="text-left text-[11px] font-semibold uppercase tracking-widest text-whalemo-muted">
             <th className="py-2 pr-4">Trader</th>
             <th className="py-2 pr-4">Rank</th>
             <th className="py-2 pr-4">30d PnL</th>
@@ -200,12 +201,12 @@ function BuyersDetail({
                   avatarUrl={wallet.avatarUrl}
                 />
               </td>
-              <td className="py-2 pr-4 tabular-nums text-nodex-muted">{wallet.rank ? `#${wallet.rank}` : '—'}</td>
-              <td className="py-2 pr-4 tabular-nums text-nodex-green">
+              <td className="py-2 pr-4 tabular-nums text-whalemo-muted">{wallet.rank ? `#${wallet.rank}` : '—'}</td>
+              <td className="py-2 pr-4 tabular-nums text-whalemo-green">
                 {wallet.realizedPnl30d ? formatCurrency(wallet.realizedPnl30d, true) : '—'}
               </td>
               <td className="py-2 pr-4 tabular-nums">{formatCurrency(wallet.netBuyUsd, true)}</td>
-              <td className="py-2 pr-4 text-nodex-muted">{timeAgo(wallet.lastBuyAt)}</td>
+              <td className="py-2 pr-4 text-whalemo-muted">{timeAgo(wallet.lastBuyAt)}</td>
               <td className="py-2">
                 <WatchButton
                   address={wallet.address}
@@ -391,7 +392,7 @@ function BuysTable({
     />
   )
   const plain = (label: string) => (
-    <th className="px-4 py-4 text-left text-[11px] font-semibold uppercase tracking-widest text-nodex-muted">{label}</th>
+    <th className="px-4 py-4 text-left text-[11px] font-semibold uppercase tracking-widest text-whalemo-muted">{label}</th>
   )
 
   const filterBar = (
@@ -402,22 +403,22 @@ function BuysTable({
         aria-pressed={filters.earlyOnly}
         title="Under $100K market cap, 2+ top traders buying, 24h volume at least 10x market cap, and traders have sold under 30% of what they bought."
         className={cn(
-          'flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors',
+          'flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors',
           filters.earlyOnly
-            ? 'border-transparent bg-nodex-accent text-nodex-on-accent'
-            : 'border-nodex-line bg-nodex-surface text-white hover:border-nodex-teal/40'
+            ? 'border-transparent bg-whalemo-accent text-whalemo-on-accent'
+            : 'border-whalemo-line bg-whalemo-surface text-white hover:border-whalemo-teal/40'
         )}
       >
-        <Zap className={cn('h-4 w-4', !filters.earlyOnly && 'text-nodex-amber')} />
+        <Zap className={cn('h-4 w-4', !filters.earlyOnly && 'text-whalemo-amber')} />
         Early signals
         <span
           className={cn(
-            'min-w-5 rounded-full px-1.5 text-center text-xs font-bold tabular-nums',
+            'min-w-5 rounded-sm px-1.5 text-center text-xs font-bold tabular-nums',
             filters.earlyOnly
               ? 'bg-[#ffffff]/20'
               : earlyCount > 0
-                ? 'bg-nodex-amber/15 text-nodex-amber'
-                : 'bg-nodex-raised text-nodex-muted'
+                ? 'bg-whalemo-amber/15 text-whalemo-amber'
+                : 'bg-whalemo-raised text-whalemo-muted'
           )}
         >
           {earlyCount}
@@ -437,13 +438,13 @@ function BuysTable({
       />
       {filtered ? (
         <>
-          <span className="px-2 text-sm text-nodex-muted">
+          <span className="px-2 text-sm text-whalemo-muted">
             {total} {total === 1 ? 'token matches' : 'tokens match'}
           </span>
           <button
             type="button"
             onClick={() => updateFilters(NO_FILTERS)}
-            className="rounded-full px-3 py-1.5 text-sm text-nodex-muted transition-colors hover:bg-nodex-raised hover:text-white"
+            className="rounded-md px-3 py-1.5 text-sm text-whalemo-muted transition-colors hover:bg-whalemo-raised hover:text-white"
           >
             Clear
           </button>
@@ -460,21 +461,21 @@ function BuysTable({
         aria-pressed={alertsEnabled}
         title={
           alertsEnabled
-            ? 'A chime and a toast when a new early signal appears, on any NodeX page left open. Click to mute.'
+            ? 'A chime and a toast when a new early signal appears, on any WhaleMo page left open. Click to mute.'
             : 'Alerts are off. Click to get a chime when a new early signal appears.'
         }
         className={cn(
-          'ml-auto flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors',
+          'ml-auto flex items-center gap-2 rounded-md border px-4 py-2 text-sm transition-colors',
           alertsEnabled
-            ? 'border-nodex-teal/40 text-nodex-teal hover:bg-nodex-teal/10'
-            : 'border-nodex-line text-nodex-muted hover:text-white'
+            ? 'border-whalemo-teal/40 text-whalemo-teal hover:bg-whalemo-teal/10'
+            : 'border-whalemo-line text-whalemo-muted hover:text-white'
         )}
       >
         {alertsEnabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
         {alertsEnabled ? 'Alerts on' : 'Alerts off'}
       </button>
       {filters.earlyOnly ? (
-        <p className="w-full pt-1 text-xs text-nodex-muted">
+        <p className="w-full pt-1 text-xs text-whalemo-muted">
           Under $100K · 2+ top traders · 24h volume ≥ 10× market cap · traders sold under 30% of what they bought. In
           a one-week backtest, 9% of these went 5× or more, against 2% of all tokens bought under $100K. A small sample,
           so treat it as a lead.
@@ -492,12 +493,104 @@ function BuysTable({
     )
   }
 
+  const emptyMessage = filters.earlyOnly
+    ? "No early signals right now. With alerts on, you'll hear a chime when one appears."
+    : filtered
+    ? 'No tokens match these filters. Try a higher market cap or fewer traders.'
+    : (message ?? 'None of the tracked wallets are net buying a liquid token right now.')
+
   return (
     <>
       {filterBar}
-      {error ? <p className="mb-4 text-sm text-nodex-red">{error}</p> : null}
+      {error ? <p className="mb-4 text-sm text-whalemo-red">{error}</p> : null}
       <GlassPanel variant="frosted" className="overflow-hidden">
-        <div className={cn('overflow-x-auto transition-opacity', loading && 'opacity-60')}>
+        {/* Phones: one card per token with the numbers that matter. The full table needs a wide screen. */}
+        <div className={cn('divide-y divide-white/[0.06] transition-opacity lg:hidden', loading && 'opacity-60')}>
+          {items.length === 0 ? (
+            <p className="px-4 py-12 text-center text-sm text-whalemo-muted">{emptyMessage}</p>
+          ) : null}
+          {items.map((token) => {
+            const isOpen = expanded === token.contract
+            const viewed = isViewed(chain, token.contract)
+            return (
+              <div key={token.contract} className={cn(isOpen && 'bg-white/[0.03]', viewed && VIEWED_ROW)}>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={isOpen}
+                  onClick={() => setExpanded(isOpen ? null : token.contract)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      setExpanded(isOpen ? null : token.contract)
+                    }
+                  }}
+                  className="cursor-pointer px-4 py-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <TokenAvatar imageUrl={token.imageUrl} symbol={token.symbol} fallbackClassName="bg-blue-500" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="truncate text-sm font-medium">{token.name || token.symbol}</span>
+                        {token.earlySignal ? (
+                          <span className="inline-flex shrink-0 items-center gap-0.5 rounded-sm bg-whalemo-amber/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-whalemo-amber">
+                            <Zap className="h-2.5 w-2.5" />
+                            Early
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <a
+                          href={tokenUrl(chain, token.contract)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            markTokenViewed(chain, token.contract)
+                          }}
+                          className="min-w-0 truncate text-xs text-whalemo-muted underline-offset-4 hover:text-whalemo-teal hover:underline"
+                        >
+                          {token.symbol} · {truncateAddress(token.contract)}
+                        </a>
+                        {viewed ? <ViewedTokenIcon /> : null}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold leading-6 tabular-nums text-whalemo-teal">{token.walletCount}</div>
+                      <div className="text-[11px] text-whalemo-muted">{token.walletCount === 1 ? 'trader' : 'traders'}</div>
+                    </div>
+                    <TokenWatchlistButton token={token} chain={chain} />
+                  </div>
+                  <dl className="mt-3 grid grid-cols-3 gap-2 rounded-md bg-whalemo-raised px-3 py-2.5 text-sm tabular-nums">
+                    <div>
+                      <dt className="text-[10px] uppercase tracking-wider text-whalemo-muted">Mkt cap</dt>
+                      <dd className="font-medium">{formatCurrency(token.marketCap, true)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] uppercase tracking-wider text-whalemo-muted">24h</dt>
+                      <dd className={cn('font-medium', token.priceChange24h >= 0 ? 'text-whalemo-green' : 'text-whalemo-red')}>
+                        {token.priceChange24h >= 0 ? '+' : ''}
+                        {token.priceChange24h.toFixed(1)}%
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] uppercase tracking-wider text-whalemo-muted">Net bought</dt>
+                      <dd className="font-medium">{formatCurrency(token.netBuyUsd, true)}</dd>
+                    </div>
+                  </dl>
+                  <div className="mt-2 flex items-center justify-between text-[11px] text-whalemo-muted">
+                    <span>
+                      Latest buy {timeAgo(token.lastBuyAt)} · {formatCurrency(token.liquidity, true)} liquidity
+                    </span>
+                    {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  </div>
+                </div>
+                {isOpen ? <BuyersDetail token={token} chain={chain} watchlist={watchlist} /> : null}
+              </div>
+            )
+          })}
+        </div>
+        <div className={cn('hidden overflow-x-auto transition-opacity lg:block', loading && 'opacity-60')}>
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.04]">
@@ -516,12 +609,8 @@ function BuysTable({
             <tbody>
               {items.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-12 text-center text-sm text-nodex-muted">
-                    {filters.earlyOnly
-                      ? "No early signals right now. With alerts on, you'll hear a chime when one appears."
-                      : filtered
-                      ? 'No tokens match these filters. Try a higher market cap or fewer traders.'
-                      : (message ?? 'None of the tracked wallets are net buying a liquid token right now.')}
+                  <td colSpan={10} className="px-4 py-12 text-center text-sm text-whalemo-muted">
+                    {emptyMessage}
                   </td>
                 </tr>
               ) : null}
@@ -538,13 +627,13 @@ function BuysTable({
                         viewed && VIEWED_ROW
                       )}
                     >
-                      <td className="px-4 py-4 text-nodex-muted">
+                      <td className="px-4 py-4 text-whalemo-muted">
                         {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           <TokenAvatar imageUrl={token.imageUrl} symbol={token.symbol} fallbackClassName="bg-blue-500" />
-                          <div className="min-w-0 max-w-[12rem]">
+                          <div className="min-w-0 max-w-[7.5rem] sm:max-w-[12rem]">
                             <div className="flex items-center gap-1.5">
                               <span className="truncate text-sm font-medium" title={token.name || token.symbol}>
                                 {token.name || token.symbol}
@@ -552,7 +641,7 @@ function BuysTable({
                               {token.earlySignal ? (
                                 <span
                                   title="Meets the early-signal preset"
-                                  className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-nodex-amber/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-nodex-amber"
+                                  className="inline-flex shrink-0 items-center gap-0.5 rounded-sm bg-whalemo-amber/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-whalemo-amber"
                                 >
                                   <Zap className="h-2.5 w-2.5" />
                                   Early
@@ -570,7 +659,7 @@ function BuysTable({
                                   markTokenViewed(chain, token.contract)
                                 }}
                                 onAuxClick={() => markTokenViewed(chain, token.contract)}
-                                className="min-w-0 truncate text-xs text-nodex-muted underline-offset-4 hover:text-nodex-teal hover:underline"
+                                className="min-w-0 truncate text-xs text-whalemo-muted underline-offset-4 hover:text-whalemo-teal hover:underline"
                               >
                                 {token.symbol} · {truncateAddress(token.contract)}
                               </a>
@@ -582,11 +671,11 @@ function BuysTable({
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-baseline gap-1.5">
-                          <span className="text-lg font-semibold tabular-nums text-nodex-teal">{token.walletCount}</span>
-                          <span className="text-xs text-nodex-muted">{token.walletCount === 1 ? 'trader' : 'traders'}</span>
+                          <span className="text-lg font-semibold tabular-nums text-whalemo-teal">{token.walletCount}</span>
+                          <span className="text-xs text-whalemo-muted">{token.walletCount === 1 ? 'trader' : 'traders'}</span>
                         </div>
                         <div
-                          className="text-[11px] text-nodex-muted"
+                          className="text-[11px] text-whalemo-muted"
                           title="Combined FOMO 30-day PnL of the traders buying"
                         >
                           {formatCurrency(token.buyerRealizedPnl30d, true)} buyer 30d PnL · {token.buyCount} buys
@@ -595,7 +684,7 @@ function BuysTable({
                       <td className="px-4 py-4 text-sm tabular-nums">
                         <div className="font-medium">{formatCurrency(token.netBuyUsd, true)}</div>
                         {token.sellUsd > 0 ? (
-                          <div className="text-[11px] text-nodex-muted">
+                          <div className="text-[11px] text-whalemo-muted">
                             {formatCurrency(token.buyUsd, true)} in · {formatCurrency(token.sellUsd, true)} out
                           </div>
                         ) : null}
@@ -606,7 +695,7 @@ function BuysTable({
                       <td
                         className={cn(
                           'px-4 py-4 text-sm tabular-nums',
-                          token.priceChange24h >= 0 ? 'text-nodex-green' : 'text-nodex-red'
+                          token.priceChange24h >= 0 ? 'text-whalemo-green' : 'text-whalemo-red'
                         )}
                       >
                         {token.priceChange24h >= 0 ? '+' : ''}
@@ -614,10 +703,10 @@ function BuysTable({
                       </td>
                       <FirstSeenCell token={token} />
                       <PeakMultipleCell token={token} />
-                      <td className="px-4 py-4 text-sm tabular-nums text-nodex-muted">
+                      <td className="px-4 py-4 text-sm tabular-nums text-whalemo-muted">
                         {formatCurrency(token.liquidity, true)}
                       </td>
-                      <td className="px-4 py-4 text-sm text-nodex-muted">{timeAgo(token.lastBuyAt)}</td>
+                      <td className="px-4 py-4 text-sm text-whalemo-muted">{timeAgo(token.lastBuyAt)}</td>
                     </tr>
                     {isOpen ? (
                       <tr className="border-b border-white/[0.06] bg-white/[0.03]">
@@ -658,11 +747,12 @@ function TrackedWalletsTable({
   }, [chain])
 
   if (loading) return <TokenTableSkeleton />
-  const th = 'px-4 py-4 text-left text-[11px] font-semibold uppercase tracking-widest text-nodex-muted'
+  const th = 'px-4 py-4 text-left text-[11px] font-semibold uppercase tracking-widest text-whalemo-muted'
 
   return (
     <>
-      {error ? <p className="mb-4 text-sm text-nodex-red">{error}</p> : null}
+      {error ? <p className="mb-4 text-sm text-whalemo-red">{error}</p> : null}
+      <ScrollHint />
       <GlassPanel variant="frosted" className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -680,14 +770,14 @@ function TrackedWalletsTable({
             <tbody>
               {wallets.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-sm text-nodex-muted">
+                  <td colSpan={7} className="px-4 py-12 text-center text-sm text-whalemo-muted">
                     No FOMO traders are tracked on this chain yet.
                   </td>
                 </tr>
               ) : null}
               {wallets.map((wallet) => (
                 <tr key={wallet.address} className="border-b border-white/[0.06] hover:bg-white/[0.04]">
-                  <td className="px-4 py-3 text-sm text-nodex-muted">{wallet.rank}</td>
+                  <td className="px-4 py-3 text-sm text-whalemo-muted">{wallet.rank}</td>
                   <td className="px-4 py-3">
                     <TraderCell
                       address={wallet.address}
@@ -697,14 +787,14 @@ function TrackedWalletsTable({
                       avatarUrl={wallet.avatarUrl}
                     />
                   </td>
-                  <td className="px-4 py-3 text-sm tabular-nums text-nodex-green">
+                  <td className="px-4 py-3 text-sm tabular-nums text-whalemo-green">
                     {wallet.pnl30d ? formatCurrency(wallet.pnl30d, true) : '—'}
                   </td>
-                  <td className="px-4 py-3 text-sm tabular-nums text-nodex-muted">
+                  <td className="px-4 py-3 text-sm tabular-nums text-whalemo-muted">
                     {formatCurrency(wallet.volume30d, true)}
                   </td>
-                  <td className="px-4 py-3 text-sm tabular-nums text-nodex-muted">{wallet.trades30d.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-sm tabular-nums text-nodex-muted">{wallet.followers.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-sm tabular-nums text-whalemo-muted">{wallet.trades30d.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-sm tabular-nums text-whalemo-muted">{wallet.followers.toLocaleString()}</td>
                   <td className="px-4 py-3">
                     <WatchButton
                       address={wallet.address}
@@ -767,22 +857,22 @@ export function WalletsPage() {
         >
           What Top Traders Are Buying
         </motion.h1>
-        <p className="mb-8 max-w-3xl text-sm text-nodex-muted">
+        <p className="mb-8 max-w-3xl text-sm text-whalemo-muted">
           Tokens the top {meta.tracked || ''} FOMO traders are net buying on {chainLabel(chain)} over the last{' '}
           {formatWindow(meta.windowHours)}. Traders come from FOMO's leaderboards, refreshed monthly. The more of
           them in a token, the higher it ranks, and ties go to the traders with the bigger 30-day PnL.
         </p>
 
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex w-fit gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1">
+          <div className="flex w-fit gap-1 rounded-md border border-white/10 bg-white/[0.03] p-1">
             {tabs.map((option) => (
               <button
                 key={option.value}
                 type="button"
                 onClick={() => setTab(option.value)}
                 className={cn(
-                  'rounded-full px-4 py-1.5 text-xs font-medium transition-colors',
-                  tab === option.value ? 'bg-nodex-teal/20 text-nodex-teal' : 'text-nodex-muted hover:text-white'
+                  'rounded-sm px-4 py-1.5 text-xs font-medium transition-colors',
+                  tab === option.value ? 'bg-whalemo-teal/20 text-whalemo-teal' : 'text-whalemo-muted hover:text-white'
                 )}
               >
                 {option.label}
@@ -792,7 +882,7 @@ export function WalletsPage() {
           <ChainSelector value={chain} onChange={setChain} />
         </div>
 
-        {watchlist.error ? <p className="mb-4 text-sm text-nodex-red">{watchlist.error}</p> : null}
+        {watchlist.error ? <p className="mb-4 text-sm text-whalemo-red">{watchlist.error}</p> : null}
 
         {tab === 'buys' ? (
           // Keyed by chain so paging, sorting and expanded rows reset when the chain changes.

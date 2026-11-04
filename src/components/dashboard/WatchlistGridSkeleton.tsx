@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 function WatchlistCardSkeleton() {
   return (
-    <div className="watch-card rounded-2xl p-5">
+    <div className="watch-card rounded-md p-5">
       <div className="mb-5 flex items-start justify-between">
         <div className="flex items-center gap-3">
           <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
@@ -14,7 +14,7 @@ function WatchlistCardSkeleton() {
         <Skeleton className="h-4 w-4 rounded-full" />
       </div>
 
-      <div className="mb-5 grid grid-cols-3 gap-4 rounded-xl bg-nodex-raised px-3 py-3">
+      <div className="mb-5 grid grid-cols-3 gap-4 rounded-md bg-whalemo-raised px-3 py-3">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="space-y-2">
             <Skeleton className="h-2 w-10 rounded-full" />

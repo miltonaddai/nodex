@@ -1,42 +1,35 @@
 import type { UserProfile } from '@/lib/api'
 import { SUBSCRIPTIONS_ENABLED } from '@/lib/subscriptions-enabled'
 
+/**
+ * One flat plan. It uses the 'starter' id (and STRIPE_PRICE_STARTER) so existing subscription
+ * rows, checkout and the Stripe webhook keep working. 'pro' survives only on older subscriptions.
+ */
 export const PLANS = [
   {
     id: 'starter' as const,
-    name: 'NodeX Starter',
-    shortName: 'Starter',
-    price: 29,
-    description: 'Get started with the essentials of on-chain trading data.',
-    features: ['Top wallet rankings', 'Token analytics', '10 tracked wallets', 'Daily data refresh'],
-    cta: 'Choose Starter',
-    variant: 'outline' as const,
-    popular: false,
-  },
-  {
-    id: 'pro' as const,
-    name: 'NodeX Pro',
-    shortName: 'Pro',
-    price: 49,
-    description: 'Advanced tools and wallet tracking for serious traders.',
+    name: 'WhaleMo',
+    shortName: 'WhaleMo',
+    price: 25,
+    description: 'Every WhaleMo tool, one flat monthly price.',
     features: [
-      'Everything in Starter',
+      'Smart Wallets: what top traders are buying',
+      'Insider plays',
+      'Token scanner',
       'Unlimited watchlists',
-      'Real-time wallet alerts',
-      'Advanced filters',
-      'Priority support',
+      'Solana, Robinhood Chain and BNB Chain',
     ],
-    highlight: 'Unlimited watchlists',
-    cta: 'Choose Pro',
+    cta: 'Subscribe',
     variant: 'default' as const,
-    popular: true,
+    popular: false,
   },
 ] as const
 
 export type PlanId = (typeof PLANS)[number]['id']
 
 export function parsePlanId(value: string | null): PlanId | null {
-  return value === 'starter' || value === 'pro' ? value : null
+  // Old links may still carry ?plan=pro; both now mean the single plan.
+  return value === 'starter' || value === 'pro' ? 'starter' : null
 }
 
 export function isActiveSubscription(profile: UserProfile | null) {
@@ -63,14 +56,8 @@ export function planButtonLabel(
     return 'Current plan'
   }
 
-  if (profile && isActive) {
-    if (planId === 'pro' && profile.subscription.plan === 'starter') {
-      return 'Upgrade to Pro'
-    }
-    if (planId === 'starter' && profile.subscription.plan === 'pro') {
-      return 'Switch to Starter'
-    }
-  }
+  // Older subscriptions on the retired Pro plan can move to the flat plan.
+  if (profile && isActive) return `Switch to $${PLANS[0].price}/month`
 
   const plan = PLANS.find((entry) => entry.id === planId)
   return plan?.cta ?? 'Subscribe'

@@ -65,7 +65,7 @@ export function WatchlistPage() {
           <div className="flex items-center gap-3">
             <ChainSelector<ChainFilter> value={chain} onChange={handleChainChange} includeAll />
             {tab === 'wallets' ? (
-              <Button variant="dark" size="sm" className="rounded-full normal-case tracking-normal">
+              <Button variant="dark" size="sm" className="rounded-md normal-case tracking-normal">
                 <Plus className="w-4 h-4" />
                 Add Wallet
               </Button>
@@ -76,7 +76,7 @@ export function WatchlistPage() {
         <div
           role="tablist"
           aria-label="Watchlist type"
-          className="mb-8 flex w-fit items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1"
+          className="mb-8 flex w-fit items-center gap-1 rounded-md border border-white/10 bg-white/5 p-1"
         >
           {TABS.map(({ id, label, icon: Icon }) => {
             const active = tab === id
@@ -89,9 +89,9 @@ export function WatchlistPage() {
                 aria-selected={active}
                 onClick={() => setTab(id)}
                 className={cn(
-                  'flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-300',
+                  'flex items-center gap-2 rounded-sm px-4 py-2 text-sm transition-all duration-300',
                   active
-                    ? 'bg-nodex-teal/10 text-nodex-teal'
+                    ? 'bg-whalemo-teal/10 text-whalemo-teal'
                     : 'text-white/70 hover:bg-white/5 hover:text-white'
                 )}
               >
@@ -99,8 +99,8 @@ export function WatchlistPage() {
                 {label}
                 <span
                   className={cn(
-                    'rounded-full px-1.5 py-0.5 text-[11px]',
-                    active ? 'bg-nodex-teal/15' : 'bg-white/10'
+                    'rounded-sm px-1.5 py-0.5 text-[11px]',
+                    active ? 'bg-whalemo-teal/15' : 'bg-white/10'
                   )}
                 >
                   {count}
@@ -110,16 +110,16 @@ export function WatchlistPage() {
           })}
         </div>
 
-        {activeError ? <p className="mb-4 text-sm text-nodex-red">{activeError}</p> : null}
+        {activeError ? <p className="mb-4 text-sm text-whalemo-red">{activeError}</p> : null}
 
         {activeLoading ? (
           <WatchlistGridSkeleton />
         ) : tab === 'wallets' && wallets.length === 0 ? (
-          <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-12 text-center">
-            <Wallet className="mx-auto mb-3 h-8 w-8 text-nodex-muted" />
+          <div className="rounded-md border border-white/10 bg-white/5 px-6 py-12 text-center">
+            <Wallet className="mx-auto mb-3 h-8 w-8 text-whalemo-muted" />
             <p className="text-sm text-white/70">No wallets tracked yet.</p>
-            <p className="mt-1 text-xs text-nodex-muted">
-              Add wallets from the Wallets page to start tracking them here.
+            <p className="mt-1 text-xs text-whalemo-muted">
+              Add wallets from the Smart Wallets page to start tracking them here.
             </p>
           </div>
         ) : tab === 'wallets' ? (
@@ -135,11 +135,11 @@ export function WatchlistPage() {
             ))}
           </div>
         ) : tokens.length === 0 ? (
-          <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-12 text-center">
-            <Coins className="mx-auto mb-3 h-8 w-8 text-nodex-muted" />
+          <div className="rounded-md border border-white/10 bg-white/5 px-6 py-12 text-center">
+            <Coins className="mx-auto mb-3 h-8 w-8 text-whalemo-muted" />
             <p className="text-sm text-white/70">No tokens tracked yet.</p>
-            <p className="mt-1 text-xs text-nodex-muted">
-              Add tokens with the star button on the Tokens page.
+            <p className="mt-1 text-xs text-whalemo-muted">
+              Add tokens with the star button on the Smart Wallets, Insiders or Scanner page.
             </p>
           </div>
         ) : (

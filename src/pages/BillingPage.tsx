@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Calendar, CreditCard, ExternalLink } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { PublicFooter } from '@/components/layout/PublicFooter'
 import { Navbar } from '@/components/layout/Navbar'
 import { Button } from '@/components/ui/button'
 import { GlassPanel } from '@/components/layout/GlassPanel'
@@ -33,11 +34,11 @@ function statusClass(status: BillingDetails['status']) {
   switch (status) {
     case 'active':
     case 'trialing':
-      return 'border-nodex-teal/30 bg-nodex-teal/10 text-nodex-teal'
+      return 'border-whalemo-teal/30 bg-whalemo-teal/10 text-whalemo-teal'
     case 'past_due':
-      return 'border-nodex-red/30 bg-nodex-red/10 text-nodex-red'
+      return 'border-whalemo-red/30 bg-whalemo-red/10 text-whalemo-red'
     default:
-      return 'border-white/20 bg-white/5 text-nodex-muted'
+      return 'border-white/20 bg-white/5 text-whalemo-muted'
   }
 }
 
@@ -75,15 +76,15 @@ export function BillingPage() {
   return (
     <PageLayout>
       <Navbar variant={hasActivePlan ? 'dashboard' : 'public'} />
-      <main className="mx-auto min-h-screen max-w-2xl px-4 pt-28 pb-16">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-28 pb-16">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="mb-2 text-3xl font-bold md:text-4xl">Billing</h1>
-          <p className="mb-8 text-sm text-nodex-muted">Manage your NodeX subscription and payment method.</p>
+          <p className="mb-8 text-sm text-whalemo-muted">Manage your WhaleMo subscription and payment method.</p>
 
-          {error && <p className="mb-6 text-sm text-nodex-red">{error}</p>}
+          {error && <p className="mb-6 text-sm text-whalemo-red">{error}</p>}
 
           {loading ? (
-            <GlassPanel className="p-8 text-center text-nodex-muted" variant="solid">
+            <GlassPanel className="p-8 text-center text-whalemo-muted" variant="solid">
               Loading billing details...
             </GlassPanel>
           ) : !hasActivePlan || !details ? (
@@ -97,13 +98,13 @@ export function BillingPage() {
             <GlassPanel className="space-y-8 p-8" variant="solid">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="mb-1 text-xs uppercase tracking-wider text-nodex-muted">Current plan</p>
-                  <h2 className="text-2xl font-bold">{planMeta?.name ?? `NodeX ${details.plan}`}</h2>
-                  <p className="mt-1 text-sm text-nodex-muted">{planMeta?.description}</p>
+                  <p className="mb-1 text-xs uppercase tracking-wider text-whalemo-muted">Current plan</p>
+                  <h2 className="text-2xl font-bold">{planMeta?.name ?? 'WhaleMo'}</h2>
+                  <p className="mt-1 text-sm text-whalemo-muted">{(planMeta ?? PLANS[0]).description}</p>
                 </div>
                 <span
                   className={cn(
-                    'rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide',
+                    'rounded-sm border px-3 py-1 text-xs font-semibold uppercase tracking-wide',
                     statusClass(details.status)
                   )}
                 >
@@ -112,19 +113,19 @@ export function BillingPage() {
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-                  <div className="mb-3 flex items-center gap-2 text-nodex-muted">
+                <div className="rounded-md border border-white/10 bg-white/[0.03] p-5">
+                  <div className="mb-3 flex items-center gap-2 text-whalemo-muted">
                     <CreditCard className="h-4 w-4" />
                     <span className="text-xs uppercase tracking-wider">Price</span>
                   </div>
                   <p className="text-2xl font-bold">
                     ${details.amount}
-                    <span className="text-base font-normal text-nodex-muted"> /{details.interval}</span>
+                    <span className="text-base font-normal text-whalemo-muted"> /{details.interval}</span>
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-                  <div className="mb-3 flex items-center gap-2 text-nodex-muted">
+                <div className="rounded-md border border-white/10 bg-white/[0.03] p-5">
+                  <div className="mb-3 flex items-center gap-2 text-whalemo-muted">
                     <Calendar className="h-4 w-4" />
                     <span className="text-xs uppercase tracking-wider">Next billing date</span>
                   </div>
@@ -136,8 +137,8 @@ export function BillingPage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-                <div className="mb-3 flex items-center gap-2 text-nodex-muted">
+              <div className="rounded-md border border-white/10 bg-white/[0.03] p-5">
+                <div className="mb-3 flex items-center gap-2 text-whalemo-muted">
                   <CreditCard className="h-4 w-4" />
                   <span className="text-xs uppercase tracking-wider">Payment method</span>
                 </div>
@@ -147,17 +148,17 @@ export function BillingPage() {
                       <p className="font-semibold">
                         {formatCardBrand(details.paymentMethod.brand)} •••• {details.paymentMethod.last4}
                       </p>
-                      <p className="text-sm text-nodex-muted">
+                      <p className="text-sm text-whalemo-muted">
                         Expires {String(details.paymentMethod.expMonth).padStart(2, '0')}/
                         {details.paymentMethod.expYear}
                       </p>
                     </div>
-                    <div className="flex h-10 w-14 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-xs font-bold uppercase text-white/60">
+                    <div className="flex h-10 w-14 items-center justify-center rounded-sm border border-white/10 bg-white/5 text-xs font-bold uppercase text-white/60">
                       {details.paymentMethod.brand.slice(0, 4)}
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-nodex-muted">
+                  <p className="text-sm text-whalemo-muted">
                     No card on file. Add one in the billing portal.
                   </p>
                 )}
@@ -173,7 +174,7 @@ export function BillingPage() {
               </Button>
 
               {details.demo && (
-                <p className="text-center text-xs text-nodex-muted">
+                <p className="text-center text-xs text-whalemo-muted">
                   Billing portal is unavailable in demo mode.
                 </p>
               )}
@@ -181,6 +182,7 @@ export function BillingPage() {
           )}
         </motion.div>
       </main>
+      <PublicFooter />
     </PageLayout>
   )
 }

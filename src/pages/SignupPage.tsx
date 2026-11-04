@@ -65,7 +65,7 @@ export function SignupPage() {
         footer={
           <>
             Already have an account?{' '}
-            <Link to="/login" className="font-medium text-nodex-teal hover:underline">
+            <Link to="/login" className="font-medium text-whalemo-teal hover:underline">
               Login
             </Link>
           </>
@@ -99,13 +99,13 @@ export function SignupPage() {
           </div>
           {info && (
             <div className="space-y-3 text-center">
-              <p className="text-nodex-teal text-sm">{info}</p>
+              <p className="text-whalemo-teal text-sm">{info}</p>
               <Button type="button" variant="outline" className="w-full" asChild>
                 <Link to="/login">Go to login</Link>
               </Button>
             </div>
           )}
-          {error && <p className="text-nodex-red text-sm text-center">{error}</p>}
+          {error && <p className="text-whalemo-red text-sm text-center">{error}</p>}
           {!info && (
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Creating account...' : 'Get Started'}
