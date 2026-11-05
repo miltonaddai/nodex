@@ -2,7 +2,14 @@ import * as React from 'react'
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 import { cn } from '@/lib/utils'
 
-const DropdownMenu = DropdownMenuPrimitive.Root
+/**
+ * Non-modal by default. A modal menu locks page scroll, which hides the scrollbar and widens the
+ * page by its width, so the fixed navbar and anything centered jumps sideways while a menu is open.
+ * Outside clicks and Escape still close the menu.
+ */
+function DropdownMenu({ modal = false, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
+  return <DropdownMenuPrimitive.Root modal={modal} {...props} />
+}
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger
 
 const DropdownMenuContent = React.forwardRef<
