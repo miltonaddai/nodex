@@ -24,8 +24,9 @@ import {
   type InsiderStatus,
 } from '@/lib/api'
 import { cn, formatCurrency, MARKET_CAP_COLUMN, truncateAddress } from '@/lib/utils'
-import { tokenUrl, walletUrl } from '@/lib/chains'
-import { markTokenViewed, useViewedTokens } from '@/lib/viewed-tokens'
+import { walletUrl } from '@/lib/chains'
+import { useViewedTokens } from '@/lib/viewed-tokens'
+import { TokenLinks } from '@/components/dashboard/TokenLinks'
 
 const PAGE_SIZE = 20
 
@@ -362,20 +363,9 @@ export function InsidersPage() {
                                   {play.name}
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <a
-                                    title={play.symbol}
-                                    href={tokenUrl('solana', play.contract)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={(event) => {
-                                      event.stopPropagation()
-                                      markTokenViewed('solana', play.contract)
-                                    }}
-                                    onAuxClick={() => markTokenViewed('solana', play.contract)}
-                                    className="min-w-0 truncate text-xs text-whalemo-muted underline-offset-4 hover:text-whalemo-teal hover:underline"
-                                  >
-                                    {play.symbol} · {truncateAddress(play.contract)}
-                                  </a>
+                                  <TokenLinks chain="solana" contract={play.contract} symbol={play.symbol} imageUrl={play.imageUrl}>
+                                      {play.symbol} · {truncateAddress(play.contract)}
+                                  </TokenLinks>
                                   {viewed ? <ViewedTokenIcon /> : null}
                                 </div>
                               </div>

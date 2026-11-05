@@ -74,6 +74,9 @@
 
 html {
   scroll-behavior: smooth;
+  /* Always keep room for the scrollbar. Short pages have none and long pages do, so without this
+     the page width changed by the scrollbar's width between routes and the centered navbar shifted. */
+  scrollbar-gutter: stable;
 }
 
 body {

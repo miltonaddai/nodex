@@ -1,4 +1,5 @@
 import { createDemoSession, isDemoMode } from './demo-auth'
+import type { FilterRule, SavedFilter } from './custom-filters'
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
@@ -266,6 +267,8 @@ export const api = {
       minWalletCount?: number | null
       /** 'early': only tokens meeting the early-signal preset. */
       preset?: 'early'
+      /** Custom filter rules as JSON (see lib/custom-filters). */
+      rules?: string
     }) => {
       const q = new URLSearchParams(
         Object.entries(params)
@@ -308,6 +311,15 @@ export const api = {
       }),
     verifySession: (sessionId: string) =>
       request<{ profile: UserProfile; demo?: boolean }>(`/billing/session/${sessionId}`),
+  },
+  /** Saved custom filters for the Smart Wallets table, kept on the account. */
+  filters: {
+    list: () => request<SavedFilter[]>('/filters'),
+    save: (name: string, rules: FilterRule[], options: { alert?: boolean; alertChains?: string[] } = {}) =>
+      request<SavedFilter>('/filters', { method: 'POST', body: JSON.stringify({ name, rules, ...options }) }),
+    update: (id: string, changes: { alert?: boolean; alertChains?: string[] }) =>
+      request<SavedFilter>(`/filters/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(changes) }),
+    remove: (id: string) => request<{ success: boolean }>(`/filters/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   },
   watchlist: {
     list: (chain?: string) => {

@@ -19,12 +19,16 @@ import { SubscriptionBanner } from '@/components/billing/SubscriptionBanner'
 import { useChainTokenWatchlist } from '@/hooks/useSolanaTokenWatchlist'
 import { ChainSelector, type Chain } from '@/components/dashboard/ChainSelector'
 import { useDashboardPreferencesStore } from '@/stores/dashboardPreferencesStore'
-import { chainLabel, isChainId, tokenUrl, walletUrl } from '@/lib/chains'
-import { markTokenViewed, useViewedTokens } from '@/lib/viewed-tokens'
+import { chainLabel, isChainId, walletUrl } from '@/lib/chains'
+import { useViewedTokens } from '@/lib/viewed-tokens'
+import { TokenLinks } from '@/components/dashboard/TokenLinks'
 import { useWatchlistStore } from '@/stores/watchlistStore'
 import { useEarlySignalStore } from '@/stores/earlySignalStore'
 import { playChime } from '@/lib/chime'
 import { ScrollHint } from '@/components/dashboard/ScrollHint'
+import { CustomFilterBuilder } from '@/components/dashboard/CustomFilterBuilder'
+import { FIELD_BY_ID, type FilterRule } from '@/lib/custom-filters'
+import { useSavedFiltersStore } from '@/stores/savedFiltersStore'
 import { api, type SmartMoneyBuy, type SmartMoneySortKey, type SmartMoneyWallet } from '@/lib/api'
 import { cn, formatCurrency, MARKET_CAP_COLUMN, truncateAddress } from '@/lib/utils'
 
@@ -247,10 +251,12 @@ interface BuyFilters {
   earlyOnly: boolean
   maxMarketCap: number | null
   minWalletCount: number | null
+  /** The user's own rules from the custom filter builder. */
+  rules: FilterRule[]
 }
 
 const FILTERS_KEY = 'nodex_wallet_buy_filters_v1'
-const NO_FILTERS: BuyFilters = { earlyOnly: false, maxMarketCap: null, minWalletCount: null }
+const NO_FILTERS: BuyFilters = { earlyOnly: false, maxMarketCap: null, minWalletCount: null, rules: [] }
 
 /** The last filters used, remembered in this browser. */
 function loadFilters(): BuyFilters {
@@ -260,6 +266,7 @@ function loadFilters(): BuyFilters {
       earlyOnly: saved?.earlyOnly === true,
       maxMarketCap: typeof saved?.maxMarketCap === 'number' ? saved.maxMarketCap : null,
       minWalletCount: typeof saved?.minWalletCount === 'number' ? saved.minWalletCount : null,
+      rules: Array.isArray(saved?.rules) ? saved.rules.filter((rule) => FIELD_BY_ID.has(rule?.field)) : [],
     }
   } catch {
     return NO_FILTERS
@@ -294,7 +301,16 @@ function BuysTable({
   const [expanded, setExpanded] = useState<string | null>(null)
   const isViewed = useViewedTokens()
   const [filters, setFilters] = useState<BuyFilters>(loadFilters)
-  const filtered = filters.earlyOnly || filters.maxMarketCap !== null || filters.minWalletCount !== null
+  const filtered =
+    filters.earlyOnly || filters.maxMarketCap !== null || filters.minWalletCount !== null || filters.rules.length > 0
+  const savedFilters = useSavedFiltersStore((state) => state.list)
+  const saveFilter = useSavedFiltersStore((state) => state.save)
+  const removeFilter = useSavedFiltersStore((state) => state.remove)
+  const setFilterAlert = useSavedFiltersStore((state) => state.setAlert)
+  const filtersLoaded = useSavedFiltersStore((state) => state.loaded)
+  useEffect(() => {
+    void useSavedFiltersStore.getState().load()
+  }, [])
   const [earlyCount, setEarlyCount] = useState(0)
   const alertsEnabled = useEarlySignalStore((s) => s.alertsEnabled)
   const setAlertsEnabled = useEarlySignalStore((s) => s.setAlertsEnabled)
@@ -314,6 +330,26 @@ function BuysTable({
     saveFilters(next)
     setPage(1)
   }
+
+  // A custom alert's "View" link opens the page with ?filter=<saved filter id>.
+  useEffect(() => {
+    const id = params.get('filter')
+    if (!id || !filtersLoaded) return
+    const saved = savedFilters.find((filter) => filter.id === id)
+    if (saved) {
+      const next = { ...NO_FILTERS, rules: saved.rules }
+      setFilters(next)
+      saveFilters(next)
+      setPage(1)
+    }
+    setParams(
+      (current) => {
+        current.delete('filter')
+        return current
+      },
+      { replace: true }
+    )
+  }, [params, setParams, savedFilters, filtersLoaded])
 
   // An alert's "View" link opens the page with ?preset=early.
   useEffect(() => {
@@ -349,6 +385,7 @@ function BuysTable({
         maxMarketCap: filters.maxMarketCap,
         minWalletCount: filters.minWalletCount,
         preset: filters.earlyOnly ? 'early' : undefined,
+        rules: filters.rules.length ? JSON.stringify(filters.rules) : undefined,
       })
       .then((result) => {
         if (id !== requestId.current) return
@@ -436,11 +473,22 @@ function BuysTable({
         options={MIN_TRADERS_OPTIONS}
         onChange={(minWalletCount) => updateFilters({ ...filters, minWalletCount })}
       />
+      <CustomFilterBuilder
+        rules={filters.rules}
+        onApply={(rules) => updateFilters({ ...filters, rules })}
+        saved={savedFilters}
+        onSave={(name, rules, alert) => void saveFilter(name, rules, alert)}
+        onDelete={(id) => void removeFilter(id)}
+        onToggleAlert={(filter) => void setFilterAlert(filter.id, { alert: !filter.alert })}
+      />
       {filtered ? (
         <>
-          <span className="px-2 text-sm text-whalemo-muted">
-            {total} {total === 1 ? 'token matches' : 'tokens match'}
-          </span>
+          {/* Hidden while loading, so it never flashes "0 tokens match" before results arrive. */}
+          {!loading ? (
+            <span className="px-2 text-sm text-whalemo-muted">
+              {total} {total === 1 ? 'token matches' : 'tokens match'}
+            </span>
+          ) : null}
           <button
             type="button"
             onClick={() => updateFilters(NO_FILTERS)}
@@ -540,18 +588,9 @@ function BuysTable({
                         ) : null}
                       </div>
                       <div className="flex items-center gap-1">
-                        <a
-                          href={tokenUrl(chain, token.contract)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            markTokenViewed(chain, token.contract)
-                          }}
-                          className="min-w-0 truncate text-xs text-whalemo-muted underline-offset-4 hover:text-whalemo-teal hover:underline"
-                        >
-                          {token.symbol} · {truncateAddress(token.contract)}
-                        </a>
+                        <TokenLinks chain={chain} contract={token.contract} symbol={token.symbol} imageUrl={token.imageUrl}>
+                            {token.symbol} · {truncateAddress(token.contract)}
+                        </TokenLinks>
                         {viewed ? <ViewedTokenIcon /> : null}
                       </div>
                     </div>
@@ -649,20 +688,9 @@ function BuysTable({
                               ) : null}
                             </div>
                             <div className="flex items-center gap-1">
-                              <a
-                                title={token.symbol}
-                                href={tokenUrl(chain, token.contract)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(event) => {
-                                  event.stopPropagation()
-                                  markTokenViewed(chain, token.contract)
-                                }}
-                                onAuxClick={() => markTokenViewed(chain, token.contract)}
-                                className="min-w-0 truncate text-xs text-whalemo-muted underline-offset-4 hover:text-whalemo-teal hover:underline"
-                              >
-                                {token.symbol} · {truncateAddress(token.contract)}
-                              </a>
+                              <TokenLinks chain={chain} contract={token.contract} symbol={token.symbol} imageUrl={token.imageUrl}>
+                                  {token.symbol} · {truncateAddress(token.contract)}
+                              </TokenLinks>
                               {viewed ? <ViewedTokenIcon /> : null}
                             </div>
                           </div>

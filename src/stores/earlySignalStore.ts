@@ -1,12 +1,21 @@
 import { create } from 'zustand'
 
 const ALERTS_KEY = 'nodex_early_alerts_v1'
+const DESKTOP_KEY = 'whalemo_desktop_notifications_v1'
 
 function loadEnabled(): boolean {
   try {
     return localStorage.getItem(ALERTS_KEY) !== 'off'
   } catch {
     return true
+  }
+}
+
+function loadDesktop(): boolean {
+  try {
+    return localStorage.getItem(DESKTOP_KEY) === 'on'
+  } catch {
+    return false
   }
 }
 
@@ -17,6 +26,9 @@ interface EarlySignalState {
   /** Early signals the watcher has alerted on since the tab was last looked at. */
   unseen: number
   setUnseen: (count: number) => void
+  /** Also show system notifications for alerts while WhaleMo is in the background. Per browser. */
+  desktopEnabled: boolean
+  setDesktopEnabled: (enabled: boolean) => void
 }
 
 export const useEarlySignalStore = create<EarlySignalState>((set) => ({
@@ -31,4 +43,13 @@ export const useEarlySignalStore = create<EarlySignalState>((set) => ({
   },
   unseen: 0,
   setUnseen: (unseen) => set({ unseen }),
+  desktopEnabled: loadDesktop(),
+  setDesktopEnabled: (desktopEnabled) => {
+    try {
+      localStorage.setItem(DESKTOP_KEY, desktopEnabled ? 'on' : 'off')
+    } catch {
+      // Storage unavailable. The setting lasts for this visit.
+    }
+    set({ desktopEnabled })
+  },
 }))

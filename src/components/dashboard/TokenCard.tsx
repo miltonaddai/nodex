@@ -4,7 +4,8 @@ import { Check, Copy, Trash2, X } from 'lucide-react'
 import { TokenAvatar } from '@/components/dashboard/TokenAvatar'
 import { type WatchlistToken } from '@/lib/api'
 import { cn, formatCurrency, truncateAddress } from '@/lib/utils'
-import { chainLabel, tokenUrl } from '@/lib/chains'
+import { chainLabel } from '@/lib/chains'
+import { TokenLinks } from '@/components/dashboard/TokenLinks'
 
 const AVATAR_COLORS = [
   'bg-orange-500',
@@ -100,15 +101,9 @@ export function TokenCard({ token, index, onRemove }: TokenCardProps) {
             <div className="truncate text-sm font-semibold">{token.symbol}</div>
             <div className="truncate text-xs text-whalemo-muted">{token.name}</div>
             <div className="group/contract flex items-center gap-1.5 text-xs text-whalemo-muted">
-              <a
-                href={tokenUrl(token.chain, token.contract)}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Open token in Dexscreener"
-                className="underline-offset-4 hover:text-whalemo-teal hover:underline focus-visible:text-whalemo-teal focus-visible:underline focus-visible:outline-none"
-              >
-                {truncateAddress(token.contract)}
-              </a>
+              <TokenLinks chain={token.chain} contract={token.contract} symbol={token.symbol} imageUrl={token.imageUrl} className="text-xs">
+                  {truncateAddress(token.contract)}
+              </TokenLinks>
               <button
                 type="button"
                 onClick={() => void copyContract()}
