@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Bell, BellOff, CreditCard, KeyRound, LogOut, Moon, SlidersHorizontal, Sun, User, Volume2 } from 'lucide-react'
+import { Bell, CreditCard, KeyRound, LogOut, Moon, SlidersHorizontal, Sun, User, Volume2 } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Navbar } from '@/components/layout/Navbar'
 import { DashboardFooter } from '@/components/layout/DashboardFooter'
@@ -16,8 +16,7 @@ import { SUBSCRIPTIONS_ENABLED } from '@/lib/subscriptions-enabled'
 import { cn } from '@/lib/utils'
 import { useDashboardPreferencesStore } from '@/stores/dashboardPreferencesStore'
 import { useEarlySignalStore } from '@/stores/earlySignalStore'
-import { useSavedFiltersStore } from '@/stores/savedFiltersStore'
-import { describeRule, type SavedFilter } from '@/lib/custom-filters'
+import { Toggle } from '@/components/ui/toggle'
 
 const sections = [
   { id: 'profile', label: 'Profile', icon: User },
@@ -59,29 +58,6 @@ function Panel({ title, description, children }: { title: string; description: s
       <p className="mt-1 mb-6 text-sm text-whalemo-muted">{description}</p>
       <div className="border border-whalemo-line bg-whalemo-surface">{children}</div>
     </motion.section>
-  )
-}
-
-function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (next: boolean) => void; label: string }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      onClick={() => onChange(!checked)}
-      className={cn(
-        'relative h-6 w-11 border transition-colors',
-        checked ? 'border-whalemo-accent bg-whalemo-accent' : 'border-whalemo-line bg-whalemo-raised'
-      )}
-    >
-      <span
-        className={cn(
-          'absolute top-0.5 h-4 w-4 transition-all',
-          checked ? 'left-[22px] bg-whalemo-on-accent' : 'left-0.5 bg-whalemo-muted'
-        )}
-      />
-    </button>
   )
 }
 
@@ -314,32 +290,15 @@ function PreferencesSection() {
   )
 }
 
-const ALERT_CHAINS = [
-  { id: 'solana', label: 'Solana' },
-  { id: 'robinhood', label: 'Robinhood' },
-  { id: 'bsc', label: 'BNB' },
-]
-const ALL_ALERT_CHAINS = ALERT_CHAINS.map((chain) => chain.id)
-
 /** Whether this browser can show system notifications, and whether the user has allowed them. */
 function notificationPermission(): NotificationPermission | 'unsupported' {
   return typeof Notification === 'undefined' ? 'unsupported' : Notification.permission
 }
 
 function NotificationsSection() {
-  const alertsEnabled = useEarlySignalStore((s) => s.alertsEnabled)
-  const setAlertsEnabled = useEarlySignalStore((s) => s.setAlertsEnabled)
   const desktopEnabled = useEarlySignalStore((s) => s.desktopEnabled)
   const setDesktopEnabled = useEarlySignalStore((s) => s.setDesktopEnabled)
-  const filters = useSavedFiltersStore((s) => s.list)
-  const loaded = useSavedFiltersStore((s) => s.loaded)
-  const onAccount = useSavedFiltersStore((s) => s.onAccount)
-  const setAlert = useSavedFiltersStore((s) => s.setAlert)
   const [permission, setPermission] = useState(notificationPermission)
-
-  useEffect(() => {
-    void useSavedFiltersStore.getState().load()
-  }, [])
 
   const toggleDesktop = async (next: boolean) => {
     if (!next) {
@@ -352,29 +311,13 @@ function NotificationsSection() {
     setDesktopEnabled(result === 'granted')
   }
 
-  const chainsOf = (filter: SavedFilter) => (filter.alertChains?.length ? filter.alertChains : ALL_ALERT_CHAINS)
-
-  const toggleChain = (filter: SavedFilter, chain: string) => {
-    const current = chainsOf(filter)
-    const next = current.includes(chain) ? current.filter((c) => c !== chain) : [...current, chain]
-    if (next.length === 0) return // An alert watches at least one chain.
-    void setAlert(filter.id, { alertChains: next })
-  }
-
   return (
-    <Panel title="Notifications" description="Alerts while WhaleMo is open in this browser.">
-      <Row
-        title="Early-signal alerts"
-        description="A chime and a notification when top traders pile into a small-cap token, on any WhaleMo page you leave open."
-      >
-        <Toggle
-          label="Early-signal alerts"
-          checked={alertsEnabled}
-          onChange={(next) => {
-            setAlertsEnabled(next)
-            if (next) playChime()
-          }}
-        />
+    <Panel title="Notifications" description="How alerts reach you while WhaleMo is open in this browser.">
+      <Row title="Your alerts" description="Early signals and your own alerts, with their conditions and chains.">
+        <Link to="/alerts" className={secondaryButton}>
+          <Bell className="h-4 w-4" />
+          Manage alerts
+        </Link>
       </Row>
       <Row
         title="Desktop notifications"
@@ -392,83 +335,12 @@ function NotificationsSection() {
           onChange={(next) => void toggleDesktop(next)}
         />
       </Row>
-      <Row title="Alert sound" description="Hear what an alert sounds like.">
+      <Row title="Alert sound" description="Every alert plays this chime. Hear what it sounds like.">
         <button type="button" onClick={playChime} className={secondaryButton}>
           <Volume2 className="h-4 w-4" />
           Play sound
         </button>
       </Row>
-
-      {/* Custom alerts: one per saved filter. */}
-      <div className="border-t border-whalemo-line px-5 py-5 sm:px-6">
-        <div className="text-sm font-semibold">Custom alerts</div>
-        <div className="mt-1 max-w-xl text-sm text-whalemo-muted">
-          Get alerted when a new token matches one of your saved filters. Build and save filters with Custom filter on the
-          Smart Wallets page, then switch their alerts on here or with the bell on the filter.
-        </div>
-
-        {!loaded ? (
-          <div className="mt-4 h-12 animate-pulse bg-whalemo-raised" />
-        ) : filters.length === 0 ? (
-          <div className="mt-4 flex flex-col items-start gap-3 border border-dashed border-whalemo-line p-4 text-sm text-whalemo-muted sm:flex-row sm:items-center sm:justify-between">
-            You have no saved filters yet.
-            <Link to="/wallets" className={secondaryButton}>
-              <SlidersHorizontal className="h-4 w-4" />
-              Create a filter
-            </Link>
-          </div>
-        ) : (
-          <ul className="mt-4 divide-y divide-whalemo-line border border-whalemo-line">
-            {filters.map((filter) => (
-              <li key={filter.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 text-sm font-semibold">
-                    {filter.alert ? (
-                      <Bell className="h-3.5 w-3.5 fill-current text-whalemo-teal" />
-                    ) : (
-                      <BellOff className="h-3.5 w-3.5 text-whalemo-muted" />
-                    )}
-                    {filter.name}
-                  </div>
-                  <div className="mt-1 text-xs text-whalemo-muted">{filter.rules.map(describeRule).join(' · ')}</div>
-                  {filter.alert ? (
-                    <div className="mt-2 flex flex-wrap items-center gap-1.5" role="group" aria-label={`Chains for ${filter.name}`}>
-                      <span className="mr-1 text-[11px] text-whalemo-muted">Watch on</span>
-                      {ALERT_CHAINS.map((chain) => {
-                        const on = chainsOf(filter).includes(chain.id)
-                        return (
-                          <button
-                            key={chain.id}
-                            type="button"
-                            aria-pressed={on}
-                            onClick={() => toggleChain(filter, chain.id)}
-                            className={cn(
-                              'border px-2 py-0.5 text-[11px] font-medium transition-colors',
-                              on
-                                ? 'border-whalemo-teal/50 bg-whalemo-teal/10 text-whalemo-teal'
-                                : 'border-whalemo-line text-whalemo-muted hover:text-white'
-                            )}
-                          >
-                            {chain.label}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  ) : null}
-                </div>
-                <Toggle
-                  label={`Alerts for ${filter.name}`}
-                  checked={Boolean(filter.alert)}
-                  onChange={(next) => void setAlert(filter.id, { alert: next })}
-                />
-              </li>
-            ))}
-          </ul>
-        )}
-        {loaded && filters.length > 0 && !onAccount ? (
-          <Notice tone="error">Your saved filters could not be loaded from your account, so alerts can't be changed right now.</Notice>
-        ) : null}
-      </div>
     </Panel>
   )
 }

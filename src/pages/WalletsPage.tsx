@@ -29,6 +29,7 @@ import { ScrollHint } from '@/components/dashboard/ScrollHint'
 import { CustomFilterBuilder } from '@/components/dashboard/CustomFilterBuilder'
 import { FIELD_BY_ID, type FilterRule } from '@/lib/custom-filters'
 import { useSavedFiltersStore } from '@/stores/savedFiltersStore'
+import { useAlertsStore } from '@/stores/alertsStore'
 import { api, type SmartMoneyBuy, type SmartMoneySortKey, type SmartMoneyWallet } from '@/lib/api'
 import { cn, formatCurrency, MARKET_CAP_COLUMN, truncateAddress } from '@/lib/utils'
 
@@ -306,8 +307,8 @@ function BuysTable({
   const savedFilters = useSavedFiltersStore((state) => state.list)
   const saveFilter = useSavedFiltersStore((state) => state.save)
   const removeFilter = useSavedFiltersStore((state) => state.remove)
-  const setFilterAlert = useSavedFiltersStore((state) => state.setAlert)
-  const filtersLoaded = useSavedFiltersStore((state) => state.loaded)
+  const alerts = useAlertsStore((state) => state.list)
+  const alertsLoaded = useAlertsStore((state) => state.loaded)
   useEffect(() => {
     void useSavedFiltersStore.getState().load()
   }, [])
@@ -331,25 +332,29 @@ function BuysTable({
     setPage(1)
   }
 
-  // A custom alert's "View" link opens the page with ?filter=<saved filter id>.
+  // An alert's "View" link opens the page with ?alert=<id>, showing what that alert matched.
   useEffect(() => {
-    const id = params.get('filter')
-    if (!id || !filtersLoaded) return
-    const saved = savedFilters.find((filter) => filter.id === id)
-    if (saved) {
-      const next = { ...NO_FILTERS, rules: saved.rules }
+    const id = params.get('alert')
+    if (!id) return
+    if (!alertsLoaded) {
+      void useAlertsStore.getState().load()
+      return
+    }
+    const alert = alerts.find((item) => item.id === id)
+    if (alert) {
+      const next = { ...NO_FILTERS, rules: alert.rules }
       setFilters(next)
       saveFilters(next)
       setPage(1)
     }
     setParams(
       (current) => {
-        current.delete('filter')
+        current.delete('alert')
         return current
       },
       { replace: true }
     )
-  }, [params, setParams, savedFilters, filtersLoaded])
+  }, [params, setParams, alerts, alertsLoaded])
 
   // An alert's "View" link opens the page with ?preset=early.
   useEffect(() => {
@@ -477,9 +482,8 @@ function BuysTable({
         rules={filters.rules}
         onApply={(rules) => updateFilters({ ...filters, rules })}
         saved={savedFilters}
-        onSave={(name, rules, alert) => void saveFilter(name, rules, alert)}
+        onSave={(name, rules) => void saveFilter(name, rules)}
         onDelete={(id) => void removeFilter(id)}
-        onToggleAlert={(filter) => void setFilterAlert(filter.id, { alert: !filter.alert })}
       />
       {filtered ? (
         <>

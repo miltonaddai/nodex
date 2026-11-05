@@ -1,5 +1,5 @@
 import { createDemoSession, isDemoMode } from './demo-auth'
-import type { FilterRule, SavedFilter } from './custom-filters'
+import type { Alert, FilterRule, SavedFilter } from './custom-filters'
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
@@ -315,11 +315,17 @@ export const api = {
   /** Saved custom filters for the Smart Wallets table, kept on the account. */
   filters: {
     list: () => request<SavedFilter[]>('/filters'),
-    save: (name: string, rules: FilterRule[], options: { alert?: boolean; alertChains?: string[] } = {}) =>
-      request<SavedFilter>('/filters', { method: 'POST', body: JSON.stringify({ name, rules, ...options }) }),
-    update: (id: string, changes: { alert?: boolean; alertChains?: string[] }) =>
-      request<SavedFilter>(`/filters/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(changes) }),
+    save: (name: string, rules: FilterRule[]) =>
+      request<SavedFilter>('/filters', { method: 'POST', body: JSON.stringify({ name, rules }) }),
     remove: (id: string) => request<{ success: boolean }>(`/filters/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+  },
+  /** Alerts: background watches on the Smart Wallets data, kept on the account. */
+  alerts: {
+    list: () => request<Alert[]>('/alerts'),
+    create: (alert: Omit<Alert, 'id'>) => request<Alert>('/alerts', { method: 'POST', body: JSON.stringify(alert) }),
+    update: (id: string, changes: Partial<Omit<Alert, 'id'>>) =>
+      request<Alert>(`/alerts/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(changes) }),
+    remove: (id: string) => request<{ success: boolean }>(`/alerts/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   },
   watchlist: {
     list: (chain?: string) => {

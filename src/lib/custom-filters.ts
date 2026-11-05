@@ -43,9 +43,15 @@ export interface SavedFilter {
   id: string
   name: string
   rules: FilterRule[]
-  /** Alert when a token newly matches. Off for filters saved only in the browser. */
-  alert?: boolean
-  alertChains?: string[]
+}
+
+/** A background watch on the Smart Wallets data. Separate from saved filters, which shape the table. */
+export interface Alert {
+  id: string
+  name: string
+  rules: FilterRule[]
+  chains: string[]
+  enabled: boolean
 }
 
 const SUFFIX: Record<string, number> = { k: 1e3, m: 1e6, b: 1e9 }

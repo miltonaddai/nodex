@@ -6,6 +6,7 @@ const links = [
   { label: 'Insiders', to: '/insiders' },
   { label: 'Scanner', to: '/scanner' },
   { label: 'Watchlist', to: '/watchlist' },
+  { label: 'Alerts', to: '/alerts' },
 ]
 
 export function DashboardFooter() {

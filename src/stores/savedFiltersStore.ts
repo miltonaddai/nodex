@@ -4,20 +4,19 @@ import { loadSavedFilters, storeSavedFilters, type FilterRule, type SavedFilter 
 import { toast } from '@/stores/toastStore'
 
 /**
- * The user's saved custom filters and their alerts, shared by the Smart Wallets table, the alert
- * watcher and Settings. Kept on the account so they follow the user to any device. Filters saved
- * in this browser before that existed move to the account on first load. If the account can't be
- * reached they stay in the browser, without alerts.
+ * The user's saved custom filters for the Smart Wallets table. Kept on the account so they follow
+ * the user to any device. Filters saved in this browser before that existed move to the account on
+ * first load. If the account can't be reached they stay in the browser. Alerts are separate
+ * (alertsStore).
  */
 interface SavedFiltersState {
   list: SavedFilter[]
-  /** True once the account copy has loaded. Alerts need it. */
+  /** True once the account copy has loaded. */
   onAccount: boolean
   loaded: boolean
   load: () => Promise<void>
-  save: (name: string, rules: FilterRule[], alert?: boolean) => Promise<void>
+  save: (name: string, rules: FilterRule[]) => Promise<void>
   remove: (id: string) => Promise<void>
-  setAlert: (id: string, changes: { alert?: boolean; alertChains?: string[] }) => Promise<void>
   reset: () => void
 }
 
@@ -58,7 +57,7 @@ export const useSavedFiltersStore = create<SavedFiltersState>((set, get) => ({
     return loading
   },
 
-  save: async (name, rules, alert) => {
+  save: async (name, rules) => {
     const replace = (saved: SavedFilter) => [...get().list.filter((item) => !byName(saved.name)(item)), saved]
     if (!get().onAccount) {
       const next = replace({ id: `${Date.now()}`, name, rules })
@@ -67,11 +66,11 @@ export const useSavedFiltersStore = create<SavedFiltersState>((set, get) => ({
       return
     }
     try {
-      const saved = await api.filters.save(name, rules, alert === undefined ? {} : { alert })
+      const saved = await api.filters.save(name, rules)
       set({ list: replace(saved) })
       toast({
         title: 'Filter saved',
-        description: saved.alert ? `"${name}" will alert you when new tokens match.` : `"${name}" is on your account.`,
+        description: `"${name}" is on your account.`,
         tone: 'success',
       })
     } catch (err) {
@@ -92,22 +91,6 @@ export const useSavedFiltersStore = create<SavedFiltersState>((set, get) => ({
     } catch (err) {
       set({ list: previous })
       failure('Could not delete the filter', err)
-    }
-  },
-
-  setAlert: async (id, changes) => {
-    if (!get().onAccount) {
-      toast({ title: 'Alerts need your account', description: 'Saved filters could not be loaded from your account. Try again shortly.', tone: 'error' })
-      return
-    }
-    const previous = get().list
-    set({ list: previous.map((item) => (item.id === id ? { ...item, ...changes } : item)) })
-    try {
-      const updated = await api.filters.update(id, changes)
-      set({ list: get().list.map((item) => (item.id === id ? updated : item)) })
-    } catch (err) {
-      set({ list: previous })
-      failure('Could not update the alert', err)
     }
   },
 

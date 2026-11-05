@@ -16,6 +16,7 @@ import { PricingSuccessPage } from '@/pages/PricingSuccessPage'
 // Billing now lives in the settings page's Subscription section; /billing redirects there.
 // import { BillingPage } from '@/pages/BillingPage'
 import { SettingsPage } from '@/pages/SettingsPage'
+import { AlertsPage } from '@/pages/AlertsPage'
 import { WalletsPage } from '@/pages/WalletsPage'
 import { WalletAnalysisPage } from '@/pages/WalletAnalysisPage'
 // TOKENS PAGE DISABLED — page kept in the tree, just not routed. Old links go to the wallets page.
@@ -138,6 +139,14 @@ export function AppRoutes() {
           element={
             <SubscriptionRoute>
               <InsidersPage />
+            </SubscriptionRoute>
+          }
+        />
+        <Route
+          path="/alerts"
+          element={
+            <SubscriptionRoute>
+              <AlertsPage />
             </SubscriptionRoute>
           }
         />

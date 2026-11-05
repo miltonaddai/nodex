@@ -4,16 +4,17 @@ import { useAuth } from '@/context/auth-context'
 import { api, type SmartMoneyBuy } from '@/lib/api'
 import { CHAIN_IDS, chainLabel } from '@/lib/chains'
 import { playChime } from '@/lib/chime'
-import type { SavedFilter } from '@/lib/custom-filters'
+import type { Alert } from '@/lib/custom-filters'
 import { formatCurrency } from '@/lib/utils'
 import { useEarlySignalStore } from '@/stores/earlySignalStore'
-import { useSavedFiltersStore } from '@/stores/savedFiltersStore'
+import { useAlertsStore } from '@/stores/alertsStore'
 import { toast } from '@/stores/toastStore'
 
 /**
  * Watches for alerts while WhaleMo is open on any page:
  *   - early signals (the built-in preset), switched on or off on the Smart Wallets page;
- *   - custom alerts, one per saved filter with its alert on, on the chains it covers.
+ *   - the user's own alerts (Alerts page), each switched-on one on the chains it covers.
+ * Alerts are separate from saved table filters, so they keep running whatever the table shows.
  * Each new token is announced with a chime and a toast, and a system notification when enabled
  * and WhaleMo is in the background. New data lands once per pipeline run (every 2 hours); checking
  * every few minutes catches a run soon after it finishes. Each check reads the API's cached
@@ -84,12 +85,12 @@ export function AlertWatcher() {
   const earlyEnabled = useEarlySignalStore((s) => s.alertsEnabled)
   const unseen = useEarlySignalStore((s) => s.unseen)
   const setUnseen = useEarlySignalStore((s) => s.setUnseen)
-  const filters = useSavedFiltersStore((s) => s.list)
+  const alerts = useAlertsStore((s) => s.list)
   const baseTitle = useRef(document.title)
 
-  // Alerts come from saved filters, so load them once signed in.
+  // Load the user's alerts once signed in.
   useEffect(() => {
-    if (isAuthenticated) void useSavedFiltersStore.getState().load()
+    if (isAuthenticated) void useAlertsStore.getState().load()
   }, [isAuthenticated])
 
   // Tab title shows a count while new alerts wait to be looked at.
@@ -109,14 +110,14 @@ export function AlertWatcher() {
     }
   }, [setUnseen])
 
-  // Which custom alerts are on, as a stable key, so edits elsewhere don't restart the timer.
-  const alertFilters = filters.filter((filter) => filter.alert && filter.rules.length > 0)
-  const alertKey = JSON.stringify(alertFilters.map((f) => [f.id, f.rules, f.alertChains]))
+  // Which alerts are on, as a stable key, so unrelated changes don't restart the timer.
+  const activeAlerts = alerts.filter((alert) => alert.enabled && alert.rules.length > 0)
+  const alertKey = JSON.stringify(activeAlerts.map((a) => [a.id, a.rules, a.chains]))
 
   useEffect(() => {
-    if (!isAuthenticated || (!earlyEnabled && alertFilters.length === 0)) return
+    if (!isAuthenticated || (!earlyEnabled && activeAlerts.length === 0)) return
     let cancelled = false
-    const watched: SavedFilter[] = JSON.parse(JSON.stringify(alertFilters))
+    const watched: Alert[] = JSON.parse(JSON.stringify(activeAlerts))
 
     const announce = (title: string, fresh: Array<{ chain: string; token: SmartMoneyBuy }>, viewPath: string) => {
       playChime()
@@ -155,17 +156,17 @@ export function AlertWatcher() {
     const checkCustom = async () => {
       const seenAll = read<Record<string, SeenByChain>>(CUSTOM_SEEN_KEY) ?? {}
       const next: Record<string, SeenByChain> = {}
-      for (const filter of watched) {
-        const firstRun = !(filter.id in seenAll)
-        const seen: SeenByChain = { ...(seenAll[filter.id] ?? {}) }
+      for (const alert of watched) {
+        const firstRun = !(alert.id in seenAll)
+        const seen: SeenByChain = { ...(seenAll[alert.id] ?? {}) }
         const fresh: Array<{ chain: string; token: SmartMoneyBuy }> = []
-        for (const chain of filter.alertChains?.length ? filter.alertChains : CHAIN_IDS) {
+        for (const chain of alert.chains.length ? alert.chains : CHAIN_IDS) {
           try {
             const { items } = await api.smartMoney.buys({
               chain,
               pageSize: 100,
               sortBy: 'walletCount',
-              rules: JSON.stringify(filter.rules),
+              rules: JSON.stringify(alert.rules),
             })
             const result = diff(items ?? [], seen[chain])
             fresh.push(...result.fresh.map((token) => ({ chain, token })))
@@ -175,13 +176,13 @@ export function AlertWatcher() {
           }
         }
         if (cancelled) return
-        next[filter.id] = seen
+        next[alert.id] = seen
         // A newly switched-on alert first learns what already matches, so it doesn't announce it all.
         if (!firstRun && fresh.length > 0) {
-          announce(`Alert: ${filter.name}`, fresh, `/wallets?filter=${filter.id}&chain=${fresh[0].chain}`)
+          announce(`Alert: ${alert.name}`, fresh, `/wallets?alert=${alert.id}&chain=${fresh[0].chain}`)
         }
       }
-      // Filters that were deleted or switched off drop out, so switching one back on starts fresh.
+      // Alerts that were deleted or switched off drop out, so switching one back on starts fresh.
       write(CUSTOM_SEEN_KEY, next)
     }
 
@@ -196,7 +197,7 @@ export function AlertWatcher() {
       cancelled = true
       window.clearInterval(timer)
     }
-    // alertKey stands in for alertFilters.
+    // alertKey stands in for activeAlerts.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, earlyEnabled, alertKey, navigate, setUnseen])
 

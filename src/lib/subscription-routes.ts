@@ -10,7 +10,7 @@ export const PUBLIC_PATHS = ['/', '/login', '/signup', '/forgot-password', '/res
 export const SUBSCRIPTION_EXEMPT_PATHS = ['/pricing', '/pricing/success', '/billing', '/settings', '/reset-password'] as const
 
 /** Dashboard routes that require an active subscription. */
-export const SUBSCRIPTION_REQUIRED_PATHS = ['/wallets', '/insiders', '/scanner', '/watchlist'] as const
+export const SUBSCRIPTION_REQUIRED_PATHS = ['/wallets', '/insiders', '/scanner', '/watchlist', '/alerts'] as const
 
 export function matchesRoutePath(pathname: string, paths: readonly string[]) {
   return paths.some((path) => pathname === path || pathname.startsWith(`${path}/`))

@@ -37,7 +37,7 @@ export function LoginPage() {
       }
 
       const redirectParam = searchParams.get('redirect')
-      const dashboardPaths = ['/wallets', '/insiders', '/scanner', '/watchlist']
+      const dashboardPaths = ['/wallets', '/insiders', '/scanner', '/watchlist', '/alerts']
       const hasPlan = isActiveSubscription(result.user)
 
       if (redirectParam && (!dashboardPaths.includes(redirectParam) || hasPlan)) {

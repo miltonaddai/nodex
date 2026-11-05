@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Wallet, Star, LogOut, Moon, Sun, ScanEye, ScanSearch, Settings } from 'lucide-react'
+import { Wallet, Star, LogOut, Moon, Sun, ScanEye, ScanSearch, Settings, Bell } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { BrandLogo } from '@/components/layout/BrandLogo'
 import {
@@ -16,6 +16,7 @@ import { isActiveSubscription } from '@/lib/plans'
 import { DASHBOARD_HOME_PATH } from '@/lib/subscription-routes'
 import { cn } from '@/lib/utils'
 import { SignupLink } from '@/components/auth/SignupLink'
+import { useEarlySignalStore } from '@/stores/earlySignalStore'
 
 interface NavbarProps {
   variant?: 'public' | 'dashboard'
@@ -73,6 +74,7 @@ export function Navbar({ variant = 'public' }: NavbarProps) {
   const hasActivePlan = isActiveSubscription(user)
   const [scrolled, setScrolled] = useState(false)
   const [animateIn] = useState(() => !hasEntered)
+  const unseenAlerts = useEarlySignalStore((s) => s.unseen)
 
   useEffect(() => {
     hasEntered = true
@@ -102,6 +104,12 @@ export function Navbar({ variant = 'public' }: NavbarProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="border-whalemo-line bg-whalemo-surface text-white">
         <div className="px-3 py-2 text-xs text-whalemo-muted truncate max-w-[200px]">{user.email}</div>
+        <DropdownMenuItem asChild>
+          <Link to="/alerts" className="cursor-pointer">
+            <Bell className="mr-2 h-4 w-4" />
+            Alerts
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link to="/settings" className="cursor-pointer">
             <Settings className="mr-2 h-4 w-4" />
@@ -180,6 +188,23 @@ export function Navbar({ variant = 'public' }: NavbarProps) {
           })}
         </div>
         <span className="mx-1 hidden h-5 w-px bg-whalemo-line sm:block" />
+        {/* Alerts: the count of new ones since the tab was last looked at. On phones it's in the account menu. */}
+        <Link
+          to="/alerts"
+          title="Alerts"
+          aria-label={unseenAlerts ? `Alerts, ${unseenAlerts} new` : 'Alerts'}
+          className={cn(
+            'relative hidden h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-whalemo-raised hover:text-whalemo-teal sm:flex',
+            location.pathname === '/alerts' ? 'text-whalemo-teal' : 'text-whalemo-muted'
+          )}
+        >
+          <Bell className="h-4 w-4" />
+          {unseenAlerts ? (
+            <span className="absolute -top-0.5 -right-0.5 min-w-4 bg-whalemo-amber px-1 text-center text-[10px] leading-4 font-bold text-[#111]">
+              {unseenAlerts > 9 ? '9+' : unseenAlerts}
+            </span>
+          ) : null}
+        </Link>
         {/* On phones the toggle lives in the account menu, to leave room for the wordmark. */}
         {themeToggle(user ? 'hidden sm:flex' : undefined)}
         {avatar}
