@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Wallet, Star, LogOut, Moon, Sun, ScanEye, ScanSearch, CreditCard } from 'lucide-react'
+import { Wallet, Star, LogOut, Moon, Sun, ScanEye, ScanSearch, Settings } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { BrandLogo } from '@/components/layout/BrandLogo'
 import {
@@ -15,7 +15,6 @@ import { useTheme } from '@/context/theme-context'
 import { isActiveSubscription } from '@/lib/plans'
 import { DASHBOARD_HOME_PATH } from '@/lib/subscription-routes'
 import { cn } from '@/lib/utils'
-import { SUBSCRIPTIONS_ENABLED } from '@/lib/subscriptions-enabled'
 import { SignupLink } from '@/components/auth/SignupLink'
 
 interface NavbarProps {
@@ -103,14 +102,12 @@ export function Navbar({ variant = 'public' }: NavbarProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="border-whalemo-line bg-whalemo-surface text-white">
         <div className="px-3 py-2 text-xs text-whalemo-muted truncate max-w-[200px]">{user.email}</div>
-        {SUBSCRIPTIONS_ENABLED ? (
-          <DropdownMenuItem asChild>
-            <Link to="/billing" className="cursor-pointer">
-              <CreditCard className="mr-2 h-4 w-4" />
-              Billing
-            </Link>
-          </DropdownMenuItem>
-        ) : null}
+        <DropdownMenuItem asChild>
+          <Link to="/settings" className="cursor-pointer">
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={toggleTheme} className="cursor-pointer sm:hidden">
           {theme === 'dark' ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
           {theme === 'dark' ? 'Light mode' : 'Dark mode'}

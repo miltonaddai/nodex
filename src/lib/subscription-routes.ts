@@ -7,7 +7,7 @@ export const DASHBOARD_HOME_PATH = '/wallets'
 export const PUBLIC_PATHS = ['/', '/login', '/signup', '/forgot-password', '/reset-password'] as const
 
 /** Authenticated users may access these without an active subscription. */
-export const SUBSCRIPTION_EXEMPT_PATHS = ['/pricing', '/pricing/success', '/billing', '/reset-password'] as const
+export const SUBSCRIPTION_EXEMPT_PATHS = ['/pricing', '/pricing/success', '/billing', '/settings', '/reset-password'] as const
 
 /** Dashboard routes that require an active subscription. */
 export const SUBSCRIPTION_REQUIRED_PATHS = ['/wallets', '/insiders', '/scanner', '/watchlist'] as const

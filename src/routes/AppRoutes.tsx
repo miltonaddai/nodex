@@ -13,7 +13,9 @@ import { SIGNUPS_ENABLED } from '@/lib/signups-enabled'
 import { SUBSCRIPTIONS_ENABLED } from '@/lib/subscriptions-enabled'
 import { PricingPage } from '@/pages/PricingPage'
 import { PricingSuccessPage } from '@/pages/PricingSuccessPage'
-import { BillingPage } from '@/pages/BillingPage'
+// Billing now lives in the settings page's Subscription section; /billing redirects there.
+// import { BillingPage } from '@/pages/BillingPage'
+import { SettingsPage } from '@/pages/SettingsPage'
 import { WalletsPage } from '@/pages/WalletsPage'
 import { WalletAnalysisPage } from '@/pages/WalletAnalysisPage'
 // TOKENS PAGE DISABLED — page kept in the tree, just not routed. Old links go to the wallets page.
@@ -79,16 +81,21 @@ export function AppRoutes() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/billing"
-              element={
-                <ProtectedRoute>
-                  <BillingPage />
-                </ProtectedRoute>
-              }
-            />
           </>
         ) : null}
+
+        {/* Account settings, including the subscription. Needs a login but not a plan, so people
+            without one can still subscribe or fix a failed payment from here. */}
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        {/* Billing moved into settings. Old links and Stripe's portal return here. */}
+        <Route path="/billing" element={<Navigate to="/settings?tab=subscription" replace />} />
 
         {/* Subscription required — redirect to select plan if inactive */}
         <Route
