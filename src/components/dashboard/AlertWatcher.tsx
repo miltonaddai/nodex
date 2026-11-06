@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/auth-context'
 import { api, type SmartMoneyBuy } from '@/lib/api'
@@ -6,6 +6,7 @@ import { CHAIN_IDS, chainLabel } from '@/lib/chains'
 import { playChime } from '@/lib/chime'
 import type { Alert } from '@/lib/custom-filters'
 import { formatCurrency } from '@/lib/utils'
+import { isActiveSubscription } from '@/lib/plans'
 import { useEarlySignalStore } from '@/stores/earlySignalStore'
 import { useAlertsStore } from '@/stores/alertsStore'
 import { toast } from '@/stores/toastStore'
@@ -80,22 +81,25 @@ function summary(fresh: Array<{ chain: string; token: SmartMoneyBuy }>) {
 }
 
 export function AlertWatcher() {
-  const { isAuthenticated } = useAuth()
+  const { user } = useAuth()
+  // Alerts read subscription-only data, so they only run while the subscription is active.
+  const isAuthenticated = isActiveSubscription(user)
   const navigate = useNavigate()
   const earlyEnabled = useEarlySignalStore((s) => s.alertsEnabled)
   const unseen = useEarlySignalStore((s) => s.unseen)
   const setUnseen = useEarlySignalStore((s) => s.setUnseen)
   const alerts = useAlertsStore((s) => s.list)
-  const baseTitle = useRef(document.title)
 
   // Load the user's alerts once signed in.
   useEffect(() => {
     if (isAuthenticated) void useAlertsStore.getState().load()
   }, [isAuthenticated])
 
-  // Tab title shows a count while new alerts wait to be looked at.
+  // Tab title shows a count while new alerts wait to be looked at. Only the prefix is added or
+  // removed, so each page's own title (set by components/Seo) is kept.
   useEffect(() => {
-    document.title = unseen > 0 ? `(${unseen}) New alerts · ${baseTitle.current}` : baseTitle.current
+    const pageTitle = document.title.replace(/^\(\d+\) New alerts · /, '')
+    document.title = unseen > 0 ? `(${unseen}) New alerts · ${pageTitle}` : pageTitle
   }, [unseen])
 
   useEffect(() => {

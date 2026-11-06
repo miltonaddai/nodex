@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Bell, BellOff, Pencil, Plus, Trash2, X, Zap } from 'lucide-react'
+import { Bell, BellOff, Loader2, Pencil, Plus, Send, Trash2, X, Zap } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { Navbar } from '@/components/layout/Navbar'
 import { DashboardFooter } from '@/components/layout/DashboardFooter'
 import { RuleEditor, draftsFrom, readDrafts, type DraftRule } from '@/components/dashboard/RuleEditor'
@@ -12,6 +13,7 @@ import { playChime } from '@/lib/chime'
 import { cn } from '@/lib/utils'
 import { useAlertsStore } from '@/stores/alertsStore'
 import { useEarlySignalStore } from '@/stores/earlySignalStore'
+import { useTelegramStore } from '@/stores/telegramStore'
 
 const CHAINS = [
   { id: 'solana', label: 'Solana' },
@@ -69,7 +71,7 @@ function AlertEditor({ editing, onClose }: { editing: Alert | null; onClose: () 
     setSaving(true)
     const ok = editing
       ? await update(editing.id, { name: name.trim(), rules, chains })
-      : await create({ name: name.trim(), rules, chains, enabled: true })
+      : await create({ name: name.trim(), rules, chains, enabled: true, telegram: true })
     setSaving(false)
     if (ok) onClose()
   }
@@ -123,6 +125,68 @@ function AlertEditor({ editing, onClose }: { editing: Alert | null; onClose: () 
   )
 }
 
+/** Connects a Telegram chat, so alerts reach the user even with WhaleMo closed. */
+function TelegramCard() {
+  const { loaded, configured, linked, username, waiting, pendingUrl, connect, disconnect } = useTelegramStore()
+  if (!loaded || !configured) return null
+
+  return (
+    <section className="mb-10 flex flex-col gap-4 border border-whalemo-line bg-whalemo-surface p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 items-start gap-4">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-[#229ED9]/15 text-[#229ED9]">
+          <Send className="h-5 w-5" />
+        </span>
+        <div>
+          <div className="font-semibold">
+            {linked ? `Telegram connected${username ? ` · @${username}` : ''}` : 'Get alerts on Telegram'}
+          </div>
+          <p className="mt-1 max-w-xl text-sm text-whalemo-muted">
+            {linked
+              ? 'Alerts with Telegram on are sent to your chat after each data update, even when WhaleMo is closed.'
+              : waiting
+                ? 'Press Start in the Telegram chat that just opened. This page updates once you do.'
+                : 'Receive your alerts in Telegram after each data update, even when WhaleMo is closed.'}
+          </p>
+          {waiting && pendingUrl ? (
+            <a href={pendingUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-sm text-whalemo-teal hover:underline">
+              Didn&apos;t open? Open Telegram
+            </a>
+          ) : null}
+        </div>
+      </div>
+      {linked ? (
+        <button type="button" onClick={() => void disconnect()} className={cn(secondaryButton, 'hover:border-whalemo-red/50 hover:text-whalemo-red')}>
+          Disconnect
+        </button>
+      ) : (
+        <button type="button" onClick={() => void connect()} disabled={waiting} className={cn(button, 'bg-[#229ED9] text-white hover:brightness-110')}>
+          {waiting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          {waiting ? 'Waiting for Telegram…' : 'Connect Telegram'}
+        </button>
+      )}
+    </section>
+  )
+}
+
+/** A small Telegram on/off button for one alert. */
+function TelegramSwitch({ on, onChange, label }: { on: boolean; onChange: (next: boolean) => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!on)}
+      aria-pressed={on}
+      aria-label={label}
+      title={on ? 'Sent to Telegram. Click to stop.' : 'Not sent to Telegram. Click to send.'}
+      className={cn(
+        iconButton,
+        on ? 'border-[#229ED9]/50 bg-[#229ED9]/10 text-[#229ED9]' : 'hover:border-[#229ED9]/50 hover:text-[#229ED9]'
+      )}
+    >
+      <Send className="h-4 w-4" />
+    </button>
+  )
+}
+
 export function AlertsPage() {
   const alerts = useAlertsStore((s) => s.list)
   const loaded = useAlertsStore((s) => s.loaded)
@@ -134,21 +198,27 @@ export function AlertsPage() {
   // null: closed; 'new': creating; an alert: editing it.
   const [editor, setEditor] = useState<Alert | 'new' | null>(null)
   const enabledCount = alerts.filter((alert) => alert.enabled).length
+  const telegramLinked = useTelegramStore((s) => s.linked)
+  const telegramEarly = useTelegramStore((s) => s.earlySignals)
+  const setTelegramEarly = useTelegramStore((s) => s.setEarlySignals)
 
   useEffect(() => {
     void useAlertsStore.getState().load()
+    void useTelegramStore.getState().load()
   }, [])
 
   return (
     <PageLayout>
+      <Seo title="Alerts" noindex />
       <Navbar variant="dashboard" />
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 pt-28 pb-16 md:px-8">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-3xl font-semibold tracking-[-0.03em] md:text-4xl">Alerts</h1>
             <p className="mt-2 max-w-xl text-sm text-whalemo-muted">
-              Alerts watch the smart-money data in the background while WhaleMo is open, whatever you are looking at.
-              Table filters stay separate, so you can research freely. Sound and desktop notifications are in{' '}
+              Alerts watch the smart-money data in the background, whatever you are looking at. In the browser they
+              chime while WhaleMo is open; connect Telegram to get them anywhere. Table filters stay separate, so you
+              can research freely. Sound and desktop notifications are in{' '}
               <Link to="/settings?tab=notifications" className="text-whalemo-teal hover:underline">
                 Settings
               </Link>
@@ -162,6 +232,8 @@ export function AlertsPage() {
             </button>
           ) : null}
         </div>
+
+        <TelegramCard />
 
         <AnimatePresence>
           {editor !== null ? (
@@ -188,6 +260,10 @@ export function AlertsPage() {
               </p>
             </div>
           </div>
+          <div className="flex shrink-0 items-center gap-2">
+          {telegramLinked ? (
+            <TelegramSwitch on={telegramEarly} onChange={(next) => void setTelegramEarly(next)} label="Send early signals to Telegram" />
+          ) : null}
           <Toggle
             label="Early-signal alerts"
             checked={earlyEnabled}
@@ -196,6 +272,7 @@ export function AlertsPage() {
               if (next) playChime()
             }}
           />
+          </div>
         </div>
 
         {/* The user's own */}
@@ -260,6 +337,13 @@ export function AlertsPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  {telegramLinked ? (
+                    <TelegramSwitch
+                      on={alert.telegram}
+                      onChange={(next) => void update(alert.id, { telegram: next })}
+                      label={`Send ${alert.name} to Telegram`}
+                    />
+                  ) : null}
                   <button type="button" onClick={() => setEditor(alert)} aria-label={`Edit ${alert.name}`} title="Edit" className={cn(iconButton, 'hover:border-whalemo-teal/50 hover:text-whalemo-teal')}>
                     <Pencil className="h-4 w-4" />
                   </button>

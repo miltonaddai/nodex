@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Mail, Lock } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { Navbar } from '@/components/layout/Navbar'
 import { AuthShell } from '@/components/layout/AuthShell'
 import { Button } from '@/components/ui/button'
@@ -58,6 +59,7 @@ export function SignupPage() {
 
   return (
     <PageLayout>
+      <Seo title="Create your account" description="Create a WhaleMo account to follow smart money on Solana, BNB Chain and Robinhood Chain." />
       <Navbar />
       <AuthShell
         title="Create your account"

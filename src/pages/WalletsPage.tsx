@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Bell, BellOff, Check, ChevronDown, ChevronRight, Plus, Zap } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { Navbar } from '@/components/layout/Navbar'
 import { DashboardFooter } from '@/components/layout/DashboardFooter'
 import { GlassPanel } from '@/components/layout/GlassPanel'
@@ -879,6 +880,7 @@ export function WalletsPage() {
 
   return (
     <PageLayout>
+      <Seo title="Smart Wallets" noindex />
       <Navbar variant="dashboard" />
       <main className="mx-auto flex w-full max-w-dashboard flex-1 flex-col px-4 pt-28 pb-16 md:px-8">
         <SubscriptionBanner />

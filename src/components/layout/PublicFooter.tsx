@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { BrandLogo } from '@/components/layout/BrandLogo'
+import { XLink } from '@/components/layout/SocialLinks'
 import { SignupLink } from '@/components/auth/SignupLink'
 import { SUBSCRIPTIONS_ENABLED } from '@/lib/subscriptions-enabled'
 
@@ -29,7 +30,10 @@ export function PublicFooter({ links }: { links?: ReactNode }) {
             </>
           )}
         </div>
-        <span>© {new Date().getFullYear()} WhaleMo</span>
+        <div className="flex items-center gap-5">
+          <XLink className="text-whalemo-muted hover:text-whalemo-teal hover:opacity-100" withHandle />
+          <span>© {new Date().getFullYear()} WhaleMo</span>
+        </div>
       </div>
     </footer>
   )

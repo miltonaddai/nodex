@@ -52,6 +52,8 @@ export interface Alert {
   rules: FilterRule[]
   chains: string[]
   enabled: boolean
+  /** Also send to the user's linked Telegram chat. */
+  telegram: boolean
 }
 
 const SUFFIX: Record<string, number> = { k: 1e3, m: 1e6, b: 1e9 }

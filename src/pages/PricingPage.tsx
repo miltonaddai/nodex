@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AlertCircle, Check, CreditCard, Sparkles } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { PublicFooter } from '@/components/layout/PublicFooter'
 import { Navbar } from '@/components/layout/Navbar'
 import { Button } from '@/components/ui/button'
@@ -121,6 +122,7 @@ export function PricingPage() {
 
   return (
     <PageLayout>
+      <Seo title="Subscribe" noindex />
       <Navbar variant={isAuthenticated ? 'dashboard' : 'public'} />
       <main className="flex-1 px-4 pt-28 pb-16">
         <motion.div

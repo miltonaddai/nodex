@@ -96,6 +96,13 @@ async function send(path: string, options?: RequestInit): Promise<Response> {
   }
 }
 
+/**
+ * Fired when the API refuses a request because the subscription isn't active (cancelled, failed
+ * payment). The auth store re-checks the profile, and the route guards then send the user to
+ * pricing instead of leaving the page erroring.
+ */
+export const SUBSCRIPTION_REQUIRED_EVENT = 'whalemo:subscription-required'
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   if (tokenNeedsRefresh()) await refreshSession()
 
@@ -109,6 +116,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const data = await res.json().catch(() => ({ message: res.statusText }))
 
   if (!res.ok) {
+    if (res.status === 403 && data.code === 'SUBSCRIPTION_REQUIRED') {
+      window.dispatchEvent(new Event(SUBSCRIPTION_REQUIRED_EVENT))
+    }
     throw new ApiError(data.message || 'Request failed', res.status)
   }
 
@@ -318,6 +328,17 @@ export const api = {
     save: (name: string, rules: FilterRule[]) =>
       request<SavedFilter>('/filters', { method: 'POST', body: JSON.stringify({ name, rules }) }),
     remove: (id: string) => request<{ success: boolean }>(`/filters/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+  },
+  /** Telegram alerts: linking a chat, and whether early signals go there. */
+  telegram: {
+    status: () =>
+      request<{ configured: boolean; botUsername: string | null; linked: boolean; username: string | null; earlySignals: boolean }>(
+        '/telegram/status'
+      ),
+    link: () => request<{ url: string; expiresAt: string }>('/telegram/link', { method: 'POST' }),
+    unlink: () => request<{ success: boolean }>('/telegram/link', { method: 'DELETE' }),
+    settings: (changes: { earlySignals: boolean }) =>
+      request<{ earlySignals: boolean }>('/telegram/settings', { method: 'PATCH', body: JSON.stringify(changes) }),
   },
   /** Alerts: background watches on the Smart Wallets data, kept on the account. */
   alerts: {

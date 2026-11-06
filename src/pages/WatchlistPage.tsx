@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Coins, Plus, Wallet } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { Navbar } from '@/components/layout/Navbar'
 import { DashboardFooter } from '@/components/layout/DashboardFooter'
 import { ChainSelector, type ChainFilter } from '@/components/dashboard/ChainSelector'
@@ -51,6 +52,7 @@ export function WatchlistPage() {
 
   return (
     <PageLayout>
+      <Seo title="Watchlist" noindex />
       <Navbar variant="dashboard" />
       <main className="mx-auto flex w-full max-w-dashboard flex-1 flex-col px-4 pt-28 pb-16 md:px-8">
         <SubscriptionBanner />

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { Navbar } from '@/components/layout/Navbar'
 import { DashboardFooter } from '@/components/layout/DashboardFooter'
 import { TimeframeFilter } from '@/components/dashboard/TimeframeFilter'
@@ -72,6 +73,7 @@ export function TokensPage() {
 
   return (
     <PageLayout>
+      <Seo title="Tokens" noindex />
       <Navbar variant="dashboard" />
       <main className="mx-auto flex w-full max-w-dashboard flex-1 flex-col px-4 pt-28 pb-16 md:px-8">
         <SubscriptionBanner />

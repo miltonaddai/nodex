@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Lock } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { Navbar } from '@/components/layout/Navbar'
 import { AuthShell } from '@/components/layout/AuthShell'
 import { Button } from '@/components/ui/button'
@@ -60,6 +61,7 @@ export function ResetPasswordPage() {
 
   return (
     <PageLayout>
+      <Seo title="Set a new password" noindex />
       <Navbar />
       <AuthShell
         title="Set a new password"

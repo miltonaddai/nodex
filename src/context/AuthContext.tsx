@@ -1,111 +1,62 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { api, ApiError, clearSessionTokens, storeSessionTokens, TOKEN_KEY, type AuthSuccess, type UserProfile } from '@/lib/api'
-import { isDemoMode } from '@/lib/demo-auth'
-import { AuthContext, type AuthResult } from '@/context/auth-context'
+import { useEffect, type ReactNode } from 'react'
+import { SUBSCRIPTION_REQUIRED_EVENT } from '@/lib/api'
+import { PROFILE_STALE_MS, useAuthStore } from '@/stores/authStore'
 
-const USER_KEY = 'nodex_user'
+/** How often an open tab re-checks the subscription with the API. */
+const RECHECK_MS = 10 * 60 * 1000
+/** A burst of refused requests (several tables loading at once) causes one re-check, not one each. */
+const REFUSED_RECHECK_GAP_MS = 15 * 1000
 
-function readCachedUser(): UserProfile | null {
-  try {
-    const raw = localStorage.getItem(USER_KEY)
-    return raw ? (JSON.parse(raw) as UserProfile) : null
-  } catch {
-    return null
-  }
-}
-
+/**
+ * Keeps the auth store's profile, and so the subscription, current. The state itself lives in
+ * the zustand store (stores/authStore); this only decides when to re-check it:
+ *   - when the app opens;
+ *   - when the user comes back to the tab and the last check is over 5 minutes old;
+ *   - every 10 minutes while the tab is open;
+ *   - at once when the API refuses a request for lack of a subscription, so a cancelled or failed
+ *     plan sends the user to pricing straight away rather than leaving tables erroring.
+ * Route guards react to the updated profile on their own.
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<UserProfile | null>(() => readCachedUser())
-  const [loading, setLoading] = useState(() => Boolean(localStorage.getItem(TOKEN_KEY)))
-
-  const persistSession = useCallback((session: AuthSuccess) => {
-    storeSessionTokens(session)
-    localStorage.setItem(USER_KEY, JSON.stringify(session.user))
-    setUser(session.user)
-    setLoading(false)
-  }, [])
-
-  const clearSession = useCallback(() => {
-    clearSessionTokens()
-    localStorage.removeItem(USER_KEY)
-    setUser(null)
-  }, [])
-
-  const refreshUser = useCallback(async () => {
-    const token = localStorage.getItem(TOKEN_KEY)
-    if (!token) {
-      setUser(null)
-      setLoading(false)
-      return
-    }
-
-    try {
-      const profile = await api.auth.me()
-      localStorage.setItem(USER_KEY, JSON.stringify(profile))
-      setUser(profile)
-    } catch (err) {
-      // Log out only when the server rejects the session. If the backend is briefly unreachable,
-      // keep the cached user rather than signing them out.
-      if (err instanceof ApiError && err.status === 401) clearSession()
-    } finally {
-      setLoading(false)
-    }
-  }, [clearSession])
-
   useEffect(() => {
+    const { refreshUser } = useAuthStore.getState()
     void refreshUser()
-  }, [refreshUser])
 
-  const login = useCallback(
-    async (email: string, password: string): Promise<AuthResult> => {
-      const result = await api.auth.login(email, password)
-      if ('needsEmailConfirmation' in result) {
-        return { type: 'confirm_email', message: result.message }
+    const recheckIfStale = () => {
+      const { user, checkedAt } = useAuthStore.getState()
+      if (user && document.visibilityState === 'visible' && Date.now() - checkedAt > PROFILE_STALE_MS) {
+        void refreshUser()
       }
-      persistSession(result)
-      return { type: 'success', user: result.user }
-    },
-    [persistSession]
-  )
-
-  const signup = useCallback(
-    async (email: string, password: string, plan?: 'starter' | 'pro'): Promise<AuthResult> => {
-      const result = await api.auth.signup(email, password, plan)
-      if ('needsEmailConfirmation' in result) {
-        return { type: 'confirm_email', message: result.message }
+    }
+    // Inside the gap, one re-check is queued for when it ends rather than dropped.
+    let queued: number | undefined
+    const onRefused = () => {
+      if (queued !== undefined) return
+      const wait = REFUSED_RECHECK_GAP_MS - (Date.now() - useAuthStore.getState().checkedAt)
+      if (wait <= 0) {
+        void refreshUser()
+        return
       }
-      persistSession(result)
-      return { type: 'success', user: result.user }
-    },
-    [persistSession]
-  )
+      queued = window.setTimeout(() => {
+        queued = undefined
+        void refreshUser()
+      }, wait)
+    }
+    const timer = window.setInterval(() => {
+      if (useAuthStore.getState().user && document.visibilityState === 'visible') void refreshUser()
+    }, RECHECK_MS)
 
-  const applyUserProfile = useCallback((profile: UserProfile) => {
-    localStorage.setItem(USER_KEY, JSON.stringify(profile))
-    setUser(profile)
+    window.addEventListener('focus', recheckIfStale)
+    document.addEventListener('visibilitychange', recheckIfStale)
+    window.addEventListener(SUBSCRIPTION_REQUIRED_EVENT, onRefused)
+    return () => {
+      window.clearInterval(timer)
+      window.clearTimeout(queued)
+      window.removeEventListener('focus', recheckIfStale)
+      document.removeEventListener('visibilitychange', recheckIfStale)
+      window.removeEventListener(SUBSCRIPTION_REQUIRED_EVENT, onRefused)
+    }
   }, [])
 
-  const logout = useCallback(() => {
-    clearSession()
-    void import('@/stores/reset-dashboard-stores').then((m) => m.resetDashboardStores())
-  }, [clearSession])
-
-  const value = useMemo(
-    () => ({
-      user,
-      loading,
-      isAuthenticated: Boolean(user),
-      isDemo: isDemoMode(),
-      login,
-      signup,
-      logout,
-      refreshUser,
-      applyUserProfile,
-    }),
-    [user, loading, login, signup, logout, refreshUser, applyUserProfile]
-  )
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return children
 }
-
-export { useAuth, type AuthResult } from '@/context/auth-context'

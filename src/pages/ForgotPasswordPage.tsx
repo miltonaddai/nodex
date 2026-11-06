@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Mail } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { Navbar } from '@/components/layout/Navbar'
 import { AuthShell } from '@/components/layout/AuthShell'
 import { Button } from '@/components/ui/button'
@@ -31,6 +32,7 @@ export function ForgotPasswordPage() {
 
   return (
     <PageLayout>
+      <Seo title="Reset your password" noindex />
       <Navbar />
       <AuthShell
         title="Reset your password"

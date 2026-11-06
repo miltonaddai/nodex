@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { CheckCircle2, Loader2 } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { PublicFooter } from '@/components/layout/PublicFooter'
 import { Navbar } from '@/components/layout/Navbar'
 import { Button } from '@/components/ui/button'
@@ -43,6 +44,7 @@ export function PricingSuccessPage() {
 
   return (
     <PageLayout>
+      <Seo title="Subscription confirmed" noindex />
       <Navbar variant={hasActivePlan ? 'dashboard' : 'public'} />
       <main className="flex flex-1 items-center justify-center px-4 pt-20 pb-12">
         <motion.div

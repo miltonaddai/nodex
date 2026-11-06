@@ -10,6 +10,7 @@ import { DashboardFooter } from '@/components/layout/DashboardFooter'
 import { GlassPanel } from '@/components/layout/GlassPanel'
 import { Navbar } from '@/components/layout/Navbar'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { Button } from '@/components/ui/button'
 import { api, type WalletDetailResponse } from '@/lib/api'
 import { cn, formatCurrency, formatPercent, formatPnl, truncateAddress } from '@/lib/utils'
@@ -106,6 +107,7 @@ export function WalletAnalysisPage() {
 
   return (
     <PageLayout>
+      <Seo title="Wallet" noindex />
       <Navbar variant="dashboard" />
       <main className="mx-auto flex w-full max-w-dashboard flex-1 flex-col px-4 pt-28 pb-16 md:px-8">
         <SubscriptionBanner />

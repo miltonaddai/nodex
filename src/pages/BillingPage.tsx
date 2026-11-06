@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Calendar, CreditCard, ExternalLink } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { PublicFooter } from '@/components/layout/PublicFooter'
 import { Navbar } from '@/components/layout/Navbar'
 import { Button } from '@/components/ui/button'
@@ -75,6 +76,7 @@ export function BillingPage() {
 
   return (
     <PageLayout>
+      <Seo title="Billing" noindex />
       <Navbar variant={hasActivePlan ? 'dashboard' : 'public'} />
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-28 pb-16">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>

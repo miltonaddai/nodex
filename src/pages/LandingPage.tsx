@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, Minus, Plus } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { Navbar } from '@/components/layout/Navbar'
 import { BrandLogo } from '@/components/layout/BrandLogo'
+import { XLink } from '@/components/layout/SocialLinks'
 import { SignupLink } from '@/components/auth/SignupLink'
 import { RisingBars, SignalField } from '@/components/landing/canvas'
 import { StoryScroll } from '@/components/landing/StoryScroll'
@@ -158,7 +160,7 @@ function LandingFooter() {
             Follow the most profitable traders on-chain and skip the rugs.
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-x-16 gap-y-10 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-x-16 gap-y-10 sm:grid-cols-4">
           {columns.map((column) => (
             <div key={column.title}>
               <div className="mb-3 text-sm text-[#ffffff]/55">{column.title}</div>
@@ -173,6 +175,10 @@ function LandingFooter() {
               </ul>
             </div>
           ))}
+          <div>
+            <div className="mb-3 text-sm text-[#ffffff]/55">Follow</div>
+            <XLink className="text-sm font-medium" withHandle />
+          </div>
           <div>
             <div className="mb-3 text-sm text-[#ffffff]/55">Account</div>
             <ul className="space-y-2 text-sm font-medium">
@@ -201,6 +207,7 @@ function LandingFooter() {
 export function LandingPage() {
   return (
     <PageLayout pattern={false}>
+      <Seo />
       <Navbar />
       <main>
         {/* Hero */}

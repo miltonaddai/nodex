@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Mail, Lock } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { Navbar } from '@/components/layout/Navbar'
 import { AuthShell } from '@/components/layout/AuthShell'
 import { SignupLink } from '@/components/auth/SignupLink'
@@ -55,6 +56,7 @@ export function LoginPage() {
 
   return (
     <PageLayout>
+      <Seo title="Log in" description="Log in to WhaleMo to see what the most profitable crypto traders are buying." />
       <Navbar />
       <AuthShell
         title="Welcome back"

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { BrandLogo } from '@/components/layout/BrandLogo'
+import { XLink } from '@/components/layout/SocialLinks'
 
 const links = [
   { label: 'Smart Wallets', to: '/wallets' },
@@ -23,7 +24,10 @@ export function DashboardFooter() {
             </Link>
           ))}
         </div>
-        <span>© {new Date().getFullYear()} WhaleMo</span>
+        <div className="flex items-center gap-5">
+          <XLink className="hover:text-whalemo-teal hover:opacity-100" withHandle />
+          <span>© {new Date().getFullYear()} WhaleMo</span>
+        </div>
       </div>
     </footer>
   )

@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Bell, CreditCard, KeyRound, LogOut, Moon, SlidersHorizontal, Sun, User, Volume2 } from 'lucide-react'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { Seo } from '@/components/Seo'
 import { Navbar } from '@/components/layout/Navbar'
 import { DashboardFooter } from '@/components/layout/DashboardFooter'
 import { ChainSelector, type Chain } from '@/components/dashboard/ChainSelector'
@@ -406,6 +407,7 @@ export function SettingsPage() {
 
   return (
     <PageLayout>
+      <Seo title="Settings" noindex />
       <Navbar variant={isActiveSubscription(user) ? 'dashboard' : 'public'} />
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-28 pb-16 md:px-8">
         <h1 className="text-3xl font-semibold tracking-[-0.03em] md:text-4xl">Settings</h1>

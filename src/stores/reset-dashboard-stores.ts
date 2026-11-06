@@ -4,6 +4,7 @@ import { useWatchlistStore } from '@/stores/watchlistStore'
 import { useTokenWatchlistStore } from '@/stores/tokenWatchlistStore'
 import { useSavedFiltersStore } from '@/stores/savedFiltersStore'
 import { useAlertsStore } from '@/stores/alertsStore'
+import { useTelegramStore } from '@/stores/telegramStore'
 
 export function resetDashboardStores() {
   useWalletsStore.getState().reset()
@@ -12,4 +13,5 @@ export function resetDashboardStores() {
   useTokenWatchlistStore.getState().reset()
   useSavedFiltersStore.getState().reset()
   useAlertsStore.getState().reset()
+  useTelegramStore.getState().reset()
 }

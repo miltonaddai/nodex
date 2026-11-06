@@ -17,7 +17,65 @@
         document.documentElement.style.colorScheme = theme
       })()
     </script>
-    <title>WhaleMo — Blockchain Analytics</title>
+
+    <!--
+      Search and link previews. __SITE_URL__ is replaced with the live address at build time by
+      scripts/prerender.mjs. Pages set their own title and description at runtime (components/Seo).
+    -->
+    <title>WhaleMo — Smart Money &amp; Whale Wallet Tracker for Solana &amp; BNB</title>
+    <meta
+      name="description"
+      content="See what the most profitable crypto traders are buying on Solana, BNB Chain and Robinhood Chain. Get early-signal alerts and scan any token for rugs before you buy."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="__SITE_URL__/" />
+    <meta name="theme-color" content="#0f1923" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="WhaleMo" />
+    <meta property="og:url" content="__SITE_URL__/" />
+    <meta property="og:title" content="WhaleMo — Follow the whales. Skip the rugs." />
+    <meta
+      property="og:description"
+      content="See what the most profitable crypto traders are buying, get alerts when they pile into small caps, and scan any token before you buy."
+    />
+    <meta property="og:image" content="__SITE_URL__/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="WhaleMo: Follow the whales. Skip the rugs." />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@whalemo_app" />
+    <meta name="twitter:title" content="WhaleMo — Follow the whales. Skip the rugs." />
+    <meta
+      name="twitter:description"
+      content="See what the most profitable crypto traders are buying, get alerts when they pile into small caps, and scan any token before you buy."
+    />
+    <meta name="twitter:image" content="__SITE_URL__/og-image.png" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "name": "WhaleMo",
+            "url": "__SITE_URL__/",
+            "logo": "__SITE_URL__/whalemo-icon.svg",
+            "sameAs": ["https://x.com/whalemo_app"]
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "WhaleMo",
+            "url": "__SITE_URL__/",
+            "applicationCategory": "FinanceApplication",
+            "operatingSystem": "Web",
+            "description": "Smart money and whale wallet tracker for Solana, BNB Chain and Robinhood Chain: see what top traders are buying, get early-signal alerts and scan tokens for rugs.",
+            "offers": { "@type": "Offer", "price": "25", "priceCurrency": "USD" }
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
