@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/src/assets/whalemo-favicon.svg" />
+    <!-- Icons at stable root paths: Google's search-result icon comes from these (a multiple of 48px). -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       (() => {
@@ -58,10 +63,15 @@
         "@context": "https://schema.org",
         "@graph": [
           {
+            "@type": "WebSite",
+            "name": "WhaleMo",
+            "url": "__SITE_URL__/"
+          },
+          {
             "@type": "Organization",
             "name": "WhaleMo",
             "url": "__SITE_URL__/",
-            "logo": "__SITE_URL__/whalemo-icon.svg",
+            "logo": "__SITE_URL__/icon-512.png",
             "sameAs": ["https://x.com/whalemo_app"]
           },
           {

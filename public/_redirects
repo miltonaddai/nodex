@@ -1,1 +1,4 @@
-/*  /app.html  200
+# Prerendered public pages, then the app shell for everything else (scripts/prerender.mjs).
+/login   /login.html   200
+/signup  /signup.html  200
+/*       /app.html     200

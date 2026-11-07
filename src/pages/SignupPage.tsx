@@ -59,7 +59,7 @@ export function SignupPage() {
 
   return (
     <PageLayout>
-      <Seo title="Create your account" description="Create a WhaleMo account to follow smart money on Solana, BNB Chain and Robinhood Chain." />
+      <Seo title="Sign up" description="Create a WhaleMo account to follow smart money on Solana, BNB Chain and Robinhood Chain, get early-signal alerts and scan tokens before you buy." />
       <Navbar />
       <AuthShell
         title="Create your account"

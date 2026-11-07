@@ -56,7 +56,7 @@ export function LoginPage() {
 
   return (
     <PageLayout>
-      <Seo title="Log in" description="Log in to WhaleMo to see what the most profitable crypto traders are buying." />
+      <Seo title="Log in" description="Log in to WhaleMo to see what the most profitable crypto traders are buying on Solana, BNB Chain and Robinhood Chain." />
       <Navbar />
       <AuthShell
         title="Welcome back"
