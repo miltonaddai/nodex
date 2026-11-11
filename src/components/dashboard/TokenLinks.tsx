@@ -23,25 +23,28 @@ function appsFor(chain: string, contract: string): App[] {
   const apps: App[] = [
     { id: 'fomo', name: 'FOMO', note: 'Social trading', icon: '/apps/fomo.png', url: `https://fomo.family/tokens/${chain}/${contract}` },
   ]
-  if (chain === 'solana') {
-    apps.push(
-      { id: 'pump', name: 'Pump.fun', note: 'Launchpad', icon: '/apps/pump.png', url: `https://pump.fun/coin/${contract}` },
-      { id: 'axiom', name: 'Axiom', note: 'Trading terminal', icon: '/apps/axiom.png', url: `https://axiom.trade/token/${contract}` },
-      { id: 'jupiter', name: 'Jupiter', note: 'Swap aggregator', icon: '/apps/jupiter.png', url: `https://jup.ag/tokens/${contract}` }
-    )
+  const solana = chain === 'solana'
+  if (solana) {
+    apps.push({ id: 'jupiter', name: 'Jupiter', note: 'Swap aggregator', icon: '/apps/jupiter.png', url: `https://jup.ag/tokens/${contract}` })
   }
   apps.push({ id: 'dexscreener', name: 'Dexscreener', note: 'Charts and pairs', icon: '/apps/dexscreener.png', url: tokenUrl(chain, contract) })
+  if (solana) {
+    apps.push(
+      { id: 'axiom', name: 'Axiom', note: 'Trading terminal', icon: '/apps/axiom.png', url: `https://axiom.trade/token/${contract}` },
+      { id: 'pump', name: 'Pump.fun', note: 'Launchpad', icon: '/apps/pump.png', url: `https://pump.fun/coin/${contract}` }
+    )
+  }
   return apps
 }
 
 /* Geometry of the fan. The token sits at the left middle of the box; the apps lie on an arc
    around it, so the middle ones reach furthest out and the outer ones curve back (a ")" shape). */
-const BOX_WIDTH = 330
-const BOX_HEIGHT = 310
+const BOX_WIDTH = 300
+const BOX_HEIGHT = 260
 const TOKEN_X = 34
 const TOKEN_Y = BOX_HEIGHT / 2
-const RADIUS = 150
-const ICON = 44
+const RADIUS = 120
+const ICON = 34
 const EDGE = 8
 
 /** Angles in degrees for n apps: wide enough to separate five, tighter for fewer. */
@@ -221,7 +224,7 @@ export function TokenLinks({
                         alt=""
                         width={ICON}
                         height={ICON}
-                        className="h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-whalemo-line transition-all duration-200 group-hover:scale-110 group-hover:ring-whalemo-teal"
+                        className="h-[34px] w-[34px] shrink-0 rounded-full object-cover ring-2 ring-whalemo-line transition-all duration-200 group-hover:scale-110 group-hover:ring-whalemo-teal"
                       />
                       <span className="whitespace-nowrap">
                         <span className="block text-sm font-semibold text-whalemo-foreground transition-colors group-hover:text-whalemo-teal">
