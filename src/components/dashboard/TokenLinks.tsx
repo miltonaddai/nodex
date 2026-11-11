@@ -43,8 +43,6 @@ const TOKEN_Y = BOX_HEIGHT / 2
 const RADIUS = 150
 const ICON = 44
 const EDGE = 8
-const OPEN_DELAY_MS = 120
-const CLOSE_DELAY_MS = 180
 
 /** Angles in degrees for n apps: wide enough to separate five, tighter for fewer. */
 function arcAngles(count: number): number[] {
@@ -54,7 +52,7 @@ function arcAngles(count: number): number[] {
 }
 
 /**
- * The contract address as a trigger. Hovering it (tapping, on touch screens) fans out the apps the
+ * The contract address as a trigger. Clicking it fans out the apps the
  * token can be opened in, around the token's logo, over a lightly blurred page. Portalled to the body
  * so the tables' scroll containers can't clip it.
  */
@@ -75,8 +73,6 @@ export function TokenLinks({
 }) {
   const triggerRef = useRef<HTMLButtonElement>(null)
   const boxRef = useRef<HTMLDivElement>(null)
-  const openTimer = useRef<number | undefined>(undefined)
-  const closeTimer = useRef<number | undefined>(undefined)
   const [origin, setOrigin] = useState<{ left: number; top: number } | null>(null)
   const [copied, setCopied] = useState(false)
   const open = origin !== null
@@ -94,23 +90,7 @@ export function TokenLinks({
     setOrigin({ left: Math.max(left, EDGE), top: Math.max(top, EDGE) })
   }, [])
 
-  const clearTimers = () => {
-    window.clearTimeout(openTimer.current)
-    window.clearTimeout(closeTimer.current)
-  }
-  const show = () => {
-    clearTimers()
-    openTimer.current = window.setTimeout(place, OPEN_DELAY_MS)
-  }
-  const hide = () => {
-    clearTimers()
-    closeTimer.current = window.setTimeout(() => setOrigin(null), CLOSE_DELAY_MS)
-  }
-  const close = useCallback(() => {
-    window.clearTimeout(openTimer.current)
-    window.clearTimeout(closeTimer.current)
-    setOrigin(null)
-  }, [])
+  const close = useCallback(() => setOrigin(null), [])
 
   // Scrolling, resizing, Escape or a tap elsewhere closes it, so it never floats off its row.
   useEffect(() => {
@@ -132,8 +112,6 @@ export function TokenLinks({
     }
   }, [open, close])
 
-  useEffect(() => clearTimers, [])
-
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(contract)
@@ -154,18 +132,11 @@ export function TokenLinks({
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
-        onMouseEnter={show}
-        onMouseLeave={hide}
-        onFocus={show}
         onClick={(event) => {
-          // Rows expand on click; the address opens its own fan instead. Tapping toggles it on
-          // touch screens, where there is no hover.
+          // Rows expand on click; the address toggles its own fan instead.
           event.stopPropagation()
           if (open) close()
-          else {
-            clearTimers()
-            place()
-          }
+          else place()
         }}
         className={cn(
           'min-w-0 cursor-pointer truncate text-left text-xs text-whalemo-muted underline-offset-4 hover:text-whalemo-teal hover:underline',
@@ -193,8 +164,6 @@ export function TokenLinks({
                 ref={boxRef}
                 role="dialog"
                 aria-label={`Open ${symbol} in`}
-                onMouseEnter={clearTimers}
-                onMouseLeave={hide}
                 onClick={(event) => event.stopPropagation()}
                 style={{ left: origin.left, top: origin.top, width: BOX_WIDTH, height: BOX_HEIGHT }}
                 className="fixed z-[61]"
